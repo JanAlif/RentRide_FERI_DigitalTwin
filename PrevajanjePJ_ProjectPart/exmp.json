@@ -9,7 +9,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        carPoint (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
@@ -33,7 +33,7 @@ carRide "voznja"{
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 }
 
 //3===========================================================================================
@@ -50,12 +50,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        point (0, 3);
         id :"1234";
     };
 
     start {start};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 }
 
 //4===========================================================================================
@@ -69,7 +69,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        point (0, 3);
         id :"1234";
     };
 
@@ -92,7 +92,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        point (0, 3);
         id :"1234";
     };
 
@@ -158,7 +158,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        point (0, 3);
         id :"1234";
     };
 
@@ -180,7 +180,7 @@ carRide "voznja"{
     };
     passenger "Visitor" {
         start {(2, 2)};
-        end {(6, 8)};
+        finish {(6, 8)};
     };
 }
 
@@ -197,7 +197,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        point (0, 3);
         id :"1234";
     };
 
@@ -277,7 +277,7 @@ carRide "voznja"{
     };
     passenger "Visitor" {
         start {(2, 2)};
-        end {(6, 8)};
+        finish {(6, 8)};
     };
 }
 
@@ -331,11 +331,11 @@ carRide "voznja"{
     };
     passenger "Visitor" {
         start {(2, 2)};
-        end {(6, 8)};
+        finish {(6, 8)};
     };
     passenger "Visitor" {
         start {(3, 1)};
-        end {(2, 5)};
+        finish {(2, 5)};
     };
 }
 
