@@ -9,12 +9,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        carPoint (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
     start {(0, 4)};
-    finsish {(6, 4)};
+    finish {(6, 4)};
 }
 //2===========================================================================================
 
@@ -28,12 +28,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3)
         id :"1234";
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 }
 
 //3===========================================================================================
@@ -50,12 +50,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
     start {start};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 }
 
 //4===========================================================================================
@@ -69,12 +69,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
@@ -92,12 +92,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
@@ -123,12 +123,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3)
         id :"1234";
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
@@ -158,12 +158,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
@@ -180,7 +180,7 @@ carRide "voznja"{
     };
     passenger "Visitor" {
         start {(2, 2)};
-        end {(6, 8)};
+        finish {(6, 8)};
     };
 }
 
@@ -197,12 +197,12 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3);
         id :"1234";
     };
 
     start {(0, 4)};
-    finsih {(4, 5)};
+    finish {(4, 5)};
 
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
@@ -240,7 +240,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3)
         id :"1234";
     };
 
@@ -277,7 +277,7 @@ carRide "voznja"{
     };
     passenger "Visitor" {
         start {(2, 2)};
-        end {(6, 8)};
+        finish {(6, 8)};
     };
 }
 
@@ -294,7 +294,7 @@ carRide "voznja"{
     };
 
     car "fiat 500" {
-        point (0, 3)
+        carPoint (0, 3)
         id :"1234";
     };
 
@@ -331,11 +331,11 @@ carRide "voznja"{
     };
     passenger "Visitor" {
         start {(2, 2)};
-        end {(6, 8)};
+        finish {(6, 8)};
     };
     passenger "Visitor" {
         start {(3, 1)};
-        end {(2, 5)};
+        finish {(2, 5)};
     };
 }
 
