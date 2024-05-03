@@ -19,8 +19,8 @@ carRide "voznja"{
 //2===========================================================================================
 
 carRide "voznja"{
-    p1 = 0;
-    p2 = 4;
+    _p1_ = 0;
+    _p2_ = 4;
 
     road {
         line ((p1, p2), (3, 4));
@@ -39,9 +39,9 @@ carRide "voznja"{
 //3===========================================================================================
 
 carRide "voznja"{
-    p1 = 0;
-    p2 = 4;
-    let start = (0, 4);
+    _p1_ = 0;
+    _p2_ = 4;
+    const _start_ = (0, 4);
     
     road {
         line ((p1, p2), (3, 4));
@@ -136,11 +136,11 @@ carRide "voznja"{
     roundAbout "krozni" {
         circ ((9, 4), 0.4);
     };
-    GasStation "Central Charging Station" {
+    gasStation "Central Charging Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
 }
@@ -171,11 +171,11 @@ carRide "voznja"{
     roundAbout "krozni" {
         circ ((9, 4), 0.4);
     };
-    GasStation "Central Charging Station" {
+    gasStation "Central Charging Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
     passenger "Visitor" {
@@ -210,19 +210,19 @@ carRide "voznja"{
     roundAbout "krozni" {
         circ ((9, 4), 0.4);
     };
-    GasStation "Central Charging Station" {
+    gasStation "Central Charging Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
     parking "Nearby Parking" {
         (7, 3);
         (5, 2);
-        let roi = neigh ((4, 5), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((4, 5), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     }
 }
@@ -250,29 +250,29 @@ carRide "voznja"{
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
     };
-    roundAbout "krozni" {
+    roundabout "krozni" {
         circ ((9, 4), 0.4);
     };
-    GasStation "Central Charging Station" {
+    gasStation "Central Charging Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
-    ElectricStation "Central Gas Station" {
+    electricStation "Central Gas Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
     parking "Nearby Parking" {
         (7, 3);
         (5, 2);
-        let roi = neigh ((4, 5), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((4, 5), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
     passenger "Visitor" {
@@ -304,29 +304,29 @@ carRide "voznja"{
     crossSection "krizisce" {
         box ((3, 4), (4, 5));
     };
-    roundAbout "krozni" {
+    roundabout "krozni" {
         circ ((9, 4), 0.4);
     };
-    GasStation "Central Charging Station" {
+    gasStation "Central Charging Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
-    ElectricStation "Central Gas Station" {
+    electricStation "Central Gas Station" {
         (7, 3);
-        let roi = neigh ((3, 4), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
     parking "Nearby Parking" {
         (7, 3);
         (5, 2);
-        let roi = neigh ((4, 5), 3);
-            foreach x in roi {
-            highlight x
+        let _roi_ = neigh ((4, 5), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
         }
     };
     passenger "Visitor" {
@@ -405,7 +405,7 @@ CarRide "City Tour" {
         circ ((9, 4), 0.4);
     };
 
-    GasStation "Central Charging Station" {
+    gasStation "Central Charging Station" {
         (7, 3);
         (7, 3);
         (7, 3);
@@ -419,7 +419,7 @@ CarRide "City Tour" {
         }
     };
 
-    ElectricStation "Central Gas Station" {
+    electricStation "Central Gas Station" {
         (7, 3);
         (7, 3);
         (7, 3);
