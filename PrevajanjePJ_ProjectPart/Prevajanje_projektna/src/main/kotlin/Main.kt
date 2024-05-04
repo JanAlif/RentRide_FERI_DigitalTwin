@@ -26,7 +26,29 @@ fun main() {
      */
 
     //printTokens(Scanner(RentRideDFA, "123.35 56 * + / - ( ) { } = ; : in id \"Say somethin nice to each other\"const start finish passenger_hello_ parkingelectricStation gasStation foreach highlight let neigh crossSection roundabout circ car carPoint bend line road carRide".byteInputStream()), System.out)
-    printTokens(Scanner(RentRideDFA, """carRide "voznja"{
+    printTokens(Scanner(RentRideDFA, """
+        carRide "voznja"{
+    _p1_ = 0;
+    _p2_ = 4;
+    const _start_ = (0, 4);
+    
+    road {
+        line ((_p1_, _p2_), (3, 4));
+        bend ((3, 4), (4, 5), 90);
+        line ((4, 5), (_p1_+5, _p2_+9));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {start};
+    finish {(4, 5)};
+}
+        
+        
+        carRide "voznja"{
     
     road {
         bend ((1, 1), (2, 2), 20);

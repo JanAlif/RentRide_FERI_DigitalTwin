@@ -44,9 +44,9 @@ carRide "voznja"{
     const _start_ = (0, 4);
     
     road {
-        line ((p1, p2), (3, 4));
+        line ((_p1_, p2), (3, 4));
         bend ((3, 4), (4, 5), 90);
-        line ((4, 5), (p1+5, p2+9));
+        line ((4, 5), (_p1_+5, _p2_+9));
     };
 
     car "fiat 500" {
