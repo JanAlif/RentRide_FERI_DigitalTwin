@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<body>
+
+    <div class="list-group mt-3">
+        <div class="container">
+            <h1 class="my-4 text-center">Moje aktivnosti</h1>
+            {{#if questions.length}}
+            <ul class="list-group">
+                {{#each questions}}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="/question/activityQuestionDetail/{{this._id}}" class="stretched-link text-decoration-none">
+                        {{this.title}}
+                    </a>
+                    <small class="text-muted">Objavil: {{this.postedBy.username}}</small>
+                </li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p class="text-center mt-4">Ni aktivnosti.</p>
+            {{/if}}
+        </div>
+        <div class="text-center mt-4">
+        <a class="btn btn-primary" href="/user/profile">Nazaj</a>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
