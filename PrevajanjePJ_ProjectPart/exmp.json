@@ -1,0 +1,455 @@
+// presečišča med polilinijami in poligloti se evaluira med delno evaluacijo za recimo ko gre cesta čez bencinsko ali
+// pa čez parkirišče
+
+//1===========================================================================================
+
+carRide "voznja"{
+    road{
+        line ((0, 4), (6, 4));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(6, 4)};
+}
+//2===========================================================================================
+
+carRide "voznja"{
+    _p1_ = 0;
+    _p2_ = 4;
+
+    road {
+        line ((p1, p2), (3, 4));
+        bend ((3, 4), (4, 5), 90);
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3)
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+}
+
+//3===========================================================================================
+
+carRide "voznja"{
+    _p1_ = 0;
+    _p2_ = 4;
+    const _start_ = (0, 4);
+    
+    road {
+        line ((p1, p2), (3, 4));
+        bend ((3, 4), (4, 5), 90);
+        line ((4, 5), (p1+5, p2+9));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {start};
+    finish {(4, 5)};
+}
+
+//4===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        line ((0, 4), (3, 4));
+        bend ((3, 4), (4, 5), 90);
+        line ((4, 5), (5, 9));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+}
+
+//5===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        line ((0, 4), (3, 4));
+        bend ((3, 4), (4, 5), 90);
+        line ((4, 5), (5, 9));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+    crossSection "se eno krizisce" {
+        box ((3, 2), (5, 3));
+    };
+    roundAbout "krozni" {
+        circ ((9, 4), 0.4);
+    };
+}
+
+//6===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        bend ((1, 1), (2, 2), 20);
+        bend ((2, 2), (3, 1), 40);
+        line ((3, 1), (2, 5));
+        bend ((2, 5), (6, 8), 20);
+        line ((6, 8), (6, 4));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3)
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+    roundAbout "krozni" {
+        circ ((9, 4), 0.4);
+    };
+    gasStation "Central Charging Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+}
+
+//7===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        bend ((1, 1), (2, 2), 20);
+        bend ((2, 2), (3, 1), 40);
+        line ((3, 1), (2, 5));
+        bend ((2, 5), (6, 8), 20);
+        line ((6, 8), (6, 4));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+    roundAbout "krozni" {
+        circ ((9, 4), 0.4);
+    };
+    gasStation "Central Charging Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    passenger "Visitor" {
+        start {(2, 2)};
+        finish {(6, 8)};
+    };
+}
+
+//8===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        bend ((1, 1), (2, 2), 20);
+        bend ((2, 2), (3, 1), 40);
+        line ((3, 1), (2, 5));
+        bend ((2, 5), (6, 8), 20);
+        line ((6, 8), (6, 4));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3);
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+    roundAbout "krozni" {
+        circ ((9, 4), 0.4);
+    };
+    gasStation "Central Charging Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    parking "Nearby Parking" {
+        (7, 3);
+        (5, 2);
+        let _roi_ = neigh ((4, 5), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    }
+}
+
+//9===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        bend ((1, 1), (2, 2), 20);
+        bend ((2, 2), (3, 1), 40);
+        line ((3, 1), (2, 5));
+        bend ((2, 5), (6, 8), 20);
+        line ((6, 8), (6, 4));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3)
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+    roundabout "krozni" {
+        circ ((9, 4), 0.4);
+    };
+    gasStation "Central Charging Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    electricStation "Central Gas Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    parking "Nearby Parking" {
+        (7, 3);
+        (5, 2);
+        let _roi_ = neigh ((4, 5), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    passenger "Visitor" {
+        start {(2, 2)};
+        finish {(6, 8)};
+    };
+}
+
+//10===========================================================================================
+
+carRide "voznja"{
+    
+    road {
+        bend ((1, 1), (2, 2), 20);
+        bend ((2, 2), (3, 1), 40);
+        line ((3, 1), (2, 5));
+        bend ((2, 5), (6, 8), 20);
+        line ((6, 8), (6, 4));
+    };
+
+    car "fiat 500" {
+        carPoint (0, 3)
+        id :"1234";
+    };
+
+    start {(0, 4)};
+    finish {(4, 5)};
+
+    crossSection "krizisce" {
+        box ((3, 4), (4, 5));
+    };
+    roundabout "krozni" {
+        circ ((9, 4), 0.4);
+    };
+    gasStation "Central Charging Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    electricStation "Central Gas Station" {
+        (7, 3);
+        let _roi_ = neigh ((3, 4), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    parking "Nearby Parking" {
+        (7, 3);
+        (5, 2);
+        let _roi_ = neigh ((4, 5), 3);
+            foreach _x_ in _roi_ {
+            highlight _x_
+        }
+    };
+    passenger "Visitor" {
+        start {(2, 2)};
+        finish {(6, 8)};
+    };
+    passenger "Visitor" {
+        start {(3, 1)};
+        finish {(2, 5)};
+    };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CarRide "City Tour" {
+    let p = (2, 2);
+    carpx = 2;
+    carpy = 3;
+
+    //let carPosition = (2, 3);
+
+    road {
+        bend ((1, 1), (2, 2), 20);
+        bend ((2, 2), (3, 1), 40);
+        line ((2, 2), (2, 5));
+        bend ((2, 3), p, 20);
+        line (p, (6, 4));
+    };
+
+    car "name" {
+        carPoint (carpx, carpy)
+        //carPoint carPosition;
+        id "1234";
+    };
+
+    start {(1, 1)};
+    end {(2, 4)};
+
+    crossSection "rand intersection" {
+        box ((3, 2), (5, 3));
+    };
+    crossSection "Main Intersection" {
+        box ((3, 2), (5, 3));
+    };
+
+    roundAbout "Central Roundabout" {
+        circ ((9, 4), 0.4);
+    };
+
+    gasStation "Central Charging Station" {
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+
+        let roi = neigh ((3, 4), 3);
+            foreach x in roi {
+            highlight x
+        }
+    };
+
+    electricStation "Central Gas Station" {
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+
+        let roi = neigh ((3, 4), 3);
+            foreach x in roi {
+            highlight x
+        }
+    };
+
+    parking "Nearby Parking" {
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+        (7, 3);
+
+        let roi = neigh ((3, 4), 3);
+            foreach x in roi {
+            highlight x
+        }
+    }
+
+    passenger "Visitor" {
+        start {(1, 1)};
+
+        end {(2, 4)};
+    }
+}
