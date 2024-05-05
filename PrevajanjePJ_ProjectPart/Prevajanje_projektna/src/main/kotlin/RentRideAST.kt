@@ -37,17 +37,10 @@ data class Filter(val point: Point, val expr: Expr, val foreach: Foreach): RentR
 data class Foreach(val str: String, val roi: String) : RentRide{}
 
 data class Plus(val left: Expr, val right: Expr) : Expr {}
-
 data class Minus(val left: Expr, val right: Expr) : Expr {}
-
 data class Times(val left: Expr, val right: Expr) : Expr {}
-
 data class Divides(val left: Expr, val right: Expr) : Expr {}
-
 data class UnaryPlus(val expr: Expr) : Expr {}
-
 data class UnaryMinus(val expr: Expr) : Expr {}
-
 data class Real(val value: Double) : Expr {}
-
 data class Variable(val name: String) : Expr {}
