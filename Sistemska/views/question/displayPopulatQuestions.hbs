@@ -1,0 +1,10 @@
+<h1>Popular questions</h1>
+<div class="question-container">
+    {{#each data}}
+        <div class="question">
+            <a href="/questions/displayQuestion/{{this._id}}" style="font-size: 20px; "> {{this.questionText}}</a><br>
+            <br>
+            <a>Popularity: {{this.popularity}} </a>
+        </div>
+    {{/each}}
+</div>

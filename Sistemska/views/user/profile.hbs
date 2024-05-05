@@ -1,0 +1,19 @@
+<h1>Profil uporabnika</h1>
+<img class="profile" src="{{user.profilePicture}}" alt="Profile Picture">
+<h2>Ime: {{user.username}}</h2>
+<h2>Mail: {{user.email}}</h2>
+<h2>Upvotes: {{user.upvotes}}</h2>
+<h2>Downvotes: {{user.downvotes}}</h2>
+<h2>Questions: {{user.questions}}</h2>
+<h2>Answers: {{user.anwsers}}</h2>
+<h2>Approved answers: {{user.approvedAnwsers}}</h2>
+{{#if canEdit}}
+<form action="/users/addPicture" method="post" enctype="multipart/form-data">
+    <div class="file-input-container">
+        <input type="file" id="file" class="file-input" onchange="document.getElementById('file-name').textContent = this.files[0].name" name="profilePic" accept="image/*">
+        <label for="file" class="file-input-label">Choose a file</label><br>
+        <span id="file-name" class="file-name"></span>
+    </div>
+    <button class="btn" type="submit">Upload Image</button>
+</form>
+{{/if}}
