@@ -1,0 +1,311 @@
+body {
+  height: auto;
+  min-height: 100vh;
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  text-align: center;
+  font-size: 12px;
+  font-family: sans-serif;
+  background-image: linear-gradient(to bottom right, black, #800080); /* Gradient from black to purple */
+  color: white;  /* Set text color to white for better readability */
+}
+div#main{
+  background: rgba(255,255,255, 0.3);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+nav {
+  margin: auto;
+  margin-bottom: 30px;
+  position: relative;
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Horizontally center the content */
+  align-items: center; /* Vertically center the content */
+  width: auto;
+  height: 50px;
+  background-color: #34495e;
+  border-radius: 8px;
+  font-size: 0;
+  display: inline-block;
+
+}
+
+nav a {
+  line-height: 50px;
+  height: 100%;
+  font-size: 15px;
+  display: inline-block;
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+}
+
+nav .animation {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  transition: all .5s ease 0s;
+  border-radius: 8px;
+  width: 100px;
+}
+
+a#nav:nth-child(1) {
+  width: 100px;
+}
+
+a#nav:nth-child(2) {
+  width: 110px;
+}
+
+a#nav:nth-child(3) {
+  width: 100px;
+}
+
+a#nav:nth-child(4) {
+  width: 160px;
+}
+
+a#nav:nth-child(5) {
+  width: 120px;
+}
+
+a#nav:nth-child(6) {
+  width: 120px;
+}
+
+nav .start-home,
+a#nav:nth-child(1):hover~.animation {
+  width: 100px;
+  left: 0;
+  background-color: #300080;
+}
+
+nav .start-about,
+a#nav:nth-child(2):hover~.animation {
+  width: 110px;
+  left: 100px;
+  background-color: #e74c3c;
+}
+
+nav .start-blog,
+a#nav:nth-child(3):hover~.animation {
+  width: 100px;
+  left: 210px;
+  background-color: #3498db;
+}
+
+nav .start-portefolio,
+a#nav:nth-child(4):hover~.animation {
+  width: 160px;
+  left: 310px;
+  background-color: #9b59b6;
+}
+
+nav .start-contact,
+a#nav:nth-child(5):hover~.animation {
+  width: 120px;
+  left: 470px;
+  background-color: #e67e22;
+}
+
+nav .start-contact,
+a#nav:nth-child(6):hover~.animation {
+  width: 120px;
+  left: 590px;
+  background-color: #22e63f;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0 15px;
+  text-align: center;
+  font-size: 30px;
+  color: #ecf0f1;
+  text-shadow: 2px 2px 4px #000000;
+  font-family: Georgia, serif;
+}
+
+p {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  color: #ecf0f1;
+  font-family: 'Cherry Swash', cursive;
+  font-size: 16px;
+}
+
+span {
+  color: white;
+}
+/* Style for the container holding all questions */
+.question-container {
+  display: flex;                  /* Using flexbox for layout */
+  flex-direction: column;        /* Stack questions vertically */
+  align-items: center;           /* Center-align items horizontally */
+  gap: 10px;                     /* Space between each question */
+  margin: 20px;                  /* Margin around the container */
+  padding: 10px;                 /* Padding inside the container */
+}
+
+/* Style for each individual question */
+.question {
+  max-width: 500px;                  /* Fixed width for each question */
+  width: 80%;
+  height: auto;                 /* Fixed height for each question */
+  background-color: rgba(255,255,255, 0.4); /* Slightly transparent background */          /* Rounded corners */
+  justify-content: center;       /* Center content horizontally */
+  align-items: center;           /* Center content vertically */
+  font-size: 16px;               /* Font size of the question text */
+  text-align: center;            /* Center text alignment */
+  padding: 10px;
+}
+.approvedQuestion{
+  width: 500px;                  /* Fixed width for each question */
+  height: auto;                 /* Fixed height for each question */
+  background-color: rgba(166, 229, 171, 0.618); /* Slightly transparent background */          /* Rounded corners */
+  justify-content: center;       /* Center content horizontally */
+  align-items: center;           /* Center content vertically */
+  font-size: 16px;               /* Font size of the question text */
+  text-align: center;            /* Center text alignment */
+  padding: 10px;
+}
+
+div#dis{
+  margin: 20px;
+  color: white;
+}
+.text-center{
+	color:#fff;	
+	text-transform:uppercase;
+    font-size: 23px;
+    margin: -50px 0 80px 0;
+    display: block;
+    text-align: center;
+}
+.input-container{
+	position:relative;
+	margin-bottom:25px;
+  width: 300px;
+  margin: auto;
+}
+.input-container input{ 
+  border:0;
+  border-bottom:1px solid #3a3838;  
+  background:transparent;
+  width:100%;
+  padding:8px 0 5px 0;
+  font-size:16px;
+  color:#fff;
+  text-align: center;
+}
+.input-container input:focus{ 
+ border:none;	
+ outline:none;
+ border-bottom:1px solid #300080;	
+}
+.btn{
+	color:#fff;
+	background-color:rgba(0,0,128,0.5);
+	outline: none;
+    border: 0;
+    color: #fff;
+	padding:10px 20px;
+	text-transform:uppercase;
+	margin-top:10px;
+	border-radius:2px;
+	cursor:pointer;
+	position:relative;
+}
+/*.btn:after{
+	content:"";
+	position:absolute;
+	background:rgba(0,0,0,0.50);
+	top:0;
+	right:0;
+	width:100%;
+	height:100%;
+}*/
+.input-container input:focus ~ label,
+.input-container input:valid ~ label{
+	top:-12px;
+	font-size:12px;
+	
+}
+
+textarea{
+  margin-top: 20px;
+  background-color: rgba(0,0,128,0.15);
+  border: none;
+  max-width: 500px;
+  width:80%;
+  height: 250px;
+  color: white;
+  padding: 20px;
+}
+a{
+  text-decoration: none;
+}
+img.profile{
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+img.show{
+  border-radius: 50%;
+  width: 7vw; 
+  height: 7vw; /* Set height equal to 10% of the viewport width */
+}
+/* Style the container (optional) */
+.file-input-container {
+  margin: 10px;
+  padding: 10px;
+}
+
+/* Hide the default file input style */
+.file-input {
+  opacity: 0;   /* Hidden but still clickable */
+  width: 90px;
+  height: 30px;
+  position: absolute;
+  z-index: -1;  /* Make it behind the label */
+}
+
+/* Custom styled label to represent the file input */
+.file-input-label {
+  background-color: rgba(0, 0, 128, 0.5); /* Blue background */
+  color: white;              /* White text */
+  padding: 10px 20px;        /* Some padding for good UI */
+  border-radius: 5px;        /* Rounded corners */
+  display: inline-block;     /* To fit the size of the text */
+  cursor: pointer;           /* Pointer cursor on hover */
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transition for hover effects */
+}
+
+/* Hover effect for the label */
+.file-input-label:hover {
+  background-color: #0056b3; /* A darker shade of blue when hovered */
+  transform: scale(1.05);    /* Slightly larger on hover */
+}
+
+/* Style the text that will show the selected file name */
+.file-name {
+  vertical-align: middle; /* Aligns the text vertically to the middle */
+}
+@media only screen and (max-width: 600px) {
+  #menu-toggle {
+    display: inline-block; /* Show the button for small screens */
+  }
+  
+  /* Hide the animation when the menu items are shown */
+  #menu-items.show-menu + .animation {
+    display: none;
+  }
+}
