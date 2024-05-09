@@ -42,7 +42,8 @@ enum class Symbol {
     LINE,
     ROAD,
     CAR_RIDE,
-    COMMA
+    COMMA,
+    INT
 }
 
 const val ERROR_STATE = 0
@@ -322,7 +323,7 @@ object RentRideDFA: DFA {
             setTransition(162, digit, 163)
             setTransition(163, digit, 163)
         }
-        setSymbol(161, Symbol.REAL)
+        setSymbol(161, Symbol.INT)
         setSymbol(163, Symbol.REAL)
 
         //VARIABLE TRANSITION
@@ -427,6 +428,7 @@ fun name(symbol: Symbol) =
         Symbol.VARIABLE -> "variable"
         Symbol.REAL -> "real"
         Symbol.COMMA -> "comma"
+        Symbol.INT -> "int"
         else -> throw Error("Invalid symbol")
     }
 
