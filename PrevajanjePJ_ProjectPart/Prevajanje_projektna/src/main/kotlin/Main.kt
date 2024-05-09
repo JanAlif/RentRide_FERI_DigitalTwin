@@ -24,9 +24,58 @@ fun main() {
 
     val program = CarRide(declaration, path, car, start, finish)
      */
+    //println(Filter(Variable("roi"),Point(Real(4.0), Real(3.2)), Real(2.2), Foreach(Variable("x"), Variable("roi"))))
+    //println(Passenger("Some passenger",Start(Point(Real(1.2), Real(3.5))), Finish(Point(Real(1.2), Real(3.5)))))
+    //println(Parking("some parking", listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), Filter(Variable("roi"),Point(Real(4.0), Real(3.2)), Real(2.2), Foreach(Variable("x"), Variable("roi")))))
+    //println(Electricity("elektrika", listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), Filter(Variable("roi"),Point(Real(4.0), Real(3.2)), Real(2.2), Foreach(Variable("x"), Variable("roi")))).toString())
+    //println(Round(Strin("krozisce"), Circ(Point(Real(4.0), Real(3.2)),Real(22.5))))
+    //println(Cross(Strin("krizisce"), Box(Point(Real(4.0), Real(3.2)),Point(Real(4.0), Real(3.2)))))
+    //println( Car(Strin("some name"), Point(Real(5.0), Real(6.2)), 1234))
+    val pointDeclaration = PointDeclaration(Variable("neke"),Point(Plus(Real(1.9), Real(9.1)), Real(2.2)))
+    val varDecalration = VarDeclaration(Variable("neke"), Real(2.4))
+
+    val declaration = Declarations(listOf(pointDeclaration, varDecalration))
+
+    val l1 = Line(Point(Real(1.0), Real(2.2)), Point(Real(6.0), Real(3.2)))
+    val l2 = Line(Point(Real(5.0), Real(6.2)), Point(Real(7.0), Real(8.2)))
+    val b1 = Bend(Point(Real(5.0), Real(6.2)), Point(Real(7.0), Real(8.2)), 80)
+    val b2 = Bend(Point(Real(5.0), Real(6.2)), Point(Real(4.0), Real(3.2)), 90)
+
+    val path = Path(listOf(l1, l2, b1, b2))
+
+    val car = Car(Strin("fiat 500"), Point(Real(5.0), Real(6.2)), 1234)
+
+    val start = Start(Point(Real(1.0), Real(2.2)))
+    val finish = Finish(Point(Real(4.0), Real(3.2)))
+
+    val filter = Filter(Variable("roi"),Point(Real(4.0), Real(3.2)), Real(2.2), Foreach(Variable("x"), Variable("roi")))
+
+    val program = CarRide(Strin("voznja"),declaration, path, car, start, finish,
+        listOf(Cross(Strin("krizisce"), Box(Point(Real(4.0), Real(3.2)),Point(Real(4.0), Real(3.2)))),Cross(Strin("krizisce"), Box(Point(Real(4.0), Real(3.2)),Point(Real(4.0), Real(3.2))))),
+        listOf(Round(Strin("krozisce"), Circ(Point(Real(4.0), Real(3.2)),Real(22.5))),Round(Strin("krozisce"), Circ(Point(Real(4.0), Real(3.2)),Real(22.5)))),
+        Gas(Strin("Gass"), listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), filter),
+        Electricity(Strin("elektrika"), listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), filter),
+        Parking(Strin("Parking"), listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), filter),
+        listOf( Passenger(Strin("potnik1"),Start(Point(Real(1.2), Real(3.5))), Finish(Point(Real(1.2), Real(3.5)))),Passenger(Strin("potnik2"),Start(Point(Real(1.2), Real(3.5))), Finish(Point(Real(1.2), Real(3.5)))))
+    )
+
+    println(program)
+
 
     //printTokens(Scanner(RentRideDFA, "123.35 56 * + / - ( ) { } = ; : in id \"Say somethin nice to each other\"const start finish passenger_hello_ parkingelectricStation gasStation foreach highlight let neigh crossSection roundabout circ car carPoint bend line road carRide".byteInputStream()), System.out)
-    printTokens(Scanner(RentRideDFA, """
+
+
+    //val test = Parking("some parking", listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), Filter(Variable("roi"),Point(Real(4.0), Real(3.2)), Real(2.2), Foreach(Variable("x"), Variable("roi")))).toString()
+    //val test = Passenger("Some passenger",Start(Point(Real(1.2), Real(3.5))), Finish(Point(Real(1.2), Real(3.5)))).toString()
+    //val test = Gas(Strin("elektrika"), listOf(Point(Real(4.0), Real(3.2)), Point(Real(6.0), Real(8.4)), Point(Minus(Plus(Variable("x"), Variable("y")), Plus(Real(2.0), Real(2.0))), Real(12.2)), Point(Real(22.5), Real(3.2))), Filter(Variable("roi"),Point(Real(4.0), Real(3.2)), Real(2.2), Foreach(Variable("x"), Variable("roi")))).toString()
+    //val test = Round(Strin("krozisce"), Circ(Point(Real(4.0), Real(3.2)),Real(22.5))).toString()
+    //val test = Cross(Strin("krizisce"), Box(Point(Real(4.0), Real(3.2)),Point(Real(4.0), Real(3.2)))).toString()
+    //val test = Car(Strin("some name"), Point(Real(5.0), Real(6.2)), 1234).toString()
+    val test = program.toString()
+
+
+    printTokens(Scanner(RentRideDFA, test.byteInputStream()), System.out)
+    /*printTokens(Scanner(RentRideDFA, """
         carRide "voznja"{
     _p1_ = 0;
     _p2_ = 4;
@@ -103,6 +152,8 @@ fun main() {
         finish {(2, 5)};
     };
 }""".byteInputStream()), System.out)
+
+     */
 
 }
 
