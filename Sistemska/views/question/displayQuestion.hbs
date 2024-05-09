@@ -1,0 +1,188 @@
+    <h1>{{question.questionText}}</h1>
+    <div id="dis">{{question.description}}</div>
+    <a href="/users/showProfile/{{question.creator}}">
+        <img class="show" src="{{profilePicture}}" alt="Profile Picture">
+    </a>
+    <div id="dis">{{created}}</div>
+    {{#if approve}}
+        <button onclick="deleteQ('{{question._id}}')" style="background-color: transparent;border: none;padding: 0;cursor: pointer;"><i class="bi bi-trash-fill" style="font-size: 1.4rem; color:white;"></i></button>
+    {{/if}}
+</div>
+<div id="main">
+    <h1>Odgovori</h1>
+    <form action="/anwsers/addAnwser" method="post">
+        <input type="hidden" name="questionId" id="questionId" value="">
+        <textarea name="anwserText" placeholder="Enter your text here" required></textarea><br>
+        <div class="tp">
+            <input class="btn" type="submit" value="Odgovori">
+        </div>
+    </form>
+</div>
+{{#if answers}}
+<div id="main">
+    <div class="question-container">
+        {{#each answers}}
+        {{#if this.approved}}
+        <div class="approvedQuestion">
+        {{else}}
+        <div class="question">
+        {{/if}}    
+            <h4>{{this.anwserText}} </h4><br>
+            <strong>created:</strong> {{this.created}}<br>
+            <div style="margin: 7px;">
+                <button onclick="upvote('{{this._id}}')" style="background-color: transparent;border: none;padding: 0;cursor: pointer; margin-right: 10px;"><i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.2rem;">{{this.upvotes}}</i></button>
+                <button onclick="downvote('{{this._id}}')" style="background-color: transparent;border: none;padding: 0;cursor: pointer;"><i class="bi bi-hand-thumbs-down-fill" style="font-size: 1.2rem;">{{this.downvotes}}</i></button>
+            </div>
+            {{#if ../approve}}
+                {{#if this.approved}}
+                    <button onclick="dissapprove('{{this._id}}')" class="btn" style="margin-bottom: 10px; margin-top:7px">dissapprove</button>
+                {{else}}
+                    <button onclick="approve('{{this._id}}')" class="btn" style="margin-bottom: 10px; margin-top:7px">approve</button>
+                {{/if}}
+            {{/if}}
+            <br>
+            {{#if this.profilePicture}}
+                <a href="/users/showProfile/{{this.creator}}">
+                    <img class="show" src="{{this.profilePicture}}">
+                </a>
+            {{/if}}
+            {{#if this.canDelete}}
+            <br>
+                <button onclick="deleteA('{{this._id}}')" style="background-color: transparent;border: none;padding: 0;cursor: pointer;justify-self: right; margin-top:7px;"><i class="bi bi-trash-fill" style="font-size: 1.4rem; color:white;"></i></button>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+</div>
+{{/if}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var pathArray = window.location.pathname.split('/');
+        var questionId = pathArray[pathArray.length - 1];
+        document.getElementById('questionId').value = questionId;
+    });
+    function downvote(id){    
+        const updatedData = {
+            id: id
+        };
+        // Send PUT request using fetch
+        fetch('/anwsers/downvote', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Resource updated successfully');
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating resource:', error);
+        });
+    }
+    function upvote(id){
+        const updatedData = {
+            id: id,
+        };
+        fetch('/anwsers/upvote', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Resource updated successfully');
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating resource:', error);
+        });
+    }
+    function approve(id){
+        const updatedData = {
+            id: id,
+        };
+        fetch('/anwsers/approve', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Resource updated successfully');
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating resource:', error);
+        });
+    }    
+    function dissapprove(id){
+        const updatedData = {
+            id: id,
+        };
+        fetch('/anwsers/dissapprove', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Resource updated successfully');
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating resource:', error);
+        });
+    }
+    function deleteQ(id){
+        fetch('/questions/'+id, {
+            method: 'delete',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Resource updated successfully');
+            window.location.href = '/questions/displayQuestions';
+        })
+        .catch(error => {
+            console.error('Error updating resource:', error);
+        });
+    }
+    function deleteA(id){
+        fetch('/anwsers/deleteA/'+id, {
+            method: 'delete',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating resource:', error);
+        });
+    }
+</script>

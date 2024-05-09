@@ -1,0 +1,6 @@
+<h1>Questions</h1>
+<div class="question-container">
+    {{#each data}}
+        <div class="question"><a href="/questions/displayQuestion/{{this._id}}"> {{this.questionText}}</a> </div>
+    {{/each}}
+</div>
