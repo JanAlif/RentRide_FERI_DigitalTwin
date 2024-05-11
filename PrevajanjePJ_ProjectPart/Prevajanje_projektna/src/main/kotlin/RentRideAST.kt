@@ -89,10 +89,10 @@ data class Line(val p1:Point, val p2:Point): PathSegment{
     override fun toString() = "\t line (${p1.toString()}, ${p2.toString()} );\n"
 }
 data class Bend(val p1: Point, val p2: Point, val curve: Int): PathSegment{
-    override fun toString() = "\t bend (${p1.toString()}, ${p2.toString()} ${curve.toString()});\n"
+    override fun toString() = "\t bend (${p1.toString()}, ${p2.toString()}, ${curve.toString()});\n"
 }
 data class Car(val str: Strin, val point: Point, val id: Int): RentRide{
-    override fun toString() = " car ${str.toString()} {\n\t carPoint${point.toString()}; \n\t id:${id.toString()};\n};"
+    override fun toString() = " car ${str.toString()} {\n\t carPoint${point.toString()}; \n\t id:${id.toString()}\n};"
 }
 data class Start(val point: Point) : RentRide{
     override fun toString() = " start { ${point.toString()} };"
@@ -118,7 +118,7 @@ data class Gas(val str: Strin, val points: List<Point>, val filter: Filter): Ren
         for(point in points){
             str += "${point.toString()};\n"
         }
-        str += filter.toString()
+        str += "$filter \n}; \n"
         return str
     }
 }
@@ -128,7 +128,7 @@ data class Electricity(val str: Strin, val points: List<Point>, val filter: Filt
         for(point in points){
             str += "${point.toString()};\n"
         }
-        str += filter.toString()
+        str += "$filter\n }; \n"
         return str
     }
 }
@@ -138,7 +138,7 @@ data class Parking(val str: Strin, val points: List<Point>, val filter: Filter) 
         for(point in points){
             str += "${point.toString()};\n"
         }
-        str += filter.toString()
+        str += "$filter\n }; \n"
         return str
     }
 }

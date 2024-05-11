@@ -31,6 +31,11 @@ fun main() {
     //println(Round(Strin("krozisce"), Circ(Point(Real(4.0), Real(3.2)),Real(22.5))))
     //println(Cross(Strin("krizisce"), Box(Point(Real(4.0), Real(3.2)),Point(Real(4.0), Real(3.2)))))
     //println( Car(Strin("some name"), Point(Real(5.0), Real(6.2)), 1234))
+
+
+
+
+
     val pointDeclaration = PointDeclaration(Variable("neke"),Point(Plus(Real(1.9), Real(9.1)), Real(2.2)))
     val varDecalration = VarDeclaration(Variable("neke"), Real(2.4))
 
@@ -74,7 +79,19 @@ fun main() {
     val test = program.toString()
 
 
-    printTokens(Scanner(RentRideDFA, test.byteInputStream()), System.out)
+    //printTokens(Scanner(RentRideDFA, test.byteInputStream()), System.out)
+
+
+
+
+    val scanner = Scanner(RentRideDFA, test.byteInputStream())
+    val tokens = collectTokens(scanner)
+    println(tokens)
+
+    val parser = Parser(tokens)
+    val isSuccess = parser.parse()
+
+
     /*printTokens(Scanner(RentRideDFA, """
         carRide "voznja"{
     _p1_ = 0;
