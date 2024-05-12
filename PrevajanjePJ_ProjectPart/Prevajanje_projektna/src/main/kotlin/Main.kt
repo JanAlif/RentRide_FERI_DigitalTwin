@@ -1,3 +1,5 @@
+import java.io.ByteArrayInputStream
+
 
 
 fun main() {
@@ -36,6 +38,7 @@ fun main() {
 
 
 
+    /*
     val pointDeclaration = PointDeclaration(Variable("neke"),Point(Plus(Real(1.9), Real(9.1)), Real(2.2)))
     val varDecalration = VarDeclaration(Variable("neke"), Real(2.4))
 
@@ -90,6 +93,42 @@ fun main() {
 
     val parser = Parser(tokens)
     val isSuccess = parser.parse()
+
+      */
+
+    val input = "(1-1)+3*9/4"
+
+    // Initialize the environment
+    val environment = mapOf("_x_" to 1.0, "_y_" to 3.0)
+
+    // Convert input string into a ByteArrayInputStream to simulate file input
+    val inputStream = ByteArrayInputStream(input.toByteArray())
+
+    // Create a scanner to tokenize the input using the DFA (automaton definition assumed to be correctly implemented)
+    val scanner = Scanner(RentRideDFA, inputStream)
+    val tokens = collectTokens(scanner)
+
+    // Print tokens for debugging
+    //tokens.forEach { token ->
+       // println("Token: ${token.symbol}, Lexeme: ${token.lexeme}")
+    //}
+
+    // Create the parser with the collected tokens
+    val evaluator = Evaluator(tokens)
+
+
+    try {
+        val ast = evaluator.evaluate()
+        val result = ast.eval(environment)
+        println("Result of evaluation: $result")
+        println("AST to String: ${ast.toString()}")
+    } catch (e: Exception) {
+        println("Error parsing the expression: ${e.message}")
+    }
+
+
+
+
 
 
     /*printTokens(Scanner(RentRideDFA, """

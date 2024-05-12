@@ -1,9 +1,6 @@
 interface RentRide{
     override fun toString(): String
 }
-interface Expr {
-    override fun toString(): String
-}
 interface PathSegment{
     override fun toString(): String
 }
@@ -11,6 +8,11 @@ interface VarPointDeclarations{
     override fun toString(): String
 }
 
+
+interface Expr {
+    override fun toString(): String
+    fun eval(env: Map<String, Double>): Double
+}
 interface Str {
     override fun toString(): String
 }
@@ -156,28 +158,37 @@ data class Foreach(val str: Variable, val roi: Variable) : RentRide{
 }
 data class Plus(val left: Expr, val right: Expr) : Expr {
     override fun toString() = "(${left.toString()} + ${right.toString()})"
+    override fun eval(env: Map<String, Double>) = left.eval(env) + right.eval(env)
 }
 data class Minus(val left: Expr, val right: Expr) : Expr {
     override fun toString() = "(${left.toString()} - ${right.toString()})"
+    override fun eval(env: Map<String, Double>) = left.eval(env) - right.eval(env)
 }
 data class Times(val left: Expr, val right: Expr) : Expr {
     override fun toString() = "(${left.toString()} * ${right.toString()})"
+    override fun eval(env: Map<String, Double>) = left.eval(env) * right.eval(env)
 }
 data class Divides(val left: Expr, val right: Expr) : Expr {
     override fun toString() = "(${left.toString()} / ${right.toString()})"
+    override fun eval(env: Map<String, Double>) = left.eval(env) / right.eval(env)
 }
 data class UnaryPlus(val expr: Expr) : Expr {
     override fun toString() = "(+${expr.toString()})"
+    override fun eval(env: Map<String, Double>) = expr.eval(env)
 }
 data class UnaryMinus(val expr: Expr) : Expr {
     override fun toString() = "(-${expr.toString()})"
+    override fun eval(env: Map<String, Double>) = -expr.eval(env)
 }
 data class Real(val value: Double) : Expr {
     override fun toString() = value.toString()
+    override fun eval(env: Map<String, Double>) = value
 }
 data class Variable(val name: String) : Expr {
     override fun toString() = "_${name}_"
+    override fun eval(env: Map<String, Double>) = env[name] ?: error("Variable $name not found")
 }
+
 data class Strin(val str: String) : Str{
     override fun toString() = "\"${str}\""
 }
