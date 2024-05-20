@@ -151,7 +151,10 @@ data class Line(val p1: Point, val p2: Point) : PathSegment {
         {
             "type": "Feature",
             "properties": {
-                "name": "line"
+                "name": "line",
+                "stroke": "#0000ff",
+                "stroke-width": 2,
+                "stroke-opacity": 0.8
             },
             "geometry": {
                 "type": "LineString",
@@ -210,7 +213,10 @@ data class Bend(val p1: Point, val p2: Point, val curve: Int) : PathSegment {
         {
             "type": "Feature",
             "properties": {
-                "name": "bend"
+                "name": "bend",
+                "stroke": "#ff0000",
+                "stroke-width": 2,
+                "stroke-opacity": 0.8
             },
             "geometry": {
                 "type": "LineString",
@@ -365,7 +371,12 @@ data class Box(val p1: Point, val p2: Point) : RentRide {
         {
             "type": "Feature",
             "properties": {
-                "name": "box"
+                "name": "box",
+                "fill": "#ff0000",
+                "fill-opacity": 0.5,
+                "stroke": "#ff0000",
+                "stroke-width": 2,
+                "stroke-opacity": 0.8
             },
             "geometry": {
                 "type": "Polygon",
@@ -423,7 +434,12 @@ data class Circ(val point: Point, val expr: Expr) : RentRide {
         {
             "type": "Feature",
             "properties": {
-                "name": "circle"
+                "name": "circle",
+                "fill": "#00ff00",
+                "fill-opacity": 0.5,
+                "stroke": "#00ff00",
+                "stroke-width": 2,
+                "stroke-opacity": 0.8
             },
             "geometry": {
                 "type": "Polygon",
