@@ -17,7 +17,7 @@ const addChargePoint = expressAsyncHandler(async (req, res) => {
     address,
     location: {
       type: "Point",
-      coordinates: coordinates,
+      coordinates: JSON.parse(coordinates),
     },
     connectors,
     connectorsAvailable,

@@ -10,6 +10,7 @@ const getAllCars = asyncHandler(async (req, res) => {
     res.status(200).json(cars);
   } else {
     res.status(404).json({ message: "No cars found" });
+    throw new Error("Car not found");
   }
 });
 
@@ -20,7 +21,7 @@ const getCarById = asyncHandler(async (req, res) => {
   if (car) {
     res.status(200).json(car);
   } else {
-    res.status(404);
+    res.status(404).json({ message: "No cars found" });
     throw new Error("Car not found");
   }
 });
