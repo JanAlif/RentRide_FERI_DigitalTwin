@@ -17,6 +17,9 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
+
+    implementation("com.google.code.gson:gson:2.8.8")
+
     implementation(compose.desktop.currentOs)
     implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.4.0")
 
@@ -32,6 +35,7 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+
 }
 
 tasks.test {
