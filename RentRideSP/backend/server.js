@@ -8,21 +8,8 @@ import userRoutes from "./routes/userRoutes.js";
 import carsRoutes from "./routes/carRoutes.js";
 import chargePointRoutes from "./routes/chargePointRoutes.js";
 import ridesRouter from "./routes/rideRoutes.js";
-import http from "http";
-import { Server } from "socket.io";
-import path from "path";
-import { dirname } from "path";
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
-io.on("connection", (socket) => {
-  console.log("socket connected");
-  socket.on("disconnect", () => {
-    console.log("socket disconnected");
-  });
-});
 
 dotenv.config();
 const port = process.env.PORT || 4000;
@@ -33,12 +20,6 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-//socket TEST
-app.get("/", (req, res) => {
-  const __dirname = path.resolve(path.dirname(""));
-  res.sendFile(path.join(__dirname, "sockettest.html"));
-});
 
 //Routes
 app.use("/api/users", userRoutes);
