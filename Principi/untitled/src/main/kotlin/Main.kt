@@ -35,6 +35,7 @@ fun getDistanceAndTime(origin: String, destination: String) {
 }
 
 //radious je definiran v metrih. Location prav tako lahko z imenom ali koordinatami
+
 fun getGasStations(location: String, radious: Int) {
     val apiKey = "AIzaSyBI9PE3yyOHh4J5UiJxaoR1u9WzDpWg0j8"
     val url =
