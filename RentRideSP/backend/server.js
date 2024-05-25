@@ -13,7 +13,7 @@ const app = express();
 
 dotenv.config();
 const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`Server started on ${port}`));
+app.listen(port,'0.0.0.0', () => console.log(`Server started on ${port}`));
 connectDB();
 
 app.use(morgan("dev"));
