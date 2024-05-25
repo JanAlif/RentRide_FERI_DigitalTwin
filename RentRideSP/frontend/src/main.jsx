@@ -18,6 +18,7 @@ import {
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import HeroScreen from "./screens/HeroScreen";
 import { LoginScreen } from "./screens/LoginScreen.jsx";
+import {MapScreen} from "./screens/MapScreen.jsx"
 
 //router for navigation
 const router = createBrowserRouter(
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       <Route index={true} path="/" element={<HeroScreen />} />
       <Route path="/login" element={<LoginScreen />} />
+      <Route path="/map" element={<MapScreen />} />
       {/* <Route path="/register" element={<RegisterScreen />} /> */}
       <Route path="" element={<PrivateRoute />}></Route>
     </Route>
