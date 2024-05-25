@@ -22,13 +22,13 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: titpodhraski
+          password: dckr_pat_toG95S2HRZh-s54KI1h5QT9lCgk
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/your-app-image:latest
+          tags: titpodhraski/your-app-image:latest
       
