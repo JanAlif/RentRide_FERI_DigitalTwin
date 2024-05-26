@@ -100,7 +100,7 @@ export function MapScreen() {
   };
 
   return (
-    <Card color="transparent" shadow={false} className="p-6">
+    <Card color="transparent" shadow={false} className="mx-auto max-w-screen-2xl px-4 py-12">
       <Typography variant="h4" color="blue-gray" className="text-center">
         Route
       </Typography>
