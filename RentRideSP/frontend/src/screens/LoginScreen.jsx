@@ -34,7 +34,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen -mt-24">
       <Card color="transparent" shadow={false} className="p-6">
         <Typography variant="h4" color="blue-gray" className="text-center">
           Login
