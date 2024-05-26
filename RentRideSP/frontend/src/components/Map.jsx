@@ -7,7 +7,7 @@ import carImage from '../assets/car.png'; // Import car image
 
 const containerStyle = {
   width: '100%',
-  height: '400px',
+  height: '500px',
 };
 
 const center = {

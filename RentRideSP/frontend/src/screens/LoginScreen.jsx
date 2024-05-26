@@ -15,7 +15,6 @@ export function LoginScreen() {
   const [login, { isLoading, error }] = useLoginMutation();
   const { userInfo } = useSelector((state) => state.auth);
 
-  //if user is already logged in, redirect to home page
   useEffect(() => {
     if (userInfo) {
       navigate("/");
@@ -33,61 +32,63 @@ export function LoginScreen() {
       console.error("Failed to login:", error);
     }
   };
-  return (
-    <Card color="transparent" shadow={false} className="">
-      <Typography variant="h4" color="blue-gray">
-        Login
-      </Typography>
-      <Typography color="gray" className="mt-1 font-normal">
-        Welcome back!
-      </Typography>
-      <form
-        className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
-        onSubmit={submitHandler}
-      >
-        <div className="mb-1 flex flex-col gap-6">
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Username
-          </Typography>
-          <Input
-            size="lg"
-            placeholder="Username..."
-            className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-            labelProps={{
-              className: "before:content-none after:content-none",
-            }}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Password
-          </Typography>
-          <Input
-            type="password"
-            size="lg"
-            placeholder="********"
-            className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-            labelProps={{
-              className: "before:content-none after:content-none",
-            }}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
 
-        <Button className="mt-6" fullWidth type="submit">
-          Log in
-        </Button>
-        <p className="text-red-500 mt-2">
-          {error ? error.data.message || "Something went wrong!" : ""}
-        </p>
-        <Typography color="gray" className="mt-4 text-center font-normal">
-          Dont have an account?{" "}
-          <a href="/register" className="font-medium text-gray-900">
-            Register!
-          </a>
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Card color="transparent" shadow={false} className="p-6">
+        <Typography variant="h4" color="blue-gray" className="text-center">
+          Login
         </Typography>
-      </form>
-    </Card>
+        <Typography color="gray" className="mt-1 font-normal text-center">
+          Welcome back!
+        </Typography>
+        <form
+          className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
+          onSubmit={submitHandler}
+        >
+          <div className="mb-4 flex flex-col gap-6">
+            <Typography variant="h6" color="blue-gray" className="-mb-3">
+              Username
+            </Typography>
+            <Input
+              size="lg"
+              placeholder="Username..."
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <Typography variant="h6" color="blue-gray" className="-mb-3">
+              Password
+            </Typography>
+            <Input
+              type="password"
+              size="lg"
+              placeholder="********"
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <Button className="mt-6" fullWidth type="submit">
+            Log in
+          </Button>
+          <p className="text-red-500 mt-2">
+            {error ? error.data.message || "Something went wrong!" : ""}
+          </p>
+          <Typography color="gray" className="mt-4 text-center font-normal">
+            Don't have an account?{" "}
+            <Link to="/register" className="font-medium text-gray-900">
+              Register!
+            </Link>
+          </Typography>
+        </form>
+      </Card>
+    </div>
   );
 }
