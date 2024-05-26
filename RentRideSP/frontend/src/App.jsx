@@ -6,7 +6,7 @@ function App() {
   return (
     <>
       <StickyNavbar />
-      <div className="mx-auto max-w-screen-md py-12">
+      <div className="mx-auto max-w-screen-2xl px-4 py-12">
         <Outlet />
       </div>
     </>
