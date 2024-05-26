@@ -6,7 +6,35 @@ import {
   Typography,
 } from "@material-tailwind/react";
 
-export function SimpleRegistrationForm() {
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useRegisterMutation } from "../slices/usersApiSlice";
+import { setUser } from "../slices/authSlice";
+
+export function RegisterScreen() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [register, { isLoading, error }] = useRegisterMutation();
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await register({ username, email, password }).unwrap();
+      dispatch(setUser(response));
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to register:", error);
+    }
+  };
+
   return (
     <Card color="transparent" shadow={false}>
       <Typography variant="h4" color="blue-gray">
@@ -15,10 +43,13 @@ export function SimpleRegistrationForm() {
       <Typography color="gray" className="mt-1 font-normal">
         Nice to meet you! Enter your details to register.
       </Typography>
-      <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+      <form
+        className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
+        onSubmit={submitHandler}
+      >
         <div className="mb-1 flex flex-col gap-6">
           <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Your Name
+            Username
           </Typography>
           <Input
             size="lg"
@@ -27,9 +58,11 @@ export function SimpleRegistrationForm() {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Your Email
+            Email
           </Typography>
           <Input
             size="lg"
@@ -38,6 +71,8 @@ export function SimpleRegistrationForm() {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Password
@@ -50,32 +85,20 @@ export function SimpleRegistrationForm() {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Checkbox
-          label={
-            <Typography
-              variant="small"
-              color="gray"
-              className="flex items-center font-normal"
-            >
-              I agree the
-              <a
-                href="#"
-                className="font-medium transition-colors hover:text-gray-900"
-              >
-                &nbsp;Terms and Conditions
-              </a>
-            </Typography>
-          }
-          containerProps={{ className: "-ml-2.5" }}
-        />
-        <Button className="mt-6" fullWidth>
+
+        <Button className="mt-6" fullWidth type="submit">
           sign up
         </Button>
+        <p className="text-red-500 mt-2">
+          {error ? error.data.message || "Something went wrong!" : ""}
+        </p>
         <Typography color="gray" className="mt-4 text-center font-normal">
           Already have an account?{" "}
-          <a href="#" className="font-medium text-gray-900">
+          <a href="/login" className="font-medium text-gray-900">
             Sign In
           </a>
         </Typography>
