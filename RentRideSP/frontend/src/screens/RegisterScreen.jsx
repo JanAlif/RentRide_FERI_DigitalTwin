@@ -36,6 +36,7 @@ export function RegisterScreen() {
   };
 
   return (
+    <div className="flex items-center justify-center min-h-screen -mt-24">
     <Card color="transparent" shadow={false}>
       <Typography variant="h4" color="blue-gray">
         Sign Up
@@ -104,5 +105,6 @@ export function RegisterScreen() {
         </Typography>
       </form>
     </Card>
+    </div>
   );
 }
