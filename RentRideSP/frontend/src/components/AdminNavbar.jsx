@@ -19,6 +19,20 @@ export function AdminNavbar({ setActiveComponent }) {
                 >
                     Cars
                 </Typography>
+                <Typography
+                    variant="paragraph"
+                    className="text-white cursor-pointer"
+                    onClick={() => setActiveComponent('chargepoints')}
+                >
+                    Chargepoints
+                </Typography>
+                <Typography
+                    variant="paragraph"
+                    className="text-white cursor-pointer"
+                    onClick={() => setActiveComponent('rides')}
+                >
+                    Rides
+                </Typography>
             </div>
         </Navbar>
     );
