@@ -1,6 +1,7 @@
 import { apiSlice } from "./apiSlice";
 
 const ADMIN_USERS_URL = "/api/users";
+const ADMIN_CARS_URL = "/api/cars";
 
 export const adminApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
@@ -30,7 +31,34 @@ export const adminApi = apiSlice.injectEndpoints({
                 body: updatedUser,
             }),
         }),
+
+        getAllCars: builder.query({
+            query: () => ({
+                url: `${ADMIN_CARS_URL}`,
+                method: "GET",
+            }),
+        }),
+        addCar: builder.mutation({
+            query: (newCar) => ({
+                url: `${ADMIN_CARS_URL}`,
+                method: "POST",
+                body: newCar,
+            }),
+        }),
+        deleteCar: builder.mutation({
+            query: (id) => ({
+                url: `${ADMIN_CARS_URL}/${id}`,
+                method: "DELETE",
+            }),
+        }),
+        updateCar: builder.mutation({
+            query: ({ id, updatedCar }) => ({
+                url: `${ADMIN_CARS_URL}/${id}`,
+                method: "PUT",
+                body: updatedCar,
+            }),
+        }),
     }),
 });
 
-export const { useGetAllUsersQuery, useAddUserMutation, useDeleteUserMutation, useUpdateUserMutation } = adminApi;
+export const { useGetAllUsersQuery, useAddUserMutation, useDeleteUserMutation, useUpdateUserMutation, useGetAllCarsQuery, useAddCarMutation, useDeleteCarMutation, useUpdateCarMutation } = adminApi;
