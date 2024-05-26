@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Card, Typography, Button, Input } from '@material-tailwind/react';
 import { useGetAllUsersQuery, useAddUserMutation, useDeleteUserMutation } from '../slices/adminSlice';
 import { UserAdminDetail } from './UserAdminDetail';
+import ConfirmDialog from './ConfirmDialog';  // Import the new ConfirmDialog component
 
 export function UserAdminView() {
     const { data: users = [], refetch } = useGetAllUsersQuery();
     const [addUser] = useAddUserMutation();
     const [deleteUser] = useDeleteUserMutation();
     const [newUser, setNewUser] = useState({ username: '', email: '', password: '' });
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
 
     const handleAddUser = async () => {
         try {
@@ -25,6 +28,23 @@ export function UserAdminView() {
             refetch(); // Refetch users after deleting a user
         } catch (error) {
             console.error('Error deleting user:', error);
+        }
+    };
+
+    const openDeleteDialog = (userId) => {
+        setUserToDelete(userId);
+        setDeleteDialogOpen(true);
+    };
+
+    const closeDeleteDialog = () => {
+        setUserToDelete(null);
+        setDeleteDialogOpen(false);
+    };
+
+    const confirmDeleteUser = () => {
+        if (userToDelete) {
+            handleDeleteUser(userToDelete);
+            closeDeleteDialog();
         }
     };
 
@@ -57,7 +77,15 @@ export function UserAdminView() {
                     Add User
                 </Button>
             </div>
-            <UserAdminDetail users={users} handleDeleteUser={handleDeleteUser} />
+            <UserAdminDetail users={users} handleDeleteUser={openDeleteDialog} />
+
+            <ConfirmDialog
+                open={deleteDialogOpen}
+                onClose={closeDeleteDialog}
+                onConfirm={confirmDeleteUser}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this user?"
+            />
         </Card>
     );
 }

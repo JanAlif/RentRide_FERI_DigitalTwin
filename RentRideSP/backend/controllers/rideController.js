@@ -6,9 +6,10 @@ import CarModel from "../models/carModel.js";
 //adds a ride to the DB
 //POST /api/rides
 const addRide = asyncHandler(async (req, res) => {
-  const { carId, startLocation, endLocation } = req.body;
+  const { driverId, carId, startLocation, endLocation } = req.body;
   const car = await CarModel.findById(carId);
-  const user = req.user;
+  //const user = req.user;
+  const user = await UserModel.findById(driverId);
 
   if (!car) {
     res.status(404);
@@ -68,13 +69,16 @@ const updateRide = asyncHandler(async (req, res) => {
   if (ride) {
     ride.status = req.body.status || ride.status;
     ride.endTime = req.body.endTime || ride.endTime;
-    ride.endLocation =
-      coordinatesWithPoint(req.body.endLocation) || ride.endLocation;
+    if (req.body.endLocation) {
+      ride.endLocation = JSON.parse(req.body.endLocation);
+    }
+    if (req.body.startLocation) {
+      ride.startLocation = JSON.parse(req.body.startLocation);
+    }
     const updatedRide = await ride.save();
     res.status(200).json(updatedRide);
   } else {
-    res.status(404);
-    throw new Error("Ride not found");
+    res.status(404).json({ message: "Ride not found" });
   }
 });
 

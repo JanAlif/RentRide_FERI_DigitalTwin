@@ -3,6 +3,9 @@ import { Card, Typography } from '@material-tailwind/react';
 import { AdminNavbar } from '../components/AdminNavbar'; // Adjust the path as necessary
 
 import { UserAdminView } from '../components/UserAdminView'; // Adjust the path as necessary
+import { CarAdminView } from '../components/CarAdminView'; // Adjust the path as necessary
+import { ChargepointAdminView } from '../components/ChargepointsAdminView'; // Adjust the path as necessary
+import { RideAdminView } from '../components/RideAdminView'
 
 export function AdminScreen() {
     const [activeComponent, setActiveComponent] = useState('home');
@@ -24,6 +27,9 @@ export function AdminScreen() {
                         </Card>
                     )}
                     {activeComponent === 'users' && <UserAdminView />}
+                    {activeComponent === 'cars' && <CarAdminView />}
+                    {activeComponent === 'chargepoints' && <ChargepointAdminView />}
+                    {activeComponent === 'rides' && <RideAdminView />}
                 </div>
             </div>
         </div>
