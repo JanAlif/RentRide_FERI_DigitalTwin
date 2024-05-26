@@ -34,7 +34,7 @@ jobs:
           
       - name: Send webhook to Azure server
         run: |
-          curl -X POST https://13.95.94.114/webhook-endpoint \
+          curl -X POST http://13.95.94.114/webhook-endpoint \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer 1234" \
           -d '{"event":"deploy","docker_image":"titpodhraski/rentride:latest"}'
