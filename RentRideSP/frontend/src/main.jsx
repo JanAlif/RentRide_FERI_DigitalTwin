@@ -28,10 +28,11 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       <Route index={true} path="/" element={<HeroScreen />} />
       <Route path="/login" element={<LoginScreen />} />
+      <Route path="/register" element={<RegisterScreen />} />
+      <Route path="" element={<PrivateRoute />}>
       <Route path="/map" element={<MapScreen />} />
       <Route path="/admin" element={<AdminScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
-      <Route path="" element={<PrivateRoute />}></Route>
+      </Route>
     </Route>
   )
 );
