@@ -1,6 +1,7 @@
 import { apiSlice } from "./apiSlice";
 
 const USERS_URL = "/api/users";
+const RIDES_URL = "/api/rides";
 
 export const usersApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -18,7 +19,22 @@ export const usersApi = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    updateUser: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `${USERS_URL}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
+
+    getAllRides: builder.query({
+      query: () => ({
+        url: `${RIDES_URL}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = usersApi;
+export const { useLoginMutation, useRegisterMutation, useUpdateUserMutation, useGetAllRidesQuery } = usersApi;
