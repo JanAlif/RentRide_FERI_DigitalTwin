@@ -27,6 +27,13 @@ export const usersApi = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    updateUserPassword: builder.mutation({
+      query: ({ id, oldPassword, newPassword, confirmPassword }) => ({
+        url: `${USERS_URL}/${id}/password`,
+        method: "PUT",
+        body: { oldPassword, newPassword, confirmPassword },
+      }),
+    }),
 
     getAllRides: builder.query({
       query: () => ({
@@ -37,4 +44,4 @@ export const usersApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useUpdateUserMutation, useGetAllRidesQuery } = usersApi;
+export const { useLoginMutation, useRegisterMutation, useUpdateUserMutation, useUpdateUserPasswordMutation, useGetAllRidesQuery } = usersApi;

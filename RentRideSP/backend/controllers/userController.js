@@ -133,6 +133,33 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
+// Updates user password
+// PUT /api/users/:id/password
+const updateUserPassword = asyncHandler(async (req, res) => {
+  const user = await UserModel.findById(req.params.id);
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (!(await user.matchPassword(oldPassword))) {
+    res.status(401);
+    throw new Error("Incorrect old password");
+  }
+
+  if (newPassword !== confirmPassword) {
+    res.status(400);
+    throw new Error("New passwords do not match");
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(200).json({ message: "Password updated successfully" });
+});
+
 export {
   registerUser,
   loginUser,
@@ -141,4 +168,5 @@ export {
   getUserById,
   updateUser,
   deleteUser,
+  updateUserPassword,
 };
