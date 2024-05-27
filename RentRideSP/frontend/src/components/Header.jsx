@@ -48,16 +48,18 @@ export function StickyNavbar() {
           Map
         </Link>
       </Typography>
+
       <Typography
         as="li"
         variant="small"
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <a href="#" className="flex items-center">
-          Pages
+        <a href="/profile" className="flex items-center">
+          Profile
         </a>
       </Typography>
+
       <Typography
         as="li"
         variant="small"
