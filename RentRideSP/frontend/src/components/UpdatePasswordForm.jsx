@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useUpdateUserMutation } from '../slices/usersApiSlice';
-import { Input, Button } from '@material-tailwind/react';
+import { useSelector } from 'react-redux';
+import { useUpdateUserPasswordMutation } from '../slices/usersApiSlice';
+import { Input, Button, Typography } from '@material-tailwind/react';
 import Modal from './Modal';
 
 const UpdatePasswordForm = ({ isOpen, onClose }) => {
-  const dispatch = useDispatch();
-  const [updateUser] = useUpdateUserMutation();
+  const userInfo = useSelector((state) => state.auth.userInfo);
+  const [updateUserPassword] = useUpdateUserPasswordMutation();
 
   const [formData, setFormData] = useState({
     oldPassword: '',
@@ -27,7 +27,12 @@ const UpdatePasswordForm = ({ isOpen, onClose }) => {
       return;
     }
     try {
-      await updateUser({ id: userId, password: formData.newPassword, oldPassword: formData.oldPassword }).unwrap();
+      await updateUserPassword({
+        id: userInfo._id,
+        oldPassword: formData.oldPassword,
+        newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword,
+      }).unwrap();
       setMessage('Password updated successfully');
     } catch (error) {
       console.error('Failed to update password:', error);
@@ -65,13 +70,13 @@ const UpdatePasswordForm = ({ isOpen, onClose }) => {
             onChange={handleChange}
           />
         </div>
-        
         <div className="flex justify-end space-x-2">
           <Button variant="text" color="red" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit">Update Password</Button>
         </div>
+        
       </form>
     </Modal>
   );
