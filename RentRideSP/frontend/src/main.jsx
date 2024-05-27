@@ -21,6 +21,7 @@ import { LoginScreen } from "./screens/LoginScreen.jsx";
 import { MapScreen } from "./screens/MapScreen.jsx";
 import { AdminScreen } from "./screens/AdminScreen.jsx";
 import { RegisterScreen } from "./screens/RegisterScreen.jsx";
+import { ProfileScreen } from "./screens/ProfileScreen.jsx"
 
 //router for navigation
 const router = createBrowserRouter(
@@ -28,10 +29,12 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       <Route index={true} path="/" element={<HeroScreen />} />
       <Route path="/login" element={<LoginScreen />} />
+      <Route path="/register" element={<RegisterScreen />} />
+      <Route path="" element={<PrivateRoute />}>
       <Route path="/map" element={<MapScreen />} />
       <Route path="/admin" element={<AdminScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
-      <Route path="" element={<PrivateRoute />}></Route>
+      <Route path="/profile" element={<ProfileScreen />} />
+      </Route>
     </Route>
   )
 );

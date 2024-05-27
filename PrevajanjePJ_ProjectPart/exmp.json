@@ -10,7 +10,7 @@ carRide "voznja"{
 
     car "fiat 500" {
         carPoint (0, 3);
-        id :"1234";
+        id : 1234
     };
 
     start {(0, 4)};
@@ -51,7 +51,7 @@ carRide "voznja"{
 
     car "fiat 500" {
         carPoint (0, 3);
-        id :"1234";
+        id : 1234
     };
 
     start {start};
@@ -308,7 +308,9 @@ carRide "voznja"{
         circ ((9, 4), 0.4);
     };
     gasStation "Central Charging Station" {
-        (7, 3);
+        (7, 6);
+        (4, 4);
+        (3, 3);
         let _roi_ = neigh ((3, 4), 3);
             foreach _x_ in _roi_ {
             highlight _x_
@@ -316,6 +318,8 @@ carRide "voznja"{
     };
     electricStation "Central Gas Station" {
         (7, 3);
+        (5, 3);
+        (4, 3);
         let _roi_ = neigh ((3, 4), 3);
             foreach _x_ in _roi_ {
             highlight _x_
@@ -324,6 +328,7 @@ carRide "voznja"{
     parking "Nearby Parking" {
         (7, 3);
         (5, 2);
+        (4, 4);
         let _roi_ = neigh ((4, 5), 3);
             foreach _x_ in _roi_ {
             highlight _x_
