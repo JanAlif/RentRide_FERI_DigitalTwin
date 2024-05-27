@@ -4,9 +4,11 @@ import { useUpdateUserMutation } from '../slices/adminSlice';
 import { FaPencilRuler  } from "react-icons/fa";
 import { IoPersonRemove } from "react-icons/io5";
 
+const defaultProfilePic = 'https://storage.googleapis.com/rentride-1df1d.appspot.com/1716825620081.jpg';
+
 export function UserAdminDetail({ users, handleDeleteUser }) {
     const [editingUserId, setEditingUserId] = useState(null);
-    const [updatedUser, setUpdatedUser] = useState({ username: '', email: '', name: '' });
+    const [updatedUser, setUpdatedUser] = useState({ username: '', email: '' });
     const [updateUser] = useUpdateUserMutation();
     const [localUsers, setLocalUsers] = useState([]);
 
@@ -73,9 +75,16 @@ export function UserAdminDetail({ users, handleDeleteUser }) {
                         </div>
                     ) : (
                         <div className="flex justify-between items-center">
-                            <div className="flex gap-4">
-                                <Typography variant="h6">{user.username}</Typography>
-                                <Typography variant="paragraph">{user.email}</Typography>
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={user.profilepic || defaultProfilePic}
+                                    alt="Profile"
+                                    className="w-10 h-10 rounded-full"
+                                />
+                                <div className="flex gap-4 mb-2">
+                                    <Typography variant="h6">{user.username}</Typography>
+                                    <Typography variant="paragraph">{user.email}</Typography>
+                                </div>
                             </div>
                             <div className="flex gap-2">
                                 <IconButton color="blue" onClick={() => handleEditClick(user)}>
