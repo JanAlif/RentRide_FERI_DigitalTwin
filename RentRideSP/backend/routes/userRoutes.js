@@ -9,6 +9,7 @@ import {
   updateUser,
   deleteUser,
   updateUserPassword,
+  uploadProfilePic,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get("/:id", getUserById);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", protect, logoutUser);
+router.post("/:id/profile-pic", protect, uploadProfilePic); 
 
 router.put("/:id", protect, updateUser);
 router.put("/:id/password", protect, updateUserPassword);

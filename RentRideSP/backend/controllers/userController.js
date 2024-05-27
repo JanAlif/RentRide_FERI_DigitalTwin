@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import UserModel from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
+import { upload, uploadImage } from "../utils/upload.js";
 
 //authenticates user and sends JWT
 //route POST /api/users/login
@@ -39,6 +40,7 @@ const registerUser = asyncHandler(async (req, res) => {
     username,
     email,
     password,
+    profilepic: 'https://storage.googleapis.com/rentride-1df1d.appspot.com/1716825620081.jpg'
   });
 
   if (user) {
@@ -47,6 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      profilepic: user.profilepic,
     });
   } else {
     res.status(400);
@@ -160,6 +163,30 @@ const updateUserPassword = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Password updated successfully" });
 });
 
+// Upload profile picture
+// POST /api/users/:id/profile-pic
+const uploadProfilePic = asyncHandler(async (req, res) => {
+  upload.single('profilePic')(req, res, async (err) => {
+    if (err) {
+      console.error('Multer error:', err);
+      return res.status(500).json({ error: 'Multer error: ' + err.message });
+    }
+    try {
+      const imageUrl = await uploadImage(req.file);
+      const userId = req.params.id;
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        { profilepic: imageUrl },
+        { new: true }
+      );
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ error: 'Error updating user: ' + error.message });
+    }
+  });
+});
+
 export {
   registerUser,
   loginUser,
@@ -169,4 +196,5 @@ export {
   updateUser,
   deleteUser,
   updateUserPassword,
+  uploadProfilePic,
 };
