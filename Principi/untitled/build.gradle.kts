@@ -22,7 +22,9 @@ dependencies {
 
     implementation(compose.desktop.currentOs)
     implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.4.0")
-
+    implementation("org.mongodb:mongodb-driver-sync:4.3.1")
+    implementation("org.mindrot:jbcrypt:0.4")
+    implementation("com.google.firebase:firebase-admin:8.1.0")
 }
 
 compose.desktop {
