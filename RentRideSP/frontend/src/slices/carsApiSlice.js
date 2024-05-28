@@ -10,7 +10,20 @@ export const carsApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    getCar: builder.query({
+      query: (id) => ({
+        url: `${CARS_URL}/${id}`,
+        method: "GET",
+      }),
+    }),
+    updateCarStatus: builder.mutation({
+      query: ({ id, inUse }) => ({
+        url: `${CARS_URL}/${id}/status`,
+        method: "PATCH",
+        body: { inUse },
+      }),
+    }),
   }),
 });
 
-export const { useGetCarsQuery } = carsApi;
+export const { useGetCarsQuery, useGetCarQuery, useUpdateCarStatusMutation } = carsApi;

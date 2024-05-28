@@ -91,7 +91,7 @@ export function StickyNavbar() {
           <div className="flex items-center">
             <Typography
               as="a"
-              href="#"
+              href="/"
               className="mr-4 cursor-pointer py-1.5 font-medium"
             >
               RentRide

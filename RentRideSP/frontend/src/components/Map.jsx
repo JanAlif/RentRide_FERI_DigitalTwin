@@ -3,7 +3,8 @@ import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import startImage from '../assets/start.png';
 import finishImage from '../assets/finish.png';
-import carImage from '../assets/car.png'; // Import car image
+import carImage from '../assets/car.png';
+import { useUpdateCarStatusMutation } from '../slices/carsApiSlice';
 
 const containerStyle = {
   width: '100%',
@@ -51,7 +52,7 @@ const parseDirectionsResponse = (response) => {
   return route;
 };
 
-const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, isPlaying, isStopped, setProgress }) => {
+const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, isPlaying, isStopped, setProgress, carId }) => {
   const [route, setRoute] = useState([]);
   const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
@@ -60,6 +61,7 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
   const animationStartTimeRef = useRef(null);
   const progressRef = useRef(0);
   const pauseTimeRef = useRef(null);
+  const [updateCarStatus] = useUpdateCarStatusMutation();
 
   useEffect(() => {
     if (directionsResponse) {
@@ -80,7 +82,7 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
     const endTimestamp = new Date(arrivalTime).getTime();
     let duration = (endTimestamp - startTimestamp) / speedFactor;
 
-    const animateCar = () => {
+    const animateCar = async () => {
       const currentTime = new Date().getTime();
       const elapsedTime = currentTime - animationStartTimeRef.current;
       const t = Math.min(1, elapsedTime / duration); // Calculate the time progress (0 to 1)
@@ -92,6 +94,9 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
 
       if (t < 1) {
         animationRef.current = requestAnimationFrame(animateCar);
+      } else {
+        // Animation has reached the end, update car status to false
+        await updateCarStatus({ id: carId, inUse: false });
       }
     };
 

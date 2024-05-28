@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Card, Input, Button, Typography } from '@material-tailwind/react';
-import Map from '../components/Map'; // Import the Leaflet Map component
+import Map from '../components/Map';
+import { useGetCarQuery, useUpdateCarStatusMutation } from '../slices/carsApiSlice';
 
 export function MapScreen() {
+  const [searchParams] = useSearchParams();
+  const carId = searchParams.get('carId');
+  const { data: car, error: carError, isLoading: carLoading } = useGetCarQuery(carId);
+  const [updateCarStatus] = useUpdateCarStatusMutation();
+
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
   const [departureTime, setDepartureTime] = useState('');
@@ -36,7 +43,6 @@ export function MapScreen() {
     const value = e.target.value;
     setOrigin(value);
 
-    // Enable autocomplete API call for origin
     if (value.length >= 3) {
       originAutocompleteService.current.getPlacePredictions({ input: value }, (predictions, status) => {
         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
@@ -52,7 +58,6 @@ export function MapScreen() {
     const value = e.target.value;
     setDestination(value);
 
-    // Enable autocomplete API call for destination
     if (value.length >= 3) {
       destinationAutocompleteService.current.getPlacePredictions({ input: value }, (predictions, status) => {
         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
@@ -110,19 +115,21 @@ export function MapScreen() {
     });
   };
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     setIsPlaying(true);
     setIsStopped(false);
+    await updateCarStatus({ id: carId, inUse: true });
   };
 
   const handlePause = () => {
     setIsPlaying(false);
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
     setIsPlaying(false);
     setIsStopped(true);
     setProgress(0);
+    await updateCarStatus({ id: carId, inUse: false });
   };
 
   const handleSpeedChange = (e) => {
@@ -131,10 +138,13 @@ export function MapScreen() {
     }
   };
 
+  if (carLoading) return <div>Loading car details...</div>;
+  if (carError) return <div>Error loading car details</div>;
+
   return (
     <Card color="transparent" shadow={false} className="mx-auto max-w-screen-2xl px-4 py-12">
       <Typography variant="h4" color="blue-gray" className="text-center">
-        Route
+        Route for {car.brand} {car.model}
       </Typography>
       <div className="flex flex-col gap-6 mt-6">
         <Input
@@ -252,6 +262,7 @@ export function MapScreen() {
           isPlaying={isPlaying}
           isStopped={isStopped}
           setProgress={setProgress}
+          carId={carId} // Pass the carId to the Map component
         />
         <div className="flex flex-col gap-4 mt-4 w-full">
           <div className="flex gap-4 justify-between">
@@ -263,7 +274,7 @@ export function MapScreen() {
                 onChange={handleSpeedChange}
                 min="1"
                 max="100"
-                disabled={isPlaying} // Disable speed change input when playing
+                disabled={isPlaying}
                 className="w-full"
               />
             </label>
@@ -293,7 +304,6 @@ export function MapScreen() {
 
 const loadGoogleMapsScript = (apiKey) => {
   return new Promise((resolve, reject) => {
-    // Check if the script is already loaded
     if (document.querySelector(`script[src*="maps.googleapis.com/maps/api/js?key=${apiKey}"]`)) {
       resolve();
       return;

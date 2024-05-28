@@ -23,6 +23,7 @@ import { AdminScreen } from "./screens/AdminScreen.jsx";
 import { RegisterScreen } from "./screens/RegisterScreen.jsx";
 import { ProfileScreen } from "./screens/ProfileScreen.jsx";
 import CarScreen from "./screens/CarScreen.jsx";
+import { CarDetailScreen } from "./screens/CarDetailScreen.jsx";
 //router for navigation
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,6 +36,7 @@ const router = createBrowserRouter(
         <Route path="/map" element={<MapScreen />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/car/:id" element={<CarDetailScreen />} />
       </Route>
     </Route>
   )
