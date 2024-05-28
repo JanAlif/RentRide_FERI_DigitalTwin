@@ -17,7 +17,9 @@ export function StickyNavbar() {
   const dispatch = useDispatch();
   const [userProfile, setUserProfile] = useState(null);
 
-  const { data: user, isLoading: userLoading } = useGetUserByIdQuery(userInfo?._id);
+  const { data: user, isLoading: userLoading } = useGetUserByIdQuery(
+    userInfo?._id
+  );
 
   useEffect(() => {
     if (user) {
@@ -58,7 +60,6 @@ export function StickyNavbar() {
           Map
         </Link>
       </Typography>
-
       <Typography
         as="li"
         variant="small"
@@ -76,28 +77,8 @@ export function StickyNavbar() {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <a href="#" className="flex items-center">
-          Account
-        </a>
-      </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <a href="#" className="flex items-center">
-          Blocks
-        </a>
-      </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <a href="#" className="flex items-center">
-          Docs
+        <a href="/car" className="flex items-center">
+          Cars
         </a>
       </Typography>
     </ul>
@@ -118,11 +99,16 @@ export function StickyNavbar() {
             {userProfile && (
               <div className="flex items-center gap-2">
                 <img
-                  src={userProfile.profilepic || 'https://storage.googleapis.com/rentride-1df1d.appspot.com/1716825620081.jpg'}
+                  src={
+                    userProfile.profilepic ||
+                    "https://storage.googleapis.com/rentride-1df1d.appspot.com/1716825620081.jpg"
+                  }
                   alt="Profile"
                   className="w-8 h-8 rounded-full object-cover"
                 />
-                <Typography variant="small" className="ml-2">{userProfile.username}</Typography>
+                <Typography variant="small" className="ml-2">
+                  {userProfile.username}
+                </Typography>
               </div>
             )}
           </div>
