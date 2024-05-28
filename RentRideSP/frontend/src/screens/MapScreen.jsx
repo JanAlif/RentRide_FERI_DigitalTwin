@@ -35,11 +35,43 @@ export function MapScreen() {
   const handleOriginChange = (e) => {
     const value = e.target.value;
     setOrigin(value);
+
+    // Enable autocomplete API call for origin
+    if (value.length >= 3) {
+      originAutocompleteService.current.getPlacePredictions({ input: value }, (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          setOriginSuggestions(predictions);
+        }
+      });
+    } else {
+      setOriginSuggestions([]);
+    }
   };
 
   const handleDestinationChange = (e) => {
     const value = e.target.value;
     setDestination(value);
+
+    // Enable autocomplete API call for destination
+    if (value.length >= 3) {
+      destinationAutocompleteService.current.getPlacePredictions({ input: value }, (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          setDestinationSuggestions(predictions);
+        }
+      });
+    } else {
+      setDestinationSuggestions([]);
+    }
+  };
+
+  const handleOriginSuggestionClick = (suggestion) => {
+    setOrigin(suggestion.description);
+    setOriginSuggestions([]);
+  };
+
+  const handleDestinationSuggestionClick = (suggestion) => {
+    setDestination(suggestion.description);
+    setDestinationSuggestions([]);
   };
 
   const handleDirections = () => {
@@ -111,12 +143,30 @@ export function MapScreen() {
           value={origin}
           onChange={handleOriginChange}
         />
+        {originSuggestions.length > 0 && (
+          <ul>
+            {originSuggestions.map((suggestion) => (
+              <li key={suggestion.place_id} onClick={() => handleOriginSuggestionClick(suggestion)}>
+                {suggestion.description}
+              </li>
+            ))}
+          </ul>
+        )}
         <Input
           size="lg"
           placeholder="Destination..."
           value={destination}
           onChange={handleDestinationChange}
         />
+        {destinationSuggestions.length > 0 && (
+          <ul>
+            {destinationSuggestions.map((suggestion) => (
+              <li key={suggestion.place_id} onClick={() => handleDestinationSuggestionClick(suggestion)}>
+                {suggestion.description}
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="flex gap-4">
           <label>
             <input
@@ -183,7 +233,6 @@ export function MapScreen() {
             Optimistic
           </label>
         </div>
-  
         <Button className="mt-6" onClick={handleDirections}>
           Draw Route
         </Button>
@@ -240,35 +289,27 @@ export function MapScreen() {
       </div>
     </Card>
   );
-  
 }
 
-
-
-
-
-
-
 const loadGoogleMapsScript = (apiKey) => {
-    return new Promise((resolve, reject) => {
-      // Check if the script is already loaded
-      if (document.querySelector(`script[src*="maps.googleapis.com/maps/api/js?key=${apiKey}"]`)) {
-        resolve();
-        return;
-      }
-      
-      if (typeof window.google === 'object' && typeof window.google.maps === 'object') {
-        resolve();
-        return;
-      }
-      
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  };
-  
+  return new Promise((resolve, reject) => {
+    // Check if the script is already loaded
+    if (document.querySelector(`script[src*="maps.googleapis.com/maps/api/js?key=${apiKey}"]`)) {
+      resolve();
+      return;
+    }
+    
+    if (typeof window.google === 'object' && typeof window.google.maps === 'object') {
+      resolve();
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+};

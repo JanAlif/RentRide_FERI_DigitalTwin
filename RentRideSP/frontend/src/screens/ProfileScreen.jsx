@@ -12,7 +12,9 @@ export function ProfileScreen() {
   const [profilePic, setProfilePic] = useState('https://storage.googleapis.com/rentride-1df1d.appspot.com/1716825620081.jpg');
   const [uploadProfilePic] = useUpdateUserProfilePicMutation();
 
-  const { data: user, isLoading: userLoading } = useGetUserByIdQuery(userInfo?._id);
+  const { data: user, isLoading: userLoading } = useGetUserByIdQuery(userInfo?._id, {
+    skip: !userInfo,
+  });
   const { data: rides = [], isLoading: ridesLoading } = useGetAllRidesQuery();
 
   useEffect(() => {
@@ -21,11 +23,11 @@ export function ProfileScreen() {
     }
   }, [user]);
 
-  if (userLoading) {
-    return <Typography variant="h6" className="text-center">Loading user information...</Typography>;
+  if (userLoading || ridesLoading) {
+    return <Typography variant="h6" className="text-center">Loading...</Typography>;
   }
 
-  if (!userInfo) {
+  if (!userInfo || !user) {
     return <Typography variant="h6" className="text-center">No user information available.</Typography>;
   }
 
@@ -41,7 +43,7 @@ export function ProfileScreen() {
     }
   };
 
-  const userRides = rides.filter(ride => ride.driver._id === userInfo._id);
+  const userRides = rides.filter(ride => ride.driver && ride.driver._id === userInfo._id);
   const carsDriven = [...new Set(userRides.map(ride => JSON.stringify(ride.car)))].map(car => JSON.parse(car));
 
   return (
