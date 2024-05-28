@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Typography, Card, Button, List, ListItem } from '@material-tailwind/react';
 import UpdateDetailsForm from '../components/UpdateDetailsForm';
 import UpdatePasswordForm from '../components/UpdatePasswordForm';
-import { useGetAllRidesQuery, useUpdateUserProfilePicMutation } from '../slices/usersApiSlice';
+import { useGetAllRidesQuery, useUpdateUserProfilePicMutation, useGetUserByIdQuery } from '../slices/usersApiSlice';
 
 export function ProfileScreen() {
   const userInfo = useSelector((state) => state.auth.userInfo);
@@ -12,13 +12,18 @@ export function ProfileScreen() {
   const [profilePic, setProfilePic] = useState('https://storage.googleapis.com/rentride-1df1d.appspot.com/1716825620081.jpg');
   const [uploadProfilePic] = useUpdateUserProfilePicMutation();
 
+  const { data: user, isLoading: userLoading } = useGetUserByIdQuery(userInfo?._id);
   const { data: rides = [], isLoading: ridesLoading } = useGetAllRidesQuery();
 
   useEffect(() => {
-    if (userInfo && userInfo.profilepic) {
-      setProfilePic(userInfo.profilepic);
+    if (user && user.profilepic) {
+      setProfilePic(user.profilepic);
     }
-  }, [userInfo]);
+  }, [user]);
+
+  if (userLoading) {
+    return <Typography variant="h6" className="text-center">Loading user information...</Typography>;
+  }
 
   if (!userInfo) {
     return <Typography variant="h6" className="text-center">No user information available.</Typography>;
@@ -43,12 +48,6 @@ export function ProfileScreen() {
     <Card className="p-6 mx-auto max-w-screen-md mt-10">
       <Typography variant="h4" className="text-center mb-4">Profile</Typography>
       <div className="mb-4">
-        <Typography variant="h6">Username: {userInfo.username}</Typography>
-      </div>
-      <div className="mb-4">
-        <Typography variant="h6">Email: {userInfo.email}</Typography>
-      </div>
-      <div className="mb-4">
         <Typography variant="h6">Profile Picture:</Typography>
         <img
           src={profilePic}
@@ -57,6 +56,13 @@ export function ProfileScreen() {
         />
         <input type="file" onChange={handleProfilePicChange} />
       </div>
+      <div className="mb-4">
+        <Typography variant="h6">Username: {user.username}</Typography>
+      </div>
+      <div className="mb-4">
+        <Typography variant="h6">Email: {user.email}</Typography>
+      </div>
+      
       <div className="mb-4 flex justify-center space-x-4">
         <Button onClick={() => setShowUpdateDetails(true)}>Update Details</Button>
         <Button onClick={() => setShowUpdatePassword(true)}>Update Password</Button>

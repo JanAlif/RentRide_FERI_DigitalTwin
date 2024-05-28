@@ -1,5 +1,4 @@
 import { StickyNavbar } from "./components/Header.jsx";
-import HeroScreen from "./screens/HeroScreen";
 import { Outlet } from "react-router-dom";
 
 function App() {
