@@ -33,7 +33,7 @@ fun MainScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(DeepBlue)
+            .background(Color(0xFF003366)) // Assuming DeepBlue is a color
     ) {
         HeaderComponent()
         Spacer(modifier = Modifier.height(8.dp))
@@ -52,7 +52,7 @@ fun MainScreen() {
             }
             Spacer(modifier = Modifier.width(8.dp))
             when (currentView) {
-                "AddUser" -> AddUserComponent(modifier = Modifier.weight(1f))
+                "AddUser" -> AddUserComponent(modifier = Modifier.weight(1f),onSuccess = { currentView = "Users" })
                 "AddCar" -> AddCarComponent(modifier = Modifier.weight(1f))
                 "Users" -> UsersComponent(modifier = Modifier.weight(1f))
                 "Cars" -> CarComponent(modifier = Modifier.weight(1f))
