@@ -9,7 +9,6 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.Document
-import org.bson.types.ObjectId
 import org.mindrot.jbcrypt.BCrypt
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
@@ -87,51 +86,5 @@ object DatabaseUtil {
     }
     fun fetchUsers(): List<Document> {
         return collection.find().toList()
-    }
-    fun updateUserData(userId: String, username: String="", email: String?, password: String="", profilePicture: BufferedImage?=null): String {
-        val objectId: ObjectId = try {
-            ObjectId(userId)
-        } catch (e: IllegalArgumentException) {
-            return "Invalid user ID format."
-        }
-        val userDocument = collection.find(Filters.eq("_id", objectId)).first() ?: return "User not found."
-
-        username?.let {
-            val usernameFilter = Filters.eq("username", it)
-            val excludeIdFilter = Filters.ne("_id", objectId)
-            val existingUser = collection.find(Filters.and(usernameFilter, excludeIdFilter)).first()
-            if (existingUser != null && existingUser["_id"] != userId) {
-                return "Username is already in use."
-            }
-            userDocument["username"] = it
-        }
-
-        email?.let {
-            val usernameFilter = Filters.eq("email", it)
-            val excludeIdFilter = Filters.ne("_id", objectId)
-            val existingEmail = collection.find(Filters.and(usernameFilter, excludeIdFilter)).first()
-            if (existingEmail != null && existingEmail["_id"] != userId) {
-                return "Email is already in use."
-            }
-            userDocument["email"] = it
-        }
-
-        password?.let {
-            /*
-            val salt = BCrypt.gensalt(10)
-            val hashedPassword = BCrypt.hashpw(it, salt)
-            userDocument["password"] = hashedPassword*/
-            userDocument["password"] = it
-        }
-
-        profilePicture?.let {
-            val profilePicUrl = uploadImageToFirebase(it)
-            userDocument["profilepic"] = profilePicUrl
-        }
-
-        userDocument["updatedAt"] = Instant.now()
-
-        collection.replaceOne(Filters.eq("_id", objectId), userDocument)
-        return "User data updated successfully."
     }
 }

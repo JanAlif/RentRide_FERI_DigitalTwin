@@ -10,8 +10,11 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    gradlePluginPortal()
     google()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://androidx.dev/storage/compose-compiler/repository")
+    maven("https://packages.jetbrains.team/maven/p/skija/maven")
 }
 
 dependencies {
@@ -25,6 +28,12 @@ dependencies {
     implementation("org.mongodb:mongodb-driver-sync:4.3.1")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.google.firebase:firebase-admin:8.1.0")
+    implementation("org.jetbrains.skija:skija-macos-arm64:0.93.1")
+    implementation("io.ktor:ktor-client-core:2.2.1")
+    implementation("io.ktor:ktor-client-cio:2.2.1")
+    implementation("io.ktor:ktor-client-json:2.2.1")
+    implementation("io.ktor:ktor-client-serialization:2.2.1")
+    implementation("io.ktor:ktor-client-logging:2.2.1")
 }
 
 compose.desktop {

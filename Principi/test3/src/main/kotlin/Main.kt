@@ -65,7 +65,7 @@ fun getGasStations(location: String, radious: Int) {
 }
 
 fun getCar(
-    keyword: String = "",
+    keyword: String,
     fuel_type: String = "",
     min_fuel_effic: Double? = null,
     min_top_speed: Int? = null,
@@ -125,5 +125,5 @@ fun main() {
 
     getGasStations(maribor, 1000)
 
-    getCar( fuel_type = "LPG")
+    getCar("audi Q7", min_year = 2022)
 }

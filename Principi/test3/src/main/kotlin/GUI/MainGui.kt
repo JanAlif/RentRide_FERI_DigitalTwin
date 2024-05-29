@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.singleWindowApplication
-import org.bson.Document
 
 fun main() = singleWindowApplication(
     title = "My GUI",
@@ -29,7 +28,6 @@ fun MainScreen() {
     var sidebarWidth by remember { mutableStateOf(200.dp) }
     var isSidebarCollapsed by remember { mutableStateOf(false) }
     var currentView by remember { mutableStateOf("MainContent") }
-    var user by remember { mutableStateOf<Document?>(null) }
 
     Column(
         modifier = Modifier
@@ -55,14 +53,9 @@ fun MainScreen() {
             Spacer(modifier = Modifier.width(8.dp))
             when (currentView) {
                 "AddUser" -> AddUserComponent(modifier = Modifier.weight(1f),onSuccess = { currentView = "Users" })
-                "AddCar" -> AddCarComponent(modifier = Modifier.weight(1f), onSubmit = { keyword, fuelType, minFuelEffic, minTopSpeed, minYear, maxFuelEffic, maxTopSpeed, maxYear -> println(fuelType) })
-                //"AddCar" -> AddCarComponent()
-                "Users" -> UsersComponent(modifier = Modifier.weight(1f), onUserClick = {
-                    user = it
-                    currentView = "UpdateUser"
-                })
-                "Cars" -> CarComponent(modifier = Modifier.weight(1f),onCarClick = {currentView = "Users" })
-                "UpdateUser" -> UpdateUserComponent(modifier = Modifier.weight(1f),onSuccess = { currentView = "Users" }, user)
+                "AddCar" -> AddCarComponent(modifier = Modifier.weight(1f))
+                "Users" -> UsersComponent(modifier = Modifier.weight(1f), onUserClick = {currentView = "Cars"})
+                "Cars" -> CarComponent(modifier = Modifier.weight(1f))
                 "Generate" -> GenerateComponent(modifier = Modifier.weight(1f))
                 "Scrape" -> ScrapeComponent(modifier = Modifier.weight(1f))
                 else -> MainContentComponent(modifier = Modifier.weight(1f))
