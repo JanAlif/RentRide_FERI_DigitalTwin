@@ -50,16 +50,7 @@ export function StickyNavbar() {
           Admin
         </Link>
       </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <Link to="/map" className="flex items-center">
-          Map
-        </Link>
-      </Typography>
+      
       <Typography
         as="li"
         variant="small"

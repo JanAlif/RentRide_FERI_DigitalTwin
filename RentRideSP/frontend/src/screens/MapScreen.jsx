@@ -4,23 +4,24 @@ import { format } from 'date-fns';
 import { Card, Input, Button, Typography } from '@material-tailwind/react';
 import Map from '../components/Map';
 import { useGetCarQuery, useUpdateCarStatusMutation } from '../slices/carsApiSlice';
+import { useSelector } from 'react-redux'; // Assuming you have a user in Redux state
 
 export function MapScreen() {
   const [searchParams] = useSearchParams();
   const carId = searchParams.get('carId');
   const { data: car, error: carError, isLoading: carLoading } = useGetCarQuery(carId);
   const [updateCarStatus] = useUpdateCarStatusMutation();
+  const user = useSelector((state) => state.auth.userInfo); // Assuming you have a user slice in Redux state
+  const driverId = user?._id;
 
-  const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
   const [departureTime, setDepartureTime] = useState('');
   const [trafficModel, setTrafficModel] = useState('best_guess');
   const [directionsResponse, setDirectionsResponse] = useState(null);
   const [error, setError] = useState('');
   const [arrivalTime, setArrivalTime] = useState('');
-  const [originSuggestions, setOriginSuggestions] = useState([]);
+  const [distance, setDistance] = useState(0); // Initialize distance as a number
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
-  const originAutocompleteService = useRef(null);
   const destinationAutocompleteService = useRef(null);
 
   const [avoidTolls, setAvoidTolls] = useState(false);
@@ -34,25 +35,9 @@ export function MapScreen() {
 
   useEffect(() => {
     loadGoogleMapsScript(import.meta.env.VITE_GOOGLE_MAPS_API_KEY).then(() => {
-      originAutocompleteService.current = new window.google.maps.places.AutocompleteService();
       destinationAutocompleteService.current = new window.google.maps.places.AutocompleteService();
     });
   }, []);
-
-  const handleOriginChange = (e) => {
-    const value = e.target.value;
-    setOrigin(value);
-
-    if (value.length >= 3) {
-      originAutocompleteService.current.getPlacePredictions({ input: value }, (predictions, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          setOriginSuggestions(predictions);
-        }
-      });
-    } else {
-      setOriginSuggestions([]);
-    }
-  };
 
   const handleDestinationChange = (e) => {
     const value = e.target.value;
@@ -69,19 +54,14 @@ export function MapScreen() {
     }
   };
 
-  const handleOriginSuggestionClick = (suggestion) => {
-    setOrigin(suggestion.description);
-    setOriginSuggestions([]);
-  };
-
   const handleDestinationSuggestionClick = (suggestion) => {
     setDestination(suggestion.description);
     setDestinationSuggestions([]);
   };
 
   const handleDirections = () => {
-    if (!origin || !destination) {
-      setError('Both origin and destination are required.');
+    if (!car?.location || !destination) {
+      setError('Car location and destination are required.');
       return;
     }
     setError('');
@@ -89,7 +69,10 @@ export function MapScreen() {
     loadGoogleMapsScript(import.meta.env.VITE_GOOGLE_MAPS_API_KEY).then(() => {
       const directionsService = new window.google.maps.DirectionsService();
       const request = {
-        origin,
+        origin: {
+          lat: car.location.coordinates[1],
+          lng: car.location.coordinates[0]
+        },
         destination,
         travelMode: window.google.maps.TravelMode.DRIVING,
         avoidTolls,
@@ -107,6 +90,7 @@ export function MapScreen() {
           const leg = result.routes[0].legs[0];
           const arrival = new Date(new Date(departureTime).getTime() + leg.duration_in_traffic.value * 1000);
           setArrivalTime(arrival);
+          setDistance(leg.distance.value / 1000); // Set the distance in kilometers
         } else {
           console.error(`Error fetching directions ${result}`);
           setError('Failed to get directions.');
@@ -147,21 +131,6 @@ export function MapScreen() {
         Route for {car.brand} {car.model}
       </Typography>
       <div className="flex flex-col gap-6 mt-6">
-        <Input
-          size="lg"
-          placeholder="Origin..."
-          value={origin}
-          onChange={handleOriginChange}
-        />
-        {originSuggestions.length > 0 && (
-          <ul>
-            {originSuggestions.map((suggestion) => (
-              <li key={suggestion.place_id} onClick={() => handleOriginSuggestionClick(suggestion)}>
-                {suggestion.description}
-              </li>
-            ))}
-          </ul>
-        )}
         <Input
           size="lg"
           placeholder="Destination..."
@@ -251,6 +220,11 @@ export function MapScreen() {
             <strong>Estimated Arrival Time:</strong> {format(arrivalTime, "yyyy-MM-dd'T'HH:mm")}
           </Typography>
         )}
+        {distance && (
+          <Typography color="gray" className="mt-4 text-center">
+            <strong>Distance:</strong> {distance} km
+          </Typography>
+        )}
         {error && <Typography color="red" className="mt-2">{error}</Typography>}
       </div>
       <div className="mt-6">
@@ -263,6 +237,8 @@ export function MapScreen() {
           isStopped={isStopped}
           setProgress={setProgress}
           carId={carId} // Pass the carId to the Map component
+          driverId={driverId} // Pass the driverId to the Map component
+          distance={distance} // Pass the distance to the Map component
         />
         <div className="flex flex-col gap-4 mt-4 w-full">
           <div className="flex gap-4 justify-between">
@@ -308,12 +284,12 @@ const loadGoogleMapsScript = (apiKey) => {
       resolve();
       return;
     }
-    
+
     if (typeof window.google === 'object' && typeof window.google.maps === 'object') {
       resolve();
       return;
     }
-    
+
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     script.async = true;

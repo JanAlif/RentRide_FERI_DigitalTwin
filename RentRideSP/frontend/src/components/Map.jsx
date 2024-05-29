@@ -4,7 +4,7 @@ import L from 'leaflet';
 import startImage from '../assets/start.png';
 import finishImage from '../assets/finish.png';
 import carImage from '../assets/car.png';
-import { useUpdateCarStatusMutation } from '../slices/carsApiSlice';
+import { useUpdateCarStatusMutation, useAddRideMutation, useUpdateCarDetailsMutation } from '../slices/carsApiSlice';
 
 const containerStyle = {
   width: '100%',
@@ -52,7 +52,7 @@ const parseDirectionsResponse = (response) => {
   return route;
 };
 
-const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, isPlaying, isStopped, setProgress, carId }) => {
+const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, isPlaying, isStopped, setProgress, carId, driverId, distance }) => {
   const [route, setRoute] = useState([]);
   const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
@@ -62,6 +62,8 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
   const progressRef = useRef(0);
   const pauseTimeRef = useRef(null);
   const [updateCarStatus] = useUpdateCarStatusMutation();
+  const [addRide] = useAddRideMutation();
+  const [updateCarDetails] = useUpdateCarDetailsMutation(); // Add this
 
   useEffect(() => {
     if (directionsResponse) {
@@ -82,6 +84,42 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
     const endTimestamp = new Date(arrivalTime).getTime();
     let duration = (endTimestamp - startTimestamp) / speedFactor;
 
+    const saveRideDetails = async () => {
+      const rideDetails = {
+        driverId,
+        carId,
+        startLocation: JSON.stringify({
+          type: "Point",
+          coordinates: [startPoint.lng, startPoint.lat],
+        }),
+        endLocation: JSON.stringify({
+          type: "Point",
+          coordinates: [endPoint.lng, endPoint.lat],
+        }),
+        path: {
+          type: "LineString",
+          coordinates: route.map(point => [point.lng, point.lat]),
+        },
+        startTime: departureTime,
+        endTime: arrivalTime,
+        status: "completed", // Set status to completed
+      };
+
+      try {
+        await addRide(rideDetails).unwrap();
+
+        // Update car details (total km and location)
+        const newLocation = {
+          type: "Point",
+          coordinates: [endPoint.lng, endPoint.lat],
+        };
+
+        await updateCarDetails({ id: carId, newKm: distance, newLocation }).unwrap();
+      } catch (error) {
+        console.error("Failed to save ride details:", error);
+      }
+    };
+
     const animateCar = async () => {
       const currentTime = new Date().getTime();
       const elapsedTime = currentTime - animationStartTimeRef.current;
@@ -95,8 +133,9 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
       if (t < 1) {
         animationRef.current = requestAnimationFrame(animateCar);
       } else {
-        // Animation has reached the end, update car status to false
+        // Animation has reached the end, update car status to false and save ride details
         await updateCarStatus({ id: carId, inUse: false });
+        await saveRideDetails();
       }
     };
 
@@ -127,7 +166,7 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [route, startPoint, endPoint, departureTime, arrivalTime, speedFactor, isPlaying, isStopped, setProgress]);
+  }, [route, startPoint, endPoint, departureTime, arrivalTime, speedFactor, isPlaying, isStopped, setProgress, carId, driverId, updateCarStatus, addRide, updateCarDetails]);
 
   return (
     <MapContainer style={containerStyle} center={[center.lat, center.lng]} zoom={10}>

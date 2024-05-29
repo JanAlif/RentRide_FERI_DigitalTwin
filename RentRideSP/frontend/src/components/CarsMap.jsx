@@ -2,7 +2,8 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useGetCarsQuery } from '../slices/carsApiSlice';
-import carImage from '../assets/car.png'; // Import car image
+import carImage from '../assets/car.png';
+import { useNavigate } from 'react-router-dom';
 
 const containerStyle = {
   width: '100%',
@@ -20,11 +21,20 @@ const carIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-const CarsMap = ({ onCarSelect }) => {
+const CarsMap = () => {
   const { data: cars, error, isLoading } = useGetCarsQuery();
+  const navigate = useNavigate();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading cars</div>;
+
+  const handleCarDetail = (carId) => {
+    navigate(`/car/${carId}`);
+  };
+
+  const handleReserveRide = (carId) => {
+    navigate(`/map?carId=${carId}`);
+  };
 
   return (
     <MapContainer style={containerStyle} center={[center.lat, center.lng]} zoom={10}>
@@ -37,15 +47,13 @@ const CarsMap = ({ onCarSelect }) => {
           key={car._id}
           position={[car.location.coordinates[1], car.location.coordinates[0]]}
           icon={carIcon}
-          eventHandlers={{
-            click: () => onCarSelect(car._id),
-          }}
         >
           <Popup>
             <div>
               <h3>{car.brand} {car.model}</h3>
               <p>{car.inUse ? "In Use" : "Available"}</p>
-              <button onClick={() => onCarSelect(car._id)}>Select Car</button>
+              <button onClick={() => handleCarDetail(car._id)}>View Details</button>
+              <button onClick={() => handleReserveRide(car._id)}>Reserve Ride</button>
             </div>
           </Popup>
         </Marker>

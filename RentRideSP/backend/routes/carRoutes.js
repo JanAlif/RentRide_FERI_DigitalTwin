@@ -8,6 +8,7 @@ import {
   deleteCar,
   getChargePointsNearby,
   updateCarStatus ,
+  updateCarDetails,
 } from "../controllers/carController.js";
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.post("/", addCar);
 router.put("/:id", updateCar);
 router.delete("/:id", deleteCar);
 router.patch('/:id/status', updateCarStatus);
+router.route('/:id/details').patch(updateCarDetails);
 
 export default router;
