@@ -105,6 +105,37 @@ const getChargePointsNearby = asyncHandler(async (req, res) => {
   res.status(200).json(chargePoints);
 });
 
+//updates car inUse status in DB
+//PATCH /api/cars/:id/status
+const updateCarStatus = asyncHandler(async (req, res) => {
+  const car = await CarModel.findById(req.params.id);
+  if (car) {
+    car.inUse = req.body.inUse;
+    const updatedCar = await car.save();
+    res.status(200).json(updatedCar);
+  } else {
+    res.status(404);
+    throw new Error("Car not found");
+  }
+});
+
+// Update car's total kilometers and location
+const updateCarDetails = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { newKm, newLocation } = req.body;
+
+  const car = await CarModel.findById(id);
+  if (car) {
+    car.totalKm += newKm;
+    car.location = newLocation;
+    await car.save();
+    res.status(200).json(car);
+  } else {
+    res.status(404).json({ message: "Car not found" });
+    throw new Error("Car not found");
+  }
+});
+
 //util functions
 const coordinatesWithPoint = (coordinates) => {
   return {
@@ -120,4 +151,6 @@ export {
   updateCar,
   deleteCar,
   getChargePointsNearby,
+  updateCarStatus,
+  updateCarDetails,
 };
