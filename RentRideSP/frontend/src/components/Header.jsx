@@ -50,16 +50,7 @@ export function StickyNavbar() {
           Admin
         </Link>
       </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <Link to="/map" className="flex items-center">
-          Map
-        </Link>
-      </Typography>
+      
       <Typography
         as="li"
         variant="small"
@@ -91,7 +82,7 @@ export function StickyNavbar() {
           <div className="flex items-center">
             <Typography
               as="a"
-              href="#"
+              href="/"
               className="mr-4 cursor-pointer py-1.5 font-medium"
             >
               RentRide
