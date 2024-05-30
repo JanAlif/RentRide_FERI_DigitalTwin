@@ -33,6 +33,6 @@ jobs:
         run: |
           curl -X POST http://13.95.94.114/webhook-endpoint \
           -H "Content-Type: application/json" \
-          -H "Authorization: Bearer 1234" \
+          -H "Authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}" \
           -d '{"event":"deploy","docker_image":"titpodhraski/rentride:latest"}'
       
