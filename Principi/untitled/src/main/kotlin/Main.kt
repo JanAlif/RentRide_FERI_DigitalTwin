@@ -1,7 +1,17 @@
 import com.google.gson.GsonBuilder
+import it.skrape.core.document
+import it.skrape.core.htmlDocument
+import it.skrape.fetcher.*
+import it.skrape.matchers.toBe
+import it.skrape.matchers.toBePresent
+import it.skrape.matchers.toBePresentTimes
+import it.skrape.matchers.toContain
+import it.skrape.selects.and
+import it.skrape.selects.html5.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import io.github.serpro69.kfaker.Faker
 import java.io.IOException
 
 //input je lahko napisan z imenom ("Paris,FR") ali z koordinatami ("48.8575,2.3514")
@@ -116,14 +126,76 @@ fun getCar(
     })
 }
 
+data class Accident(
+    val title: String,
+    val description: String,
+)
+fun extractData(input: String): List<Accident> {
+    val regex = Regex("""<strong>(.*?)<\/strong>\s+\( <small>(.*?)<\/small> \)\s*<br>\s*(.*?)\s*<br>""")
+    val matches = regex.findAll(input)
+    val dataList = matches.map { matchResult ->
+        val titlePart1 = matchResult.groupValues[1].trim()
+        val titlePart2 = matchResult.groupValues[2].trim()
+        val description = matchResult.groupValues[3].trim()
+
+        Accident(
+            title = "$titlePart1 ($titlePart2)",
+            description = description
+        )
+    }.toList()
+
+    return dataList
+}
+fun getDocumentByUrl(urlToScrape: String): List<Accident> {
+    val extracted = skrape(BrowserFetcher) {
+        request {
+            url = "https://www.rtvslo.si/stanje-na-cestah"
+        }
+
+        response {
+            htmlDocument(this.responseBody) {
+                body {
+                    findFirst{
+                        toBePresent
+                        div {
+                            withId = "main-container"
+                            findFirst{
+                                toBePresent
+                                div {
+                                    withClass = "container"
+                                    findLast {
+                                        toBePresent
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return extractData(extracted.toString())
+}
+
 
 fun main() {
-    val paris = "Paris,FR"
-    val maribor = "46.554649,15.645881"
+    val faker = Faker()
+    println(faker.name.firstName())
+    val test = getDocumentByUrl("https://www.rtvslo.si/stanje-na-cestah")
+    println(test)
+    /*val someHtml = """
+    <body>
+        <a-custom-tag>foo</a-custom-tag>
+        <a-custom-tag class="some-style">bar</a-custom-tag>
+    </body>
+"""
 
-    getDistanceAndTime(paris,maribor)
-
-    getGasStations(maribor, 1000)
-
-    getCar( fuel_type = "LPG")
+    val neke = htmlDocument(someHtml) {
+        "a-custom-tag" {
+            findAll{
+                toBePresent
+            }
+        }
+    }
+    println(neke)*/
 }

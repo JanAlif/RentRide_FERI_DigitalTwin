@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -30,7 +32,7 @@ import java.util.regex.Pattern
 import javax.imageio.ImageIO
 
 @Composable
-fun UpdateUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit, user: Document?) {
+fun UpdateUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit,user: Document?) {
     var username by remember { mutableStateOf(user?.getString("username") ?: "") }
     var email by remember { mutableStateOf(user?.getString("email") ?: "") }
     var profilePicture by remember { mutableStateOf<BufferedImage?>(null) }
@@ -58,6 +60,15 @@ fun UpdateUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit, us
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Row(
+                modifier=Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ){
+                IconButton(onClick = {onSuccess()}) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            }
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },

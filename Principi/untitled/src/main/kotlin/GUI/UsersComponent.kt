@@ -11,6 +11,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,73 +28,6 @@ import org.bson.Document
 import javax.imageio.ImageIO
 
 
-
-
-/*
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.skija.Image
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import java.io.ByteArrayOutputStream
-
-
-fun loadNetworkImage(link: String): ImageBitmap = runBlocking {
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.INFO
-        }
-    }
-
-    val byteArray = client.get<ByteArray>(link)
-    val inputStream = byteArray.inputStream()
-    val bufferedImage = ImageIO.read(inputStream)
-
-    val stream = ByteArrayOutputStream()
-    ImageIO.write(bufferedImage, "png", stream)
-    val encodedByteArray = stream.toByteArray()
-
-    client.close()
-
-    Image.makeFromEncoded(encodedByteArray).asImageBitmap()
-}
-
-    val byteArray = client.get<ByteArray>(link)
-    val inputStream = byteArray.inputStream()
-    val bufferedImage = ImageIO.read(inputStream)
-
-    val stream = ByteArrayOutputStream()
-    ImageIO.write(bufferedImage, "png", stream)
-    val encodedByteArray = stream.toByteArray()
-
-    client.close()
-
-    Image.makeFromEncoded(encodedByteArray).asImageBitmap()
-}*/
-/*
-@Composable
-fun UsersComponent(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .fillMaxSize()
-            .background(LightBlue)
-            .padding(8.dp),
-        shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(2.dp, LightGray)
-    ) {
-        Text("This is the Users View", modifier = Modifier.padding(8.dp))
-    }
-}*/
 @Composable
 fun UsersComponent(modifier: Modifier = Modifier, onUserClick: (Document) -> Unit) {
     val users = remember { mutableStateListOf<Document>() }
@@ -145,6 +81,12 @@ fun UserCard(user: Document, onClick: () -> Unit, modifier: Modifier = Modifier)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = user.getString("username"),
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = user.getString("email"),
                 fontSize = 16.sp,
                 color = Color.Black
             )

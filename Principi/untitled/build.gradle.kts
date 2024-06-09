@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     kotlin("jvm") version "1.9.22"
     id("org.jetbrains.compose") version "1.6.10" // Ensure this is the correct version
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 group = "si.um.feri.lpm"
@@ -15,10 +16,12 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://androidx.dev/storage/compose-compiler/repository")
     maven("https://packages.jetbrains.team/maven/p/skija/maven")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("it.skrape:skrapeit:1.2.2")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
     implementation("com.google.code.gson:gson:2.8.8")
@@ -34,6 +37,9 @@ dependencies {
     implementation("io.ktor:ktor-client-json:2.2.1")
     implementation("io.ktor:ktor-client-serialization:2.2.1")
     implementation("io.ktor:ktor-client-logging:2.2.1")
+    implementation ("io.github.serpro69:kotlin-faker:1.12.0")
+
+
 }
 
 compose.desktop {

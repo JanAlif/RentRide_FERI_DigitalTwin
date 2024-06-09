@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.GsonBuilder
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -26,7 +29,7 @@ import java.io.IOException
 
 @Composable
 @Preview
-fun AddCarComponent(modifier: Modifier = Modifier,onSubmit: (String, String, Double?, Int?, Int?, Double?, Int?, Int?) -> Unit) {
+fun AddCarComponent(modifier: Modifier = Modifier,onSubmit: (ModelResponse?) -> Unit) {
     var keyword by remember { mutableStateOf("") }
     var fuelType by remember { mutableStateOf("") }
     var minFuelEffic by remember { mutableStateOf("") }
@@ -105,7 +108,7 @@ fun AddCarComponent(modifier: Modifier = Modifier,onSubmit: (String, String, Dou
             OutlinedTextField(
                 value = minYear,
                 onValueChange = {
-                    if (it.matches(Regex("^\\d{0,3}$"))) minTopSpeed = it
+                    if (it.matches(Regex("^\\d{0,4}$"))) minYear = it
                 },
                 label = { Text("Min Year") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
@@ -114,7 +117,7 @@ fun AddCarComponent(modifier: Modifier = Modifier,onSubmit: (String, String, Dou
             OutlinedTextField(
                 value = maxYear,
                 onValueChange = {
-                    if (it.matches(Regex("^\\d{0,3}$"))) maxTopSpeed = it
+                    if (it.matches(Regex("^\\d{0,4}$"))) maxYear = it
                 },
                 label = { Text("Max Year") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
@@ -153,16 +156,46 @@ fun AddCarComponent(modifier: Modifier = Modifier,onSubmit: (String, String, Dou
         }
         Button(
             onClick = {
-                onSubmit(
-                    keyword,
-                    fuelType,
-                    minFuelEffic.toDoubleOrNull(),
-                    minTopSpeed.toIntOrNull(),
-                    minYear.toIntOrNull(),
-                    maxFuelEffic.toDoubleOrNull(),
-                    maxTopSpeed.toIntOrNull(),
-                    maxYear.toIntOrNull()
-                )
+                var carList: ModelResponse? = null
+                val base_url = "https://www.carqueryapi.com/api/0.3/?callback=?&cmd=getTrims&keyword=$keyword"
+                val params = StringBuilder(base_url)
+
+                if (fuelType.isNotEmpty()) params.append("&fuel_type=$fuelType")
+                minFuelEffic.let { params.append("&min_lkm_hwy=$it") }
+                minTopSpeed.let { params.append("&min_top_speed=$it") }
+                minYear.let { params.append("&min_year=$it") }
+                maxFuelEffic.let { params.append("&max_lkm_hwy=$it") }
+                maxTopSpeed.let { params.append("&max_top_speed=$it") }
+                maxYear.let { params.append("&max_year=$it") }
+
+                val url = params.toString()
+
+                val client = OkHttpClient()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .build()
+
+                client.newCall(request).enqueue(object : okhttp3.Callback {
+                    override fun onFailure(call: okhttp3.Call, e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                    override fun onResponse(call: okhttp3.Call, response: Response) {
+                        response.use {
+                            if (!it.isSuccessful) throw IOException("Unexpected code $response")
+
+                            val responseBody = it.body?.string()
+                            val cleanedJson = responseBody?.substringAfter("?(")?.substringBefore(");")
+                            if (cleanedJson != null) {
+                                carList = Json.decodeFromString<ModelResponse>(cleanedJson)
+                                onSubmit(
+                                    carList
+                                )
+                            }
+                        }
+                    }
+                })
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
@@ -173,82 +206,52 @@ fun AddCarComponent(modifier: Modifier = Modifier,onSubmit: (String, String, Dou
     }
 }
 
-@Composable
-@Preview
-fun test() {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
-    val options = listOf("Coffee", "Tea", "Juice", "Water", "Soda")
-
-    Column {
-        Button(onClick = { expanded = true }) {
-            Text(if (selectedOption.isEmpty()) "Select a drink" else selectedOption)
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = androidx.compose.ui.Modifier.width(200.dp)
-        ) {
-            options.forEach { label ->
-                DropdownMenuItem(onClick = {
-                    selectedOption = label
-                    expanded = false
-                }) {
-                    Text(text = label)
-                }
-            }
-        }
-    }
-}
-fun getCar(
-    keyword: String = "",
-    fuel_type: String = "",
-    min_fuel_effic: Double? = null,
-    min_top_speed: Int? = null,
-    min_year: Int? = null,
-    max_fuel_effic: Double? = null,
-    max_top_speed: Int? = null,
-    max_year: Int? = null
-) {
-    val base_url = "https://www.carqueryapi.com/api/0.3/?callback=?&cmd=getTrims&keyword=$keyword"
-    val params = StringBuilder(base_url)
-
-    if (fuel_type.isNotEmpty()) params.append("&fuel_type=$fuel_type")
-    if (fuel_type.isNotEmpty()) params.append("&fuel_type=$fuel_type")
-    min_fuel_effic?.let { params.append("&min_lkm_hwy=$it") }
-    min_top_speed?.let { params.append("&min_top_speed=$it") }
-    min_year?.let { params.append("&min_year=$it") }
-    max_fuel_effic?.let { params.append("&max_lkm_hwy=$it") }
-    max_top_speed?.let { params.append("&max_top_speed=$it") }
-    max_year?.let { params.append("&max_year=$it") }
-
-    val url = params.toString()
-
-    val client = OkHttpClient()
-
-    val request = Request.Builder()
-        .url(url)
-        .build()
-
-    client.newCall(request).enqueue(object : okhttp3.Callback {
-        override fun onFailure(call: okhttp3.Call, e: IOException) {
-            e.printStackTrace()
-        }
-
-        override fun onResponse(call: okhttp3.Call, response: Response) {
-            response.use {
-                if (!it.isSuccessful) throw IOException("Unexpected code $response")
-
-                val responseBody = it.body?.string()
-                val cleanedJson = responseBody?.substringAfter("?(")?.substringBefore(");")
-                val gson = GsonBuilder().setPrettyPrinting().create()
-                val jsonElement = gson.fromJson(cleanedJson, Any::class.java)
-                val prettyJson = gson.toJson(jsonElement)
-                println("____________________________________________")
-                println("Cars: ")
-                println(prettyJson)
-            }
-        }
-    })
-}
+@Serializable
+data class Trim(
+    val model_id: String? = null,
+    val model_make_id: String,
+    val model_name: String,
+    val model_trim: String?= null,
+    val model_year: String,
+    val model_body: String?= null,
+    val model_engine_position: String?= null,
+    val model_engine_cc: String?= null,
+    val model_engine_cyl: String?= null,
+    val model_engine_type: String?= null,
+    val model_engine_valves_per_cyl: String?= null,
+    val model_engine_power_ps: String?= null,
+    val model_engine_power_rpm: String?= null,
+    val model_engine_torque_nm: String?= null,
+    val model_engine_torque_rpm: String?= null,
+    val model_engine_bore_mm: String?= null,
+    val model_engine_stroke_mm: String?= null,
+    val model_engine_compression: String?= null,
+    val model_engine_fuel: String?= null,
+    val model_top_speed_kph: String?= null,
+    val model_0_to_100_kph: String?= null,
+    val model_drive: String?= null,
+    val model_transmission_type: String?= null,
+    val model_seats: String?= null,
+    val model_doors: String?= null,
+    val model_weight_kg: String?= null,
+    val model_length_mm: String?= null,
+    val model_width_mm: String?= null,
+    val model_height_mm: String?= null,
+    val model_wheelbase_mm: String?= null,
+    val model_lkm_hwy: String?= null,
+    val model_lkm_mixed: String?= null,
+    val model_lkm_city: String?= null,
+    val model_fuel_cap_l: String?= null,
+    val model_sold_in_us: String?= null,
+    val model_co2: String?= null,
+    val model_make_display: String?= null,
+    val make_display: String?= null,
+    val make_country: String?= null,
+    val kilometers: Int?= null,
+    var addedToDb: Boolean = false
+)
+@Serializable
+data class ModelResponse(
+    val Trims: List<Trim>
+)
 

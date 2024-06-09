@@ -30,6 +30,8 @@ fun MainScreen() {
     var isSidebarCollapsed by remember { mutableStateOf(false) }
     var currentView by remember { mutableStateOf("MainContent") }
     var user by remember { mutableStateOf<Document?>(null) }
+    var cars by remember{ mutableStateOf<ModelResponse?>(null)}
+    var accidents by remember { mutableStateOf<List<Accident>?>(null)}
 
     Column(
         modifier = Modifier
@@ -37,7 +39,6 @@ fun MainScreen() {
             .padding(16.dp)
             .background(Color(0xFF003366)) // Assuming DeepBlue is a color
     ) {
-        HeaderComponent()
         Spacer(modifier = Modifier.height(8.dp))
         Row(modifier = Modifier.weight(1f)) {
             Box(
@@ -55,16 +56,23 @@ fun MainScreen() {
             Spacer(modifier = Modifier.width(8.dp))
             when (currentView) {
                 "AddUser" -> AddUserComponent(modifier = Modifier.weight(1f),onSuccess = { currentView = "Users" })
-                "AddCar" -> AddCarComponent(modifier = Modifier.weight(1f), onSubmit = { keyword, fuelType, minFuelEffic, minTopSpeed, minYear, maxFuelEffic, maxTopSpeed, maxYear -> println(fuelType) })
+                "AddCar" -> AddCarComponent(modifier = Modifier.weight(1f), onSubmit = {carList ->
+                    println(carList)
+                    cars = carList
+                    currentView = "Cars"
+                })
                 //"AddCar" -> AddCarComponent()
                 "Users" -> UsersComponent(modifier = Modifier.weight(1f), onUserClick = {
                     user = it
                     currentView = "UpdateUser"
                 })
-                "Cars" -> CarComponent(modifier = Modifier.weight(1f),onCarClick = {currentView = "Users" })
-                "UpdateUser" -> UpdateUserComponent(modifier = Modifier.weight(1f),onSuccess = { currentView = "Users" }, user)
+                "Cars" -> CarComponent(modifier = Modifier.weight(1f), cars, onCarClick = {car -> println(car) })
+                "UpdateUser" -> UpdateUserComponent(modifier = Modifier.weight(1f),onSuccess = { currentView = "Users" },user)
                 "Generate" -> GenerateComponent(modifier = Modifier.weight(1f))
-                "Scrape" -> ScrapeComponent(modifier = Modifier.weight(1f))
+                "Scrape" -> TrafficAccidentComponent(modifier = Modifier.weight(1f), accidents, onScrapeClick = {
+                    println(it)
+                    accidents = it
+                })
                 else -> MainContentComponent(modifier = Modifier.weight(1f))
             }
         }
