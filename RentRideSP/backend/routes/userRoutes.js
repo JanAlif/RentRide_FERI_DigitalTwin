@@ -22,7 +22,8 @@ router.post("/login", loginUser);
 router.post("/logout", protect, logoutUser);
 router.post("/:id/profile-pic", protect, uploadProfilePic); 
 
-router.put("/:id", protect, updateUser);
+//tu sem zbrisal protect izmed :id in updateUser
+router.put("/:id", updateUser);
 router.put("/:id/password", protect, updateUserPassword);
 router.delete("/:id", protect, deleteUser);
 

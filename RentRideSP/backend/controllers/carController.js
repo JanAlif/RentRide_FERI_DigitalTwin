@@ -30,14 +30,20 @@ const getCarById = asyncHandler(async (req, res) => {
 //POST /api/cars
 const addCar = asyncHandler(async (req, res) => {
   const { brand, model, year, totalKm, isElectric, location } = req.body;
-  const car = await CarModel.create({
-    brand,
-    model,
-    year,
-    totalKm,
-    isElectric,
-    location: coordinatesWithPoint(JSON.parse(location)),
-  });
+  try{
+    console.log(location);
+    const car = await CarModel.create({
+      brand,
+      model,
+      year,
+      totalKm,
+      isElectric,
+      location: coordinatesWithPoint(JSON.parse(location)),
+    });
+  }
+  catch(err){
+    console.log(err);
+  }
   if (car) {
     res.status(201).json(car);
   } else {
