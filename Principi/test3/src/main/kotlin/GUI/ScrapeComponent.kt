@@ -1,7 +1,8 @@
 package GUI
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
@@ -12,15 +13,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun FooterComponent() {
+fun ScrapeComponent(modifier: Modifier = Modifier) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
+            .fillMaxSize()
             .background(LightBlue)
             .padding(8.dp),
         shape = RoundedCornerShape(4.dp),
-        border = androidx.compose.foundation.BorderStroke(2.dp, LightGray)
+        border = BorderStroke(2.dp, LightGray)
     ) {
-        Text("RentRide", modifier = Modifier.padding(8.dp))
+        Text("This is the scrape Component View", modifier = Modifier.padding(8.dp))
     }
 }
