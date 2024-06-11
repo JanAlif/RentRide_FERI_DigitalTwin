@@ -3,9 +3,10 @@ import { Outlet } from "react-router-dom";
 
 function App() {
   return (
+    //dshha
     <>
       <StickyNavbar />
-      <div className="mx-auto max-w-screen-2xl px-4 py-12">
+      <div className="mx-auto max-w-screen-2xl px-4 py-12 bg-gray-100">
         <Outlet />
       </div>
     </>

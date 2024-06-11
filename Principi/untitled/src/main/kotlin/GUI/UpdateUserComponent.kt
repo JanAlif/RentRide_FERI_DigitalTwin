@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,48 +17,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.singleWindowApplication
+import org.bson.Document
 import java.awt.FileDialog
 import java.awt.Frame
 import java.awt.image.BufferedImage
-import java.io.File
 import java.util.regex.Pattern
 import javax.imageio.ImageIO
-/*
-@Composable
-fun AddUserComponent(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .fillMaxSize()
-            .background(LightBlue)
-            .padding(8.dp),
-        shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(2.dp, LightGray)
-    ) {
-        Text("This is the Add User View", modifier = Modifier.padding(8.dp))
-    }
-}*/
-
 
 @Composable
-fun AddUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit) {
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+fun UpdateUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit,user: Document?) {
+    var username by remember { mutableStateOf(user?.getString("username") ?: "") }
+    var email by remember { mutableStateOf(user?.getString("email") ?: "") }
     var profilePicture by remember { mutableStateOf<BufferedImage?>(null) }
     var message by remember { mutableStateOf("") }
+
+    LaunchedEffect(user) {
+        user?.getString("profilepic")?.let { url ->
+            // Load profile picture from URL if available (pseudo code)
+            profilePicture = loadImageFromUrl(url)
+        }
+    }
+
     Surface(
         modifier = modifier
             .fillMaxSize()
             .background(LightBlue)
             .padding(8.dp),
         shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(2.dp, LightGray)
+        border = BorderStroke(2.dp, Color.LightGray)
     ) {
         Column(
             modifier = Modifier
@@ -68,6 +60,15 @@ fun AddUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Row(
+                modifier=Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ){
+                IconButton(onClick = {onSuccess()}) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            }
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -85,31 +86,6 @@ fun AddUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit) {
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 isError = !isValidEmail(email) && email.isNotEmpty()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                isError = confirmPassword != password && confirmPassword.isNotEmpty()
             )
             Spacer(modifier = Modifier.height(16.dp))
             Box(
@@ -144,40 +120,31 @@ fun AddUserComponent(modifier: Modifier = Modifier, onSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    if (isValidEmail(email) && password == confirmPassword) {
-                        val result = DatabaseUtil.saveUserData(username, email, password, profilePicture)
+                    if (isValidEmail(email)) {
+                        val result = DatabaseUtil.updateUserData(user?.get("_id").toString(), username, email, user?.get("password").toString(), profilePicture)
                         message = result
                     } else {
-                        message = "Please make sure your email is valid and passwords match."
+                        message = "Please make sure your email is valid."
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue, contentColor = Color.White)
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
             ) {
                 Text("Save")
             }
             if (message.isNotEmpty()) {
-                if(message.equals("User data saved to MongoDB")) {
+                if (message == "User data saved to MongoDB") {
                     onSuccess()
-                }
-                else
+                } else {
                     Text(text = message, color = Color.Red)
+                }
             }
         }
     }
 }
-/*
 
-fun saveUserData(username: String, email: String, password: String, profilePicture: BufferedImage?) {
-    println(username)
-    println( email)
-    println( password)
-    println( profilePicture)
-}
-*/
-fun isValidEmail(email: String): Boolean {
-    val emailPattern = Pattern.compile(
-        "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
-    )
-    return emailPattern.matcher(email).matches()
+
+fun loadImageFromUrl(url: String): BufferedImage? {
+    // Pseudo code to load an image from URL
+    return null // Replace with actual image loading code
 }

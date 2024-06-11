@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun FooterComponent() {
+fun HeaderComponent() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -21,6 +21,6 @@ fun FooterComponent() {
         shape = RoundedCornerShape(4.dp),
         border = androidx.compose.foundation.BorderStroke(2.dp, LightGray)
     ) {
-        Text("RentRide", modifier = Modifier.padding(8.dp))
+        Text("This is the Header", modifier = Modifier.padding(8.dp))
     }
 }

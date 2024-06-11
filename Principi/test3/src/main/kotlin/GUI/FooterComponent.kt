@@ -21,6 +21,6 @@ fun FooterComponent() {
         shape = RoundedCornerShape(4.dp),
         border = androidx.compose.foundation.BorderStroke(2.dp, LightGray)
     ) {
-        Text("RentRide", modifier = Modifier.padding(8.dp))
+        Text("This is the Footer", modifier = Modifier.padding(8.dp))
     }
 }
