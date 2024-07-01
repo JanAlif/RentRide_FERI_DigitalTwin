@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="54cd2f79-bc1b-4c83-8ec5-f5122d9e0152" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../test3/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/.idea/kotlinc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/settings.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/AddCarComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/AddUserComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/CarComponents.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/Colors.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/FooterComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/GenerateComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/HeaderComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/MainContentComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/MainGui.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/ScrapeComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/SidebarComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/SidebarMenuItem.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/GUI/UsersComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/Main.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/Util/DatabaseUtil.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/resources/firebaseKey.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test3/src/main/kotlin/resources/icons/box.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/AddCarComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/AddUserComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/CarComponents.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/Colors.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/FooterComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/GenerateComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/HeaderComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/MainContentComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/MainGui.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/ScrapeComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/SidebarComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/SidebarMenuItem.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/UpdateUserComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/GUI/UsersComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Util/DatabaseUtil.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/firebaseKey.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/icons/box.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../RentRideSP/backend/controllers/carController.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../RentRideSP/backend/controllers/carController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../RentRideSP/backend/routes/userRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../RentRideSP/backend/routes/userRoutes.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="untitled" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2hC6tIPNiWMXw783J22wwr2Yyjz" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build untitled.executor&quot;: &quot;Run&quot;,
+    &quot;Kotlin.MainGuiKt.executor&quot;: &quot;Run&quot;,
+    &quot;Kotlin.MainKt.executor&quot;: &quot;Run&quot;,
+    &quot;Kotlin.TestKt.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/titpodhraski/Documents/Programing/RentRide/RentRide_FERI_DigitalTwin/Principi/untitled&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-21.0.2-openjdk-21.0.2-4caba194b151-322ed176" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="54cd2f79-bc1b-4c83-8ec5-f5122d9e0152" name="Changes" comment="" />
+      <created>1717085925096</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1717085925096</updated>
+    </task>
+    <servers />
+  </component>
+</project>
