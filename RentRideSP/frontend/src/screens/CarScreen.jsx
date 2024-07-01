@@ -9,7 +9,7 @@ import {
   Input,
 } from "@material-tailwind/react";
 
-import DropDown from "../components/carScreenComp/DropDown";
+import CarImage from "../assets/carScreenFilt.jpg";
 
 import { useState } from "react";
 import { CarCard } from "../components/CarCard";
@@ -37,31 +37,41 @@ function CarScreen() {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    let updatedCars = cars;
 
-    if (isElectric && notElectric) {
-      updatedCars = cars;
-    } else if (isElectric) {
-      updatedCars = cars.filter((car) => car.isElectric);
-    } else if (notElectric) {
-      updatedCars = cars.filter((car) => !car.isElectric);
+    let updatedCars = [...cars];
+
+    if (isElectric) {
+      updatedCars = updatedCars.filter((car) => car.isElectric);
     }
 
-    if (searchBrand && brands.includes(searchBrand)) {
-      updatedCars = cars.filter((car) => car.brand === searchBrand);
+    if (notElectric) {
+      updatedCars = updatedCars.filter((car) => !car.isElectric);
     }
+
+    if (
+      searchBrand &&
+      searchBrand.trim() !== "" &&
+      brands.includes(searchBrand)
+    ) {
+      updatedCars = updatedCars.filter((car) => car.brand === searchBrand);
+    }
+
+    if (yearFilter && yearFilter > 1000) {
+      updatedCars = updatedCars.filter((car) => car.year >= yearFilter);
+    }
+
     setFilteredCars(updatedCars);
   };
 
   return (
     <>
-      <Card className="mt-6 w-full">
+      <Card className="mt-6">
         <CardBody className="flex-col">
           <Typography variant="h5" color="blue-gray" className="mb-2">
             Filters:
           </Typography>
-          <div className="flex">
-            <form onSubmit={submitHandler}>
+          <div className="flex flex-wrap gap-2">
+            <form onSubmit={submitHandler} className="">
               <Checkbox
                 label="Electric"
                 checked={isElectric}
@@ -79,20 +89,35 @@ function CarScreen() {
                 className="w-64"
                 onChange={(e) => setSearchBrand(e.target.value)}
               />
+
+              <div className="w-full mt-4">
+                <Input
+                  variant="outlined"
+                  type="number"
+                  label="Year"
+                  placeholder="Year"
+                  value={yearFilter}
+                  className="w-full"
+                  onChange={(e) => setYearFilter(e.target.value)}
+                />
+              </div>
               <CardFooter className="flex ml-5 pl-0">
                 <Button type="submit">Search</Button>
               </CardFooter>
             </form>
+            <div
+              className="
+flex-grow border-black border-2"
+            ></div>
           </div>
         </CardBody>
       </Card>
-      <ul>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredCars.map((car) => (
-          <li key={car._id}>
-            <CarCard car={car} />
-          </li>
+          <CarCard key={car._id} car={car} />
         ))}
-      </ul>
+      </div>
     </>
   );
 }
