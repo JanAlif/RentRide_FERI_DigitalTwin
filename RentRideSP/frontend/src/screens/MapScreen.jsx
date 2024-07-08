@@ -5,6 +5,7 @@ import { Card, Input, Button, Typography } from '@material-tailwind/react';
 import Map from '../components/Map';
 import { useGetCarQuery, useUpdateCarStatusMutation } from '../slices/carsApiSlice';
 import { useSelector } from 'react-redux'; // Assuming you have a user in Redux state
+import io from 'socket.io-client';
 
 export function MapScreen() {
   const [searchParams] = useSearchParams();
@@ -33,10 +34,30 @@ export function MapScreen() {
   const [isStopped, setIsStopped] = useState(true);
   const [progress, setProgress] = useState(0);
 
+  const socket = io('http://localhost:4000', {
+    query: { "token": "your"}
+});
+
   useEffect(() => {
-    loadGoogleMapsScript(import.meta.env.VITE_GOOGLE_MAPS_API_KEY).then(() => {
-      destinationAutocompleteService.current = new window.google.maps.places.AutocompleteService();
+    socket.on('connect', () => {
+      console.log('Connected to server');
     });
+    socket.on('roomJoined', (room) => {
+        console.log(`Joined room: ${room}`);
+    });error
+
+    socket.on('message', (message) => {
+        console.log(`New message: ${message}`);
+    });
+    socket.on('error', (message) => {
+      console.log(`New error: ${message}`);
+  });
+  
+    
+    // Clean up on unmount
+    return () => {
+        socket.disconnect();
+    };
   }, []);
 
   const handleDestinationChange = (e) => {
@@ -121,6 +142,10 @@ export function MapScreen() {
       setSpeedFactor(Number(e.target.value));
     }
   };
+
+  const test = () => {
+    socket.emit('joinRoom', 'testRoom');
+  }
 
   if (carLoading) return <div>Loading car details...</div>;
   if (carError) return <div>Error loading car details</div>;
@@ -273,6 +298,9 @@ export function MapScreen() {
             </label>
           </div>
         </div>
+        <Button className="flex-1" onClick={test}>
+              Join
+        </Button>
       </div>
     </Card>
   );
