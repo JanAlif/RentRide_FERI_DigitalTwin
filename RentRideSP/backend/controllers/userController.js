@@ -100,6 +100,7 @@ const updateUser = asyncHandler(async (req, res) => {
     user.name = req.body.name || user.name;
     user.surname = req.body.surname || user.surname;
     user.profilepic = req.body.profilepic || user.profilepic;
+    user.credit = req.body.credit || user.credit;
     if (req.body.longitude && req.body.latitude) {
       user.location = {
         type: "Point",
@@ -117,6 +118,7 @@ const updateUser = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       surname: updatedUser.surname,
       profilepic: updatedUser.profilepic,
+      credit: updatedUser.credit,
     });
   } else {
     res.status(404);
