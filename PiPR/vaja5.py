@@ -174,14 +174,20 @@ def validate_chain(blockchain=None):
                 print(f"Expected Hash: {calculated_hash}")
                 return False
 
-            allowed_future = 120  # seconds
-            if current_block.timestamp > previous_block.timestamp + allowed_future:
-                print(f"Validation failed: Block {i} has a timestamp too far in the future.")
-                return False
+            # Timestamp Validation
+            if i == 1:
+                # **Skip timestamp validation for the first block after genesis**
+                continue
+            else:
+                allowed_future = 120  # seconds
+                if current_block.timestamp > previous_block.timestamp + allowed_future:
+                    print(f"Validation failed: Block {i} has a timestamp too far in the future.")
+                    return False
 
-            if current_block.timestamp < previous_block.timestamp:
-                print(f"Validation failed: Block {i} has a timestamp earlier than the previous block.")
-                return False
+                if current_block.timestamp < previous_block.timestamp:
+                    print(f"Validation failed: Block {i} has a timestamp earlier than the previous block.")
+                    return False
+
 
         print("Blockchain validation successful")
         return True
@@ -237,8 +243,9 @@ def mine_blocks_thread(data):
 
         for _ in range(10):  
 
-            timestamp = time.time()
-
+            previous_block = blockchain[-1]
+            timestamp = max(time.time(), previous_block.timestamp + 1)  
+            
             if len(blockchain) >= diff_adjust_interval:
                 prev_adjustment_block = blockchain[-diff_adjust_interval]
             else:
@@ -258,8 +265,6 @@ def mine_blocks_thread(data):
             nonce = 0
 
             while True:
-
-                previous_block = blockchain[-1]
 
                 current_index = len(blockchain)  
 
