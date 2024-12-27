@@ -1,12 +1,14 @@
 import json
 import logging
 import random
+import struct
 import tkinter as tk
 import traceback
 import hashlib
 import time
 import socket
 import threading
+from numba import njit
 
 blockchain_lock = threading.Lock()
 
@@ -15,6 +17,10 @@ server_socket = None
 client_sockets = []  
 PEER_DATA = {}
 blockchain = []
+
+operations_count = 0
+total_operations = 0
+start_time = None
 
 class Block:
     def __init__(self, index, timestamp, data, previous_hash, difficulty, nonce):
@@ -27,17 +33,18 @@ class Block:
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):
-        block_header = {
-            "index": self.index,
-            "timestamp": self.timestamp,
-            "data": self.data,
-            "previous_hash": self.previous_hash,
-            "difficulty": self.difficulty,
-            "nonce": self.nonce
-        }
-        block_string = json.dumps(block_header, sort_keys=True)
-        return hashlib.sha256(block_string.encode()).hexdigest()
-
+        # Pack the block data into a binary format
+        block_bytes = struct.pack(
+            ">I d {}s {}s I I".format(len(self.data), len(self.previous_hash)),
+            self.index,
+            self.timestamp,
+            self.data.encode(),
+            self.previous_hash.encode(),
+            self.difficulty,
+            self.nonce
+        )
+        return hashlib.sha256(block_bytes).hexdigest()
+    
     def set_hash(self, hash_value):
         self.hash = hash_value
 
@@ -277,6 +284,12 @@ def mine_blocks_thread(data):
         block_generation_interval = 10 
         diff_adjust_interval = 2
 
+        # Initialize the counter
+        operations_count = 0
+        total_operations = 0
+        start_time = time.time()
+        last_report_time = start_time
+
         for _ in range(20):  
             with blockchain_lock:
                 previous_block = blockchain[-1]
@@ -315,11 +328,27 @@ def mine_blocks_thread(data):
                 )
                 hash_value = block.hash
 
+                 # Increment the operations_count safely
+                operations_count += 1
+                total_operations += 1
+
+                current_time = time.time()
+                elapsed_since_last_report = current_time - last_report_time
+
+                if elapsed_since_last_report >= 5:
+                    # Calculate ops per second for the last 5 seconds
+                    ops_sec = operations_count / elapsed_since_last_report
+                    # Update the GUI label (ensure it's thread-safe)
+                    root.after(0, ops_label.config, {"text": f"Ops/sec: {ops_sec:.2f}"})
+                    # Reset the counter and update the last_report_time
+                    operations_count = 0
+                    last_report_time = current_time
+
                 if hash_value.startswith('0' * difficulty):
                     print(f"Block mined with hash: {hash_value}")
                     handle_messages(f"{hash_value} difficulty: {block.difficulty}", "green")
                     root.update()
-                    time.sleep(0.1)  
+                    #time.sleep(0.01)  
                     break
                 else:
                     nonce += 1  
@@ -341,6 +370,20 @@ def mine_blocks_thread(data):
     except Exception as e:
         print(f"Error during mining blocks: {str(e)}")
         logging.error(f"Error during mining blocks: {str(e)}")
+    finally:
+        # Calculate and display average operations per second
+        end_time = time.time()
+        total_time = end_time - start_time
+        if total_time > 0:
+            average_ops_per_sec = total_operations / total_time
+            print(f"Average operations per second: {average_ops_per_sec:.2f}")
+            handle_messages(f"Average operations per second: {average_ops_per_sec:.2f}", "blue")
+            # Update the GUI label with the average ops/sec
+            root.after(0, ops_label.config, {"text": f"Avg Ops/sec: {average_ops_per_sec:.2f}"})
+        else:
+            print("No operations counted.")
+            handle_messages("No operations counted.", "red")
+            root.after(0, ops_label.config, {"text": "Ops/sec: 0"})
 
 
 def on_shutdown():
@@ -503,6 +546,10 @@ data_text1.place(x=185, y=200)
 
 data_text2 = tk.Text(root, wrap=tk.WORD, height=15, width=70, state=tk.DISABLED)
 data_text2.place(x=100, y=420)
+
+# Add this label in your GUI setup section
+ops_label = tk.Label(root, text="Ops/sec: 0")
+ops_label.place(x=300, y=180)
 
 root.protocol("WM_DELETE_WINDOW", on_shutdown)
 root.mainloop()
