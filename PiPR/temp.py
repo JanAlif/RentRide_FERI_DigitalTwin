@@ -8,102 +8,81 @@ import hashlib
 import time
 import socket
 import threading
-import queue
+from numba import njit
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Initialize threading lock for blockchain
 blockchain_lock = threading.Lock()
 
-# Initialize global variables
 stop_signal = False  
 server_socket = None  
 client_sockets = []  
 PEER_DATA = {}
 blockchain = []
 
-# Initialize counters
 operations_count = 0
 total_operations = 0
 start_time = None
 
-# Initialize a queue for GUI updates
-gui_queue = queue.Queue()
-
 class Block:
-    def __init__(self, index, timestamp, data, previous_hash, difficulty):
+    def __init__(self, index, timestamp, data, previous_hash, difficulty, nonce):
         self.index = index
         self.timestamp = timestamp
         self.data = data
-        self.previous_hash = previous_hash
         self.difficulty = difficulty
-        self.nonce = 0
-        self.prepacked_data = self.prepare_packed_data()
-        self.hash = self.calculate_hash(self.nonce)
+        self.nonce = nonce
+        self.previous_hash = previous_hash
+        self.hash = self.calculate_hash()
 
-    def prepare_packed_data(self):
-        """Prepack the constant parts of the block data."""
-        # Encode data and previous_hash
-        data_bytes = self.data.encode()
-        previous_hash_bytes = self.previous_hash.encode()
-        # Fixed struct format based on lengths of data and previous_hash
-        struct_format = f">I d {len(data_bytes)}s {len(previous_hash_bytes)}s I"
-        return struct.pack(
-            struct_format,
+    def calculate_hash(self):
+        # Pack the block data into a binary format
+        block_bytes = struct.pack(
+            ">I d {}s {}s I I".format(len(self.data), len(self.previous_hash)),
             self.index,
             self.timestamp,
-            data_bytes,
-            previous_hash_bytes,
-            self.difficulty
+            self.data.encode(),
+            self.previous_hash.encode(),
+            self.difficulty,
+            self.nonce
         )
-
-    def calculate_hash(self, nonce):
-        """Calculate the SHA-256 hash with the given nonce."""
-        # Append nonce to the prepacked data
-        nonce_packed = struct.pack(">I", nonce)
-        block_bytes = self.prepacked_data + nonce_packed
         return hashlib.sha256(block_bytes).hexdigest()
-
+    
     def set_hash(self, hash_value):
-        """Set the hash value of the block."""
         self.hash = hash_value
 
 def create_genesis_block():
-    """Create the genesis (first) block of the blockchain."""
-    fixed_timestamp = 1672531200.0  # Example: 2023-01-01 00:00:00 UTC
+    # Fixed timestamp for genesis block (e.g., 2023-01-01 00:00:00 UTC)
+    fixed_timestamp = 1672531200.0  
     fixed_difficulty = 5
     fixed_nonce = 0
 
+    # Create a genesis block that satisfies the difficulty requirement
     genesis = Block(
         index=0,
         timestamp=fixed_timestamp,
         data="Genesis Block",
         previous_hash="0",
-        difficulty=fixed_difficulty
+        difficulty=fixed_difficulty,
+        nonce=fixed_nonce
     )
 
     # Ensure genesis block's hash meets difficulty requirements
     while not genesis.hash.startswith('0' * fixed_difficulty):
         genesis.nonce += 1
-        genesis.hash = genesis.calculate_hash(genesis.nonce)
+        genesis.hash = genesis.calculate_hash()
 
-    logging.info(f"Genesis block mined with hash: {genesis.hash}")
     return genesis
 
+
 def adjust_difficulty(chain):
-    """Adjust the mining difficulty based on the length of the chain."""
-    if len(chain) % 5 == 0 and len(chain) != 0:  
+
+    if len(chain) % 5 == 0:  
         return chain[-1].difficulty + 1
     else:
         return chain[-1].difficulty
 
-# Initialize the blockchain with the genesis block
 genesis_block = create_genesis_block()
 blockchain = [genesis_block]
 
 def start_node():
-    """Start the node's server to accept peer connections."""
     global server_thread, PORT, server_socket
     try:
         PORT = random.randint(1024, 65535)  
@@ -116,16 +95,11 @@ def start_node():
         status_display.set(f"Online: Port {PORT}")
         status_label.place(x=305, y=160)
 
-        logging.info(f"Node started on port {PORT}")
-
     except Exception as e:
         print("Offline: ")
         print(f"Error: {str(e)}")
-        logging.error(f"Error starting node: {e}")
-        status_display.set("Offline")
 
 def operate_server():
-    """Operate the server to accept incoming peer connections."""
     global PORT, stop_signal, server_socket, client_sockets
     try:
         while not stop_signal:
@@ -141,31 +115,33 @@ def operate_server():
 
     except Exception as e:
         print(f"Error during server operation: {str(e)}")
-        logging.error(f"Error during server operation: {e}")
 
     finally:
         for client_sock in client_sockets:
             client_sock.close()
         server_socket.close()
         print("Offline: Server stopped")
-        logging.info("Server stopped")
 
 def add_to_peer_data(message, color="black"):
-    """Add messages to the peer data text box."""
     data_text1.config(state=tk.NORMAL)
     data_text1.insert(tk.END, message, color)
     data_text1.config(state=tk.DISABLED)
 
 def handle_messages(message, color="black"):
-    """Handle messages by adding them to the messages text box via the queue."""
-    gui_queue.put((message, color))
-    # Also print to console to retain original behavior
-    print(message)
+    data_text2.config(state=tk.NORMAL)
+    data_text2.insert(tk.END, message, color)
+    data_text2.insert(tk.END, "\n")  
+    data_text2.tag_add(color, f"{data_text2.index(tk.END)}-{len(message)}c", tk.END)
+    data_text2.config(state=tk.DISABLED)
 
 def mine_blocks():
-    """Start the mining process in a separate thread."""
     global blockchain
     try:
+        # Remove the re-initialization of the genesis block
+        # genesis_block = Block(index=0, timestamp=time.time(), data="Genesis Block", previous_hash="0", difficulty=1, nonce=0)
+        # blockchain = [genesis_block]
+        # update_blocks_view(chain=blockchain)
+        
         mine_thread = threading.Thread(target=mine_blocks_thread, args=(node_name_entry.get(),), daemon=True)
         mine_thread.start()
 
@@ -174,10 +150,8 @@ def mine_blocks():
 
     except Exception as e:
         print(f"Error during mining: {str(e)}")
-        logging.error(f"Error during mining: {e}")
 
 def validate_broadcast():
-    """Continuously validate the blockchain and broadcast if valid."""
     try:
         while True:
             if validate_chain():
@@ -186,10 +160,8 @@ def validate_broadcast():
 
     except Exception as e:
         print(f"Error during blockchain validation and broadcasting: {str(e)}")
-        logging.error(f"Error during blockchain validation and broadcasting: {e}")
 
 def validate_chain(blockchain_to_validate=None):
-    """Validate the blockchain."""
     try:
         if blockchain_to_validate is None:
             with blockchain_lock:
@@ -197,6 +169,7 @@ def validate_chain(blockchain_to_validate=None):
         else:
             chain = blockchain_to_validate
 
+        # Ensure the chain has at least the genesis block
         if len(chain) == 0:
             print("Validation failed: Blockchain is empty.")
             logging.warning("Validation failed: Blockchain is empty.")
@@ -209,7 +182,7 @@ def validate_chain(blockchain_to_validate=None):
             logging.warning("Validation failed: Genesis block has incorrect previous hash.")
             return False
 
-        calculated_genesis_hash = genesis.calculate_hash(genesis.nonce)
+        calculated_genesis_hash = genesis.calculate_hash()
         if genesis.hash != calculated_genesis_hash:
             print("Validation failed: Genesis block has incorrect hash.")
             print(f"Expected Hash: {calculated_genesis_hash}")
@@ -234,28 +207,25 @@ def validate_chain(blockchain_to_validate=None):
                 return False
 
             # Hash Validation
-            calculated_hash = current_block.calculate_hash(current_block.nonce)
+            calculated_hash = current_block.calculate_hash()
             if current_block.hash != calculated_hash:
                 print(f"Validation failed: Block {i} has an incorrect hash.")
                 print(f"Expected Hash: {calculated_hash}")
                 logging.warning(f"Validation failed: Block {i} has an incorrect hash. Expected Hash: {calculated_hash}")
                 return False
 
-            # Difficulty Validation
-            if not current_block.hash.startswith('0' * current_block.difficulty):
-                print(f"Validation failed: Block {i} does not meet difficulty requirements.")
-                logging.warning(f"Validation failed: Block {i} does not meet difficulty requirements.")
-                return False
-
             # Timestamp Validation
-            if i > 1:
+            if i == 1:
+                # **Skip timestamp validation for the first block after genesis**
+                continue
+            else:
                 allowed_future = 240  # seconds
                 if current_block.timestamp > previous_block.timestamp + allowed_future:
                     print(f"Validation failed: Block {i} has a timestamp too far in the future.")
                     logging.warning(f"Validation failed: Block {i} has a timestamp too far in the future.")
                     return False
 
-                if current_block.timestamp < previous_block.timestamp + 1:
+                if current_block.timestamp+3 < previous_block.timestamp:
                     print(f"Validation failed: Block {i} has a timestamp earlier than the previous block.")
                     logging.warning(f"Validation failed: Block {i} has a timestamp earlier than the previous block.")
                     return False
@@ -266,11 +236,10 @@ def validate_chain(blockchain_to_validate=None):
 
     except Exception as e:
         print(f"Error during blockchain validation: {str(e)}")
-        logging.error(f"Error during blockchain validation: {e}")
+        logging.error(f"Error during blockchain validation: {str(e)}")
         return False
 
 def update_blocks_view(chain):
-    """Update the blockchain view in the GUI."""
     data_text1.config(state=tk.NORMAL)
     data_text1.delete("1.0", tk.END)
     data_text1.config(state=tk.DISABLED)
@@ -286,45 +255,36 @@ def update_blocks_view(chain):
         add_to_peer_data("\n")
 
 def broadcast():
-    """Broadcast the blockchain to all connected peers."""
     try:
-        blockchain_str = serialize_chain()
         for client_socket in client_sockets:
+            blockchain_str = serialize_chain()
             client_socket.sendall(blockchain_str.encode())
 
     except Exception as e:
         print(f"Error during blockchain broadcasting: {str(e)}")
-        logging.error(f"Error during blockchain broadcasting: {e}")
 
 def serialize_chain():
-    """Serialize the blockchain into a string format."""
     try:
-        return "##".join(
-            f"{block.index}|{block.timestamp}|{block.data}|{block.previous_hash}|{block.difficulty}|{block.nonce}|{block.hash}"
-            for block in blockchain
-        )
+        blockchain_str = ""
+        for block in blockchain:
+            blockchain_str += f"{block.index}|{block.timestamp}|{block.data}|{block.previous_hash}|{block.difficulty}|{block.nonce}|{block.hash}##"
+        return blockchain_str
     except Exception as e:
         print(f"Error during blockchain serialization: {str(e)}")
-        logging.error(f"Error during blockchain serialization: {e}")
         return ""
+    pass
 
 def stop_node():
-    """Stop the node and its server."""
     global stop_signal
     stop_signal = True
-    if server_thread.is_alive():
-        server_thread.join(timeout=2)
-    print("Node stopped")
-    logging.info("Node stopped")
+    server_thread.join(timeout=2)
 
 def mine_blocks_thread(data):
-    """The main mining loop."""
-    global blockchain
     try:
         block_generation_interval = 10 
         diff_adjust_interval = 2
 
-        # Initialize counters
+        # Initialize the counter
         operations_count = 0
         total_operations = 0
         start_time = time.time()
@@ -349,22 +309,26 @@ def mine_blocks_thread(data):
                 else:
                     difficulty = prev_adjustment_block.difficulty
 
-                current_index = len(blockchain)
-                timestamp = max(time.time(), previous_block.timestamp + 1 )
-
-            # Prepare block template
-            block_template = Block(
-                index=current_index,
-                timestamp=timestamp,
-                data=data,
-                previous_hash=previous_block.hash,
-                difficulty=difficulty
-            )
-            block_template.prepare_packed_data()
-
             nonce = 0
+
             while True:
-                hash_value = block_template.calculate_hash(nonce)
+                with blockchain_lock:
+                    current_index = len(blockchain)
+                    previous_block = blockchain[-1]
+                    # Assign timestamp based on the latest previous_block
+                    timestamp = max(time.time(), previous_block.timestamp + 1 )
+
+                block = Block(
+                    index=current_index,
+                    timestamp=timestamp,
+                    data=data,
+                    previous_hash=previous_block.hash,
+                    difficulty=difficulty,
+                    nonce=nonce
+                )
+                hash_value = block.hash
+
+                 # Increment the operations_count safely
                 operations_count += 1
                 total_operations += 1
 
@@ -372,76 +336,66 @@ def mine_blocks_thread(data):
                 elapsed_since_last_report = current_time - last_report_time
 
                 if elapsed_since_last_report >= 5:
-                    # Calculate ops per second for the last interval
+                    # Calculate ops per second for the last 5 seconds
                     ops_sec = operations_count / elapsed_since_last_report
-                    # Update the ops_label via root.after to ensure thread safety
+                    # Update the GUI label (ensure it's thread-safe)
                     root.after(0, ops_label.config, {"text": f"Ops/sec: {ops_sec:.2f}"})
-                    # Also print to console to retain original behavior
-                    print(f"Ops/sec: {ops_sec:.2f}")
                     # Reset the counter and update the last_report_time
                     operations_count = 0
                     last_report_time = current_time
 
                 if hash_value.startswith('0' * difficulty):
-                    # Block mined successfully
-                    block_template.nonce = nonce
-                    block_template.hash = hash_value
-                    # Update the GUI with the mined block message
-                    handle_messages(f"Block mined with hash: {hash_value} difficulty: {difficulty}", "green")
+                    print(f"Block mined with hash: {hash_value}")
+                    handle_messages(f"{hash_value} difficulty: {block.difficulty}", "green")
+                    root.update()
+                    #time.sleep(0.01)  
                     break
                 else:
-                    nonce += 1
+                    nonce += 1  
 
             with blockchain_lock:
                 # Verify that the previous_hash still matches
-                if block_template.previous_hash != blockchain[-1].hash:
+                if block.previous_hash != blockchain[-1].hash:
                     print("Chain updated during mining. Restarting mining.")
                     logging.warning("Chain updated during mining. Restarting mining.")
-                    handle_messages("Chain updated during mining. Restarting mining.", "red")
                     continue  # Skip appending this block and restart mining
 
-                blockchain.append(block_template)
+                blockchain.append(block)
                 update_blocks_view(chain=blockchain)
-                logging.info(f"Block {block_template.index} appended to the blockchain.")
+                logging.info(f"Block {block.index} appended to the blockchain.")
 
-            # No sleep to maximize mining speed
+            root.update()
+            time.sleep(0.5)  
 
+    except Exception as e:
+        print(f"Error during mining blocks: {str(e)}")
+        logging.error(f"Error during mining blocks: {str(e)}")
+    finally:
         # Calculate and display average operations per second
         end_time = time.time()
         total_time = end_time - start_time
         if total_time > 0:
             average_ops_per_sec = total_operations / total_time
-            # Update the ops_label
-            root.after(0, ops_label.config, {"text": f"Average Ops/sec: {average_ops_per_sec:.2f}"})
-            # Also print to console to retain original behavior
             print(f"Average operations per second: {average_ops_per_sec:.2f}")
-            # Log the average ops/sec
-            logging.info(f"Average operations per second: {average_ops_per_sec:.2f}")
+            handle_messages(f"Average operations per second: {average_ops_per_sec:.2f}", "blue")
+            # Update the GUI label with the average ops/sec
+            root.after(0, ops_label.config, {"text": f"Avg Ops/sec: {average_ops_per_sec:.2f}"})
         else:
-            # Update the ops_label to show zero operations
-            root.after(0, ops_label.config, {"text": "Ops/sec: 0"})
-            # Also print to console to retain original behavior
             print("No operations counted.")
-            # Log the zero operations
-            logging.warning("No operations counted.")
+            handle_messages("No operations counted.", "red")
+            root.after(0, ops_label.config, {"text": "Ops/sec: 0"})
 
-    except Exception as e:
-        print(f"Error during mining blocks: {str(e)}")
-        logging.error(f"Error during mining blocks: {e}")
-    finally:
-        pass  # Any final cleanup can be done here
 
 def on_shutdown():
-    """Handle the shutdown of the application."""
     try:
-        stop_node()
+        global stop_signal
+        stop_signal = True
+        server_thread.join(timeout=2)
     except Exception as e:
         print(f"Error stopping server: {str(e)}")
-        logging.error(f"Error stopping server: {e}")
     root.destroy()
 
 def connect_to_host():
-    """Connect to a peer node."""
     global PORT
     try:
         host = host_name_entry.get()
@@ -454,29 +408,26 @@ def connect_to_host():
             'address': (HOST, PORT)
         }
         client_sockets.append(client_sock)
-        print(f"Connected to host {HOST}:{PORT}")
-        logging.info(f"Connected to host {HOST}:{PORT}")
 
     except Exception as e:
-        print(f"Error connecting to host: {e}")
-        logging.error(f"Error connecting to host: {e}")
         status_display.set("Offline")
         status_label.place(x=330, y=160)
 
 def receive_data(client_sock):
-    """Receive data from a connected peer."""
     try:
         while True:
+
             data = client_sock.recv(8192).decode()
+
             if not data:
                 break
+
             update_chain(data)
+
     except Exception as e:
         print(f"Error in receiving messages: {str(e)}")
-        logging.error(f"Error in receiving messages: {e}")
 
 def update_chain(received_data):
-    """Update the local blockchain with received data."""
     global blockchain
     try:
         received_blockchain = deserialize_chain(received_data)
@@ -490,37 +441,42 @@ def update_chain(received_data):
                         print("Local Blockchain Updated\n")
                         update_blocks_view(chain=received_blockchain)
                         logging.info("Local blockchain updated from received chain.")
-                        gui_queue.put(("Local Blockchain Updated", "green"))
                 else:
                     print("Received Blockchain has an earlier timestamp. Ignored.\n")
                     logging.warning("Received blockchain has an earlier timestamp. Ignored.")
-                    gui_queue.put(("Received Blockchain has an earlier timestamp. Ignored.", "red"))
             else:
                 print("Received Blockchain Validated but Not Longer\n")
                 logging.info("Received blockchain is validated but not longer than local chain.")
-                gui_queue.put(("Received Blockchain Validated but Not Longer", "blue"))
         else:
             add_to_peer_data("Received Blockchain Validation Failed\n")
             logging.warning("Received blockchain validation failed.")
 
     except Exception as e:
         print(f"Error updating blockchain: {str(e)}")
-        logging.error(f"Error updating blockchain: {e}")
+        logging.error(f"Error updating blockchain: {str(e)}")
 
 def cumulative_difficulty(blockchain):
-    """Calculate the cumulative difficulty of the blockchain."""
-    return sum(2 ** block.difficulty for block in blockchain)
+    cumulative_difficulty = 0
+    for block in blockchain:
+        cumulative_difficulty += 2 ** block.difficulty
+
+    return cumulative_difficulty  
 
 def deserialize_chain(data):
-    """Deserialize the blockchain string into Block objects."""
     try:
+
         block_strings = data.strip().split('##')
+
         received_blockchain = []
         for block_string in block_strings:
+
             if not block_string:
                 continue
+
             block_data = block_string.split('|')
+
             if len(block_data) == 7:
+
                 index = int(block_data[0])
                 timestamp = float(block_data[1])
                 data_value = block_data[2]
@@ -534,97 +490,66 @@ def deserialize_chain(data):
                     timestamp=timestamp,
                     data=data_value,
                     previous_hash=previous_hash,
-                    difficulty=difficulty
+                    difficulty=difficulty,
+                    nonce=nonce
                 )
-                block.nonce = nonce
+
                 block.set_hash(hash_value)
 
                 received_blockchain.append(block)
             else:
                 print(f"Error: Insufficient data in block string: {block_data}")
-                logging.error(f"Error: Insufficient data in block string: {block_data}")
+
         return received_blockchain
 
     except Exception as e:
-        traceback.print_exc()
-        print(f"Error during deserialization: {e}")
-        logging.error(f"Error during deserialization: {e}")
+        traceback.print_exc()  
         return []
 
 HOST = "127.0.0.1"
 PORT = None
 
-# Initialize the Tkinter GUI
 root = tk.Tk()
 root.title("Blockchain")
 
 root.geometry("700x760")
 
-# Define text tags for coloring
-data_text2 = tk.Text(root, wrap=tk.WORD, height=15, width=70, state=tk.DISABLED)
-data_text2.place(x=100, y=420)
-data_text2.tag_configure("black", foreground="black")
-data_text2.tag_configure("green", foreground="green")
-data_text2.tag_configure("blue", foreground="blue")
-data_text2.tag_configure("red", foreground="red")
-
-# Node Key Entry
 node_name_label = tk.Label(root, text="Key:")
 node_name_label.place(x=220, y=10)
 
 node_name_entry = tk.Entry(root)
 node_name_entry.place(x=260, y=10)
 
-# Start Node Button
 connect_button = tk.Button(root, text="Start", command=start_node)
 connect_button.place(x=280, y=40)
 
-# Mine Button
 mine_button = tk.Button(root, text="Mine", command=mine_blocks)
 mine_button.place(x=360, y=40)
 
-# Host IP Entry
-ip_label = tk.Label(root, text="IP:")
-ip_label.place(x=230, y=80)
-
+node_name_label = tk.Label(root, text="IP:")
+node_name_label.place(x=230, y=80)
 host_name_entry = tk.Entry(root)
 host_name_entry.place(x=260, y=80)
 
-# Connect to Host Button
 connect_host_button = tk.Button(root, text="Connect", command=connect_to_host)
 connect_host_button.place(x=305, y=110)
 
-# Status Display
+tk.Label(root, text="").place(y=50)
+
 status_display = tk.StringVar()
 status_display.set("Offline")
 status_label = tk.Label(root, textvariable=status_display)
 status_label.place(x=330, y=160)
 
-# Blockchain View Text Box
 data_text1 = tk.Text(root, wrap=tk.WORD, height=15, width=45, state=tk.DISABLED)
 data_text1.place(x=185, y=200)
 
-# Operations Per Second Label
+data_text2 = tk.Text(root, wrap=tk.WORD, height=15, width=70, state=tk.DISABLED)
+data_text2.place(x=100, y=420)
+
+# Add this label in your GUI setup section
 ops_label = tk.Label(root, text="Ops/sec: 0")
 ops_label.place(x=300, y=180)
-
-def process_gui_queue():
-    """Process messages from the GUI queue."""
-    try:
-        while not gui_queue.empty():
-            message, color = gui_queue.get_nowait()
-            data_text2.config(state=tk.NORMAL)
-            data_text2.insert(tk.END, message, color)
-            data_text2.insert(tk.END, "\n")  
-            data_text2.tag_add(color, f"{data_text2.index(tk.END)}-{len(message)}c", tk.END)
-            data_text2.config(state=tk.DISABLED)
-        root.after(100, process_gui_queue)
-    except Exception as e:
-        print(f"Error processing GUI queue: {e}")
-        logging.error(f"Error processing GUI queue: {e}")
-
-# Start processing the GUI queue
-root.after(100, process_gui_queue)
 
 root.protocol("WM_DELETE_WINDOW", on_shutdown)
 root.mainloop()
