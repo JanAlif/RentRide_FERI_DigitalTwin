@@ -1,4 +1,5 @@
 import json
+import logging
 import random
 import tkinter as tk
 import traceback
@@ -6,6 +7,8 @@ import hashlib
 import time
 import socket
 import threading
+
+blockchain_lock = threading.Lock()
 
 stop_signal = False  
 server_socket = None  
@@ -151,27 +154,57 @@ def validate_broadcast():
     except Exception as e:
         print(f"Error during blockchain validation and broadcasting: {str(e)}")
 
-def validate_chain(blockchain=None):
+def validate_chain(blockchain_to_validate=None):
     try:
-        if blockchain is None:
-            blockchain = []  
-        chain = blockchain
+        if blockchain_to_validate is None:
+            with blockchain_lock:
+                chain = blockchain.copy()
+        else:
+            chain = blockchain_to_validate
+
+        # Ensure the chain has at least the genesis block
+        if len(chain) == 0:
+            print("Validation failed: Blockchain is empty.")
+            logging.warning("Validation failed: Blockchain is empty.")
+            return False
+
+        # Validate the genesis block
+        genesis = chain[0]
+        if genesis.previous_hash != "0":
+            print("Validation failed: Genesis block has incorrect previous hash.")
+            logging.warning("Validation failed: Genesis block has incorrect previous hash.")
+            return False
+
+        calculated_genesis_hash = genesis.calculate_hash()
+        if genesis.hash != calculated_genesis_hash:
+            print("Validation failed: Genesis block has incorrect hash.")
+            print(f"Expected Hash: {calculated_genesis_hash}")
+            logging.warning("Validation failed: Genesis block has incorrect hash.")
+            return False
+
+        # Iterate through the chain to validate each block
         for i in range(1, len(chain)):
             current_block = chain[i]
             previous_block = chain[i - 1]
 
+            # Index Validation
             if current_block.index != previous_block.index + 1:
                 print(f"Validation failed: Block {i} has an incorrect index.")
+                logging.warning(f"Validation failed: Block {i} has an incorrect index.")
                 return False
 
+            # Previous Hash Validation
             if current_block.previous_hash != previous_block.hash:
                 print(f"Validation failed: Block {i} has an incorrect previous hash.")
+                logging.warning(f"Validation failed: Block {i} has an incorrect previous hash.")
                 return False
 
+            # Hash Validation
             calculated_hash = current_block.calculate_hash()
             if current_block.hash != calculated_hash:
                 print(f"Validation failed: Block {i} has an incorrect hash.")
                 print(f"Expected Hash: {calculated_hash}")
+                logging.warning(f"Validation failed: Block {i} has an incorrect hash. Expected Hash: {calculated_hash}")
                 return False
 
             # Timestamp Validation
@@ -179,21 +212,24 @@ def validate_chain(blockchain=None):
                 # **Skip timestamp validation for the first block after genesis**
                 continue
             else:
-                allowed_future = 120  # seconds
+                allowed_future = 240  # seconds
                 if current_block.timestamp > previous_block.timestamp + allowed_future:
                     print(f"Validation failed: Block {i} has a timestamp too far in the future.")
+                    logging.warning(f"Validation failed: Block {i} has a timestamp too far in the future.")
                     return False
 
-                if current_block.timestamp < previous_block.timestamp:
+                if current_block.timestamp+3 < previous_block.timestamp:
                     print(f"Validation failed: Block {i} has a timestamp earlier than the previous block.")
+                    logging.warning(f"Validation failed: Block {i} has a timestamp earlier than the previous block.")
                     return False
-
 
         print("Blockchain validation successful")
+        logging.info("Blockchain validation successful")
         return True
 
     except Exception as e:
         print(f"Error during blockchain validation: {str(e)}")
+        logging.error(f"Error during blockchain validation: {str(e)}")
         return False
 
 def update_blocks_view(chain):
@@ -241,34 +277,42 @@ def mine_blocks_thread(data):
         block_generation_interval = 10 
         diff_adjust_interval = 2
 
-        for _ in range(10):  
+        for _ in range(20):  
+            with blockchain_lock:
+                previous_block = blockchain[-1]
+                
+                if len(blockchain) >= diff_adjust_interval:
+                    prev_adjustment_block = blockchain[-diff_adjust_interval]
+                else:
+                    prev_adjustment_block = blockchain[0]
 
-            previous_block = blockchain[-1]
-            timestamp = max(time.time(), previous_block.timestamp + 1)  
-            
-            if len(blockchain) >= diff_adjust_interval:
-                prev_adjustment_block = blockchain[-diff_adjust_interval]
-            else:
+                time_expected = block_generation_interval * diff_adjust_interval
+                time_taken = time.time() - prev_adjustment_block.timestamp
 
-                prev_adjustment_block = blockchain[0]
-
-            time_expected = block_generation_interval * diff_adjust_interval
-            time_taken = timestamp - prev_adjustment_block.timestamp
-
-            if time_taken < (time_expected / 2):
-                difficulty = prev_adjustment_block.difficulty + 1
-            elif time_taken > (time_expected * 2):
-                difficulty = prev_adjustment_block.difficulty - 1
-            else:
-                difficulty = prev_adjustment_block.difficulty
+                if time_taken < (time_expected / 2):
+                    difficulty = prev_adjustment_block.difficulty + 1
+                elif time_taken > (time_expected * 2):
+                    difficulty = max(prev_adjustment_block.difficulty - 1, 1)
+                else:
+                    difficulty = prev_adjustment_block.difficulty
 
             nonce = 0
 
             while True:
+                with blockchain_lock:
+                    current_index = len(blockchain)
+                    previous_block = blockchain[-1]
+                    # Assign timestamp based on the latest previous_block
+                    timestamp = max(time.time(), previous_block.timestamp + 1 )
 
-                current_index = len(blockchain)  
-
-                block = Block(current_index, timestamp, data, previous_block.hash, difficulty, nonce)
+                block = Block(
+                    index=current_index,
+                    timestamp=timestamp,
+                    data=data,
+                    previous_hash=previous_block.hash,
+                    difficulty=difficulty,
+                    nonce=nonce
+                )
                 hash_value = block.hash
 
                 if hash_value.startswith('0' * difficulty):
@@ -280,16 +324,24 @@ def mine_blocks_thread(data):
                 else:
                     nonce += 1  
 
-            blockchain.append(block)
-            update_blocks_view(chain=blockchain)
+            with blockchain_lock:
+                # Verify that the previous_hash still matches
+                if block.previous_hash != blockchain[-1].hash:
+                    print("Chain updated during mining. Restarting mining.")
+                    logging.warning("Chain updated during mining. Restarting mining.")
+                    continue  # Skip appending this block and restart mining
 
-            current_index += 1  
+                blockchain.append(block)
+                update_blocks_view(chain=blockchain)
+                logging.info(f"Block {block.index} appended to the blockchain.")
 
             root.update()
             time.sleep(0.5)  
 
     except Exception as e:
         print(f"Error during mining blocks: {str(e)}")
+        logging.error(f"Error during mining blocks: {str(e)}")
+
 
 def on_shutdown():
     try:
@@ -335,22 +387,30 @@ def receive_data(client_sock):
 def update_chain(received_data):
     global blockchain
     try:
-
         received_blockchain = deserialize_chain(received_data)
 
-        if validate_chain(blockchain=received_blockchain):
-
+        if validate_chain(blockchain_to_validate=received_blockchain):
             if cumulative_difficulty(received_blockchain) > cumulative_difficulty(blockchain):
-                blockchain = received_blockchain
-                print("Local Blockchain Updated\n")
-                update_blocks_view(chain=received_blockchain)
+                # Ensure the received chain's last block has a timestamp >= local last block's timestamp
+                if received_blockchain[-1].timestamp >= blockchain[-1].timestamp:
+                    with blockchain_lock:
+                        blockchain = received_blockchain
+                        print("Local Blockchain Updated\n")
+                        update_blocks_view(chain=received_blockchain)
+                        logging.info("Local blockchain updated from received chain.")
+                else:
+                    print("Received Blockchain has an earlier timestamp. Ignored.\n")
+                    logging.warning("Received blockchain has an earlier timestamp. Ignored.")
             else:
                 print("Received Blockchain Validated but Not Longer\n")
+                logging.info("Received blockchain is validated but not longer than local chain.")
         else:
             add_to_peer_data("Received Blockchain Validation Failed\n")
+            logging.warning("Received blockchain validation failed.")
 
     except Exception as e:
         print(f"Error updating blockchain: {str(e)}")
+        logging.error(f"Error updating blockchain: {str(e)}")
 
 def cumulative_difficulty(blockchain):
     cumulative_difficulty = 0
