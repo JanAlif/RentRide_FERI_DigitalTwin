@@ -9,6 +9,22 @@ import time
 import socket
 import threading
 import queue
+import ctypes
+import os
+
+# Load the shared library
+# Ensure the path to the shared library is correct
+lib_path = os.path.join(os.path.dirname(__file__), 'libmultithread.so')  # Use 'multithread.dll' on Windows
+lib = ctypes.CDLL(lib_path)
+
+# Set the function signature
+# Set the function signature for mine_blocks
+lib.mine_blocks.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+lib.mine_blocks.restype = ctypes.c_char_p
+
+# Set the function signature for calculate_block_hash
+lib.calculate_block_hash.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_uint32]
+lib.calculate_block_hash.restype = ctypes.c_char_p
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -59,21 +75,29 @@ class Block:
         )
 
     def calculate_hash(self, nonce):
-        """Calculate the SHA-256 hash with the given nonce."""
-        # Append nonce to the prepacked data
-        nonce_packed = struct.pack(">I", nonce)
-        block_bytes = self.prepacked_data + nonce_packed
-        return hashlib.sha256(block_bytes).hexdigest()
+        """Calculate the SHA-256 hash with the given nonce using C++."""
+        prepacked_data = self.prepacked_data
+
+        # Log debug information
+        logging.debug(f"Prepacked Data: {prepacked_data.hex()}")
+        logging.debug(f"Nonce: {nonce}")
+
+        # Call C++ function with prepacked_data and its length
+        block_hash = lib.calculate_block_hash(prepacked_data, len(prepacked_data), nonce)
+        if isinstance(block_hash, bytes):
+            block_hash = block_hash.decode('utf-8').strip()
+
+        logging.info(f"Hash from C++: {block_hash}")
+        return block_hash
 
     def set_hash(self, hash_value):
         """Set the hash value of the block."""
         self.hash = hash_value
 
 def create_genesis_block():
-    """Create the genesis (first) block of the blockchain."""
+    """Create the genesis (first) block of the blockchain using the C++ mining function."""
     fixed_timestamp = 1672531200.0  # Example: 2023-01-01 00:00:00 UTC
-    fixed_difficulty = 5
-    fixed_nonce = 0
+    fixed_difficulty = 5  # Adjust difficulty as needed
 
     genesis = Block(
         index=0,
@@ -83,12 +107,28 @@ def create_genesis_block():
         difficulty=fixed_difficulty
     )
 
-    # Ensure genesis block's hash meets difficulty requirements
-    while not genesis.hash.startswith('0' * fixed_difficulty):
-        genesis.nonce += 1
-        genesis.hash = genesis.calculate_hash(genesis.nonce)
+    # Log the prepacked data for verification
+    prepacked_data = genesis.prepacked_data
+    logging.info(f"Prepacked Data (Python): {prepacked_data.hex()}")
 
-    logging.info(f"Genesis block mined with hash: {genesis.hash}")
+    num_threads = 4  # Number of threads for mining; can be configurable
+
+    # Call the C++ mining function with prepacked_data and its length
+    result_bytes = lib.mine_blocks(prepacked_data, len(prepacked_data), fixed_difficulty, num_threads)
+    result_str = result_bytes.decode('utf-8')
+
+    # Parse the result from C++
+    try:
+        parts = result_str.split(',')
+        nonce_part = parts[0].strip()
+        nonce = int(nonce_part.split(':')[1].strip())
+        genesis.nonce = nonce
+        genesis.hash = genesis.calculate_hash(nonce)  # Calculate the hash with the mined nonce
+        logging.info(f"Genesis block mined with hash: {genesis.hash} and nonce: {nonce}")
+    except Exception as e:
+        logging.error(f"Error parsing genesis block mining result: {e}")
+        raise
+
     return genesis
 
 def adjust_difficulty(chain):
@@ -318,11 +358,12 @@ def stop_node():
     logging.info("Node stopped")
 
 def mine_blocks_thread(data):
-    """The main mining loop."""
+    """The mining loop using C++ multithreaded mining."""
     global blockchain
     try:
         block_generation_interval = 10 
         diff_adjust_interval = 2
+        num_threads = 5  # Adjust as needed for testing
 
         # Initialize counters
         operations_count = 0
@@ -330,7 +371,7 @@ def mine_blocks_thread(data):
         start_time = time.time()
         last_report_time = start_time
 
-        for _ in range(20):  
+        for _ in range(20):  # Mine 20 blocks; adjust as needed
             with blockchain_lock:
                 previous_block = blockchain[-1]
                 
@@ -360,38 +401,33 @@ def mine_blocks_thread(data):
                 previous_hash=previous_block.hash,
                 difficulty=difficulty
             )
-            block_template.prepare_packed_data()
+            prepacked_data = block_template.prepacked_data  # bytes
+            
+            # Call the C++ mining function with prepacked_data and its length
+            result_bytes = lib.mine_blocks(prepacked_data, len(prepacked_data), difficulty, num_threads)
+            result_str = result_bytes.decode('utf-8')
 
-            nonce = 0
-            while True:
-                hash_value = block_template.calculate_hash(nonce)
-                operations_count += 1
-                total_operations += 1
+            # Parse the result
+            # Expected format: "Nonce: {nonce}, Time Taken: {time} seconds, Speed: {speed} ops/sec"
+            try:
+                parts = result_str.split(',')
+                nonce_part = parts[0].strip()
+                nonce = int(nonce_part.split(':')[1].strip())
+                # Optionally, parse time and speed if needed
+            except Exception as e:
+                print(f"Error parsing mining result: {e}")
+                logging.error(f"Error parsing mining result: {e}")
+                handle_messages("Error parsing mining result.", "red")
+                continue
 
-                current_time = time.time()
-                elapsed_since_last_report = current_time - last_report_time
+            # Calculate the hash using the nonce
+            block_hash = block_template.calculate_hash(nonce)
 
-                if elapsed_since_last_report >= 5:
-                    # Calculate ops per second for the last interval
-                    ops_sec = operations_count / elapsed_since_last_report
-                    # Update the ops_label via root.after to ensure thread safety
-                    root.after(0, ops_label.config, {"text": f"Ops/sec: {ops_sec:.2f}"})
-                    # Also print to console to retain original behavior
-                    print(f"Ops/sec: {ops_sec:.2f}")
-                    # Reset the counter and update the last_report_time
-                    operations_count = 0
-                    last_report_time = current_time
+            # Update the block with nonce and hash
+            block_template.nonce = nonce
+            block_template.hash = block_hash
 
-                if hash_value.startswith('0' * difficulty):
-                    # Block mined successfully
-                    block_template.nonce = nonce
-                    block_template.hash = hash_value
-                    # Update the GUI with the mined block message
-                    handle_messages(f"Block mined with hash: {hash_value} difficulty: {difficulty}", "green")
-                    break
-                else:
-                    nonce += 1
-
+            # Update the blockchain
             with blockchain_lock:
                 # Verify that the previous_hash still matches
                 if block_template.previous_hash != blockchain[-1].hash:
@@ -403,26 +439,30 @@ def mine_blocks_thread(data):
                 blockchain.append(block_template)
                 update_blocks_view(chain=blockchain)
                 logging.info(f"Block {block_template.index} appended to the blockchain.")
+                handle_messages(f"Block {block_template.index} mined with hash: {block_hash} difficulty: {difficulty}", "green")
 
-            # No sleep to maximize mining speed
+            # Update operations count and speed
+            # Extract speed from result_str
+            try:
+                speed_part = parts[2].strip()
+                speed = float(speed_part.split(':')[1].strip().split()[0])
+                root.after(0, ops_label.config, {"text": f"Ops/sec: {speed:.2f}"})
+                print(f"Ops/sec: {speed:.2f}")
+            except Exception as e:
+                print(f"Error parsing speed: {e}")
+                logging.error(f"Error parsing speed: {e}")
 
-        # Calculate and display average operations per second
+        # Optionally, calculate and display average operations per second
         end_time = time.time()
         total_time = end_time - start_time
         if total_time > 0:
             average_ops_per_sec = total_operations / total_time
-            # Update the ops_label
             root.after(0, ops_label.config, {"text": f"Average Ops/sec: {average_ops_per_sec:.2f}"})
-            # Also print to console to retain original behavior
             print(f"Average operations per second: {average_ops_per_sec:.2f}")
-            # Log the average ops/sec
             logging.info(f"Average operations per second: {average_ops_per_sec:.2f}")
         else:
-            # Update the ops_label to show zero operations
             root.after(0, ops_label.config, {"text": "Ops/sec: 0"})
-            # Also print to console to retain original behavior
             print("No operations counted.")
-            # Log the zero operations
             logging.warning("No operations counted.")
 
     except Exception as e:
@@ -561,7 +601,7 @@ root.title("Blockchain")
 root.geometry("700x760")
 
 # Define text tags for coloring
-data_text2 = tk.Text(root, wrap=tk.WORD, height=15, width=70, state=tk.DISABLED)
+data_text2 = tk.Text(root, wrap=tk.WORD, height=20, width=70, state=tk.DISABLED)
 data_text2.place(x=100, y=420)
 data_text2.tag_configure("black", foreground="black")
 data_text2.tag_configure("green", foreground="green")
