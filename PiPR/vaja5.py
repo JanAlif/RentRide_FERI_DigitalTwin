@@ -427,7 +427,8 @@ def mine_blocks_thread(data):
     try:
         block_generation_interval = 10 
         diff_adjust_interval = 2
-        num_threads = 4  # Adjust as needed for testing
+        # Use the optimal number of threads for this instance
+        num_threads = calculate_threads_per_instance(logical_cores, size, rank)
 
         # Initialize counters
         operations_count = 0
@@ -716,12 +717,31 @@ def initialize_gui():
     ops_label = tk.Label(root, text="Ops/sec: 0")
     ops_label.place(x=300, y=180)
 
+    # Threads Assigned Label
+    threads_label = tk.Label(root, text=f"Threads Assigned: {num_threads}")
+    threads_label.place(x=300, y=700)
+
     # Start processing the GUI queue
     root.after(100, process_gui_queue)
 
     # Handle shutdown
     root.protocol("WM_DELETE_WINDOW", on_shutdown)
     root.mainloop()
+
+def calculate_threads_per_instance(total_cores, num_instances, rank):
+    """Calculate the number of threads for each instance based on rank."""
+    base_threads = total_cores // num_instances
+    extra_threads = total_cores % num_instances
+
+    # Assign one extra thread to the first 'extra_threads' instances
+    if rank < extra_threads:
+        return base_threads + 1
+    else:
+        return base_threads
+
+# Calculate threads for this instance
+logical_cores = 11  # Total logical cores
+num_threads = calculate_threads_per_instance(logical_cores, size, rank)
 
 def main():
     # Initialize the GUI
