@@ -1,3 +1,4 @@
+from mpi4py import MPI
 import json
 import logging
 import random
@@ -11,23 +12,64 @@ import threading
 import queue
 import ctypes
 import os
+import sys
+
+# Initialize MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# Define serialization functions
+def serialize_genesis_block(genesis):
+    """Serialize the genesis block into a JSON-formatted byte string."""
+    return json.dumps({
+        'index': genesis.index,
+        'timestamp': genesis.timestamp,
+        'data': genesis.data,
+        'previous_hash': genesis.previous_hash,
+        'difficulty': genesis.difficulty,
+        'nonce': genesis.nonce,
+        'hash': genesis.hash
+    }).encode('utf-8')
+
+def deserialize_genesis_block(serialized):
+    """Deserialize the JSON-formatted byte string back into a Block object."""
+    data = json.loads(serialized.decode('utf-8'))
+    genesis = Block(
+        index=data['index'],
+        timestamp=data['timestamp'],
+        data=data['data'],
+        previous_hash=data['previous_hash'],
+        difficulty=data['difficulty']
+    )
+    genesis.nonce = data['nonce']
+    genesis.set_hash(data['hash'])
+    return genesis
 
 # Load the shared library
-# Ensure the path to the shared library is correct
 lib_path = os.path.join(os.path.dirname(__file__), 'libmultithread.so')  # Use 'multithread.dll' on Windows
-lib = ctypes.CDLL(lib_path)
+try:
+    lib = ctypes.CDLL(lib_path)
+except OSError as e:
+    print(f"Error loading shared library: {e}")
+    sys.exit(1)
 
-# Set the function signature
-# Set the function signature for mine_blocks
+# Set the function signatures
 lib.mine_blocks.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 lib.mine_blocks.restype = ctypes.c_char_p
 
-# Set the function signature for calculate_block_hash
 lib.calculate_block_hash.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_uint32]
 lib.calculate_block_hash.restype = ctypes.c_char_p
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format=f'%(asctime)s - %(levelname)s - [Process {rank + 1}/{size}] - %(message)s',
+    handlers=[
+        logging.FileHandler(f'process_{rank + 1}.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 # Initialize threading lock for blockchain
 blockchain_lock = threading.Lock()
@@ -46,6 +88,9 @@ start_time = None
 
 # Initialize a queue for GUI updates
 gui_queue = queue.Queue()
+
+# Define the Block class and all functions as in your original script
+# ... [Your existing Block class and all other functions remain unchanged] ...
 
 class Block:
     def __init__(self, index, timestamp, data, previous_hash, difficulty):
@@ -139,8 +184,27 @@ def adjust_difficulty(chain):
         return chain[-1].difficulty
 
 # Initialize the blockchain with the genesis block
-genesis_block = create_genesis_block()
+if rank == 0:
+    genesis_block = create_genesis_block()
+    serialized_genesis = serialize_genesis_block(genesis_block)
+else:
+    serialized_genesis = None
+
+# Broadcast the serialized genesis block to all processes
+serialized_genesis = comm.bcast(serialized_genesis, root=0)
+
+# Deserialize the genesis block for non-root processes
+if rank != 0:
+    genesis_block = deserialize_genesis_block(serialized_genesis)
+
+# Initialize the blockchain with the genesis block
 blockchain = [genesis_block]
+
+# Finalize MPI to decouple processes
+comm.Barrier()  # Ensure all processes have received the genesis block
+MPI.Finalize()
+
+# Continue with the rest of your program (GUI, P2P networking, etc.)
 
 def start_node():
     """Start the node's server to accept peer connections."""
@@ -363,7 +427,7 @@ def mine_blocks_thread(data):
     try:
         block_generation_interval = 10 
         diff_adjust_interval = 2
-        num_threads = 5  # Adjust as needed for testing
+        num_threads = 4  # Adjust as needed for testing
 
         # Initialize counters
         operations_count = 0
@@ -512,7 +576,7 @@ def receive_data(client_sock):
                 break
             update_chain(data)
     except Exception as e:
-        print(f"Error in receiving messages: {str(e)}")
+        print(f"Error in receiving messages: {e}")
         logging.error(f"Error in receiving messages: {e}")
 
 def update_chain(received_data):
@@ -544,7 +608,7 @@ def update_chain(received_data):
             logging.warning("Received blockchain validation failed.")
 
     except Exception as e:
-        print(f"Error updating blockchain: {str(e)}")
+        print(f"Error updating blockchain: {e}")
         logging.error(f"Error updating blockchain: {e}")
 
 def cumulative_difficulty(blockchain):
@@ -595,58 +659,73 @@ HOST = "127.0.0.1"
 PORT = None
 
 # Initialize the Tkinter GUI
-root = tk.Tk()
-root.title("Blockchain")
+def initialize_gui():
+    global root, data_text2, node_name_label, node_name_entry, connect_button, mine_button
+    global ip_label, host_name_entry, connect_host_button, status_display, status_label
+    global data_text1, ops_label
 
-root.geometry("700x760")
+    root = tk.Tk()
+    root.title(f"Blockchain - Process {rank + 1}/{size}")
+    root.geometry("700x760")
 
-# Define text tags for coloring
-data_text2 = tk.Text(root, wrap=tk.WORD, height=20, width=70, state=tk.DISABLED)
-data_text2.place(x=100, y=420)
-data_text2.tag_configure("black", foreground="black")
-data_text2.tag_configure("green", foreground="green")
-data_text2.tag_configure("blue", foreground="blue")
-data_text2.tag_configure("red", foreground="red")
+    # Define text tags for coloring
+    data_text2 = tk.Text(root, wrap=tk.WORD, height=20, width=70, state=tk.DISABLED)
+    data_text2.place(x=100, y=420)
+    data_text2.tag_configure("black", foreground="black")
+    data_text2.tag_configure("green", foreground="green")
+    data_text2.tag_configure("blue", foreground="blue")
+    data_text2.tag_configure("red", foreground="red")
 
-# Node Key Entry
-node_name_label = tk.Label(root, text="Key:")
-node_name_label.place(x=220, y=10)
+    # Node Key Entry
+    node_name_label = tk.Label(root, text="Key:")
+    node_name_label.place(x=220, y=10)
 
-node_name_entry = tk.Entry(root)
-node_name_entry.place(x=260, y=10)
+    node_name_entry = tk.Entry(root)
+    node_name_entry.place(x=260, y=10)
 
-# Start Node Button
-connect_button = tk.Button(root, text="Start", command=start_node)
-connect_button.place(x=280, y=40)
+    # Start Node Button
+    connect_button = tk.Button(root, text="Start", command=start_node)
+    connect_button.place(x=280, y=40)
 
-# Mine Button
-mine_button = tk.Button(root, text="Mine", command=mine_blocks)
-mine_button.place(x=360, y=40)
+    # Mine Button
+    mine_button = tk.Button(root, text="Mine", command=mine_blocks)
+    mine_button.place(x=360, y=40)
 
-# Host IP Entry
-ip_label = tk.Label(root, text="IP:")
-ip_label.place(x=230, y=80)
+    # Host IP Entry
+    ip_label = tk.Label(root, text="IP:")
+    ip_label.place(x=230, y=80)
 
-host_name_entry = tk.Entry(root)
-host_name_entry.place(x=260, y=80)
+    host_name_entry = tk.Entry(root)
+    host_name_entry.place(x=260, y=80)
 
-# Connect to Host Button
-connect_host_button = tk.Button(root, text="Connect", command=connect_to_host)
-connect_host_button.place(x=305, y=110)
+    # Connect to Host Button
+    connect_host_button = tk.Button(root, text="Connect", command=connect_to_host)
+    connect_host_button.place(x=305, y=110)
 
-# Status Display
-status_display = tk.StringVar()
-status_display.set("Offline")
-status_label = tk.Label(root, textvariable=status_display)
-status_label.place(x=330, y=160)
+    # Status Display
+    status_display = tk.StringVar()
+    status_display.set("Offline")
+    status_label = tk.Label(root, textvariable=status_display)
+    status_label.place(x=330, y=160)
 
-# Blockchain View Text Box
-data_text1 = tk.Text(root, wrap=tk.WORD, height=15, width=45, state=tk.DISABLED)
-data_text1.place(x=185, y=200)
+    # Blockchain View Text Box
+    data_text1 = tk.Text(root, wrap=tk.WORD, height=15, width=45, state=tk.DISABLED)
+    data_text1.place(x=185, y=200)
 
-# Operations Per Second Label
-ops_label = tk.Label(root, text="Ops/sec: 0")
-ops_label.place(x=300, y=180)
+    # Operations Per Second Label
+    ops_label = tk.Label(root, text="Ops/sec: 0")
+    ops_label.place(x=300, y=180)
+
+    # Start processing the GUI queue
+    root.after(100, process_gui_queue)
+
+    # Handle shutdown
+    root.protocol("WM_DELETE_WINDOW", on_shutdown)
+    root.mainloop()
+
+def main():
+    # Initialize the GUI
+    initialize_gui()
 
 def process_gui_queue():
     """Process messages from the GUI queue."""
@@ -654,8 +733,7 @@ def process_gui_queue():
         while not gui_queue.empty():
             message, color = gui_queue.get_nowait()
             data_text2.config(state=tk.NORMAL)
-            data_text2.insert(tk.END, message, color)
-            data_text2.insert(tk.END, "\n")  
+            data_text2.insert(tk.END, message + "\n", color)
             data_text2.tag_add(color, f"{data_text2.index(tk.END)}-{len(message)}c", tk.END)
             data_text2.config(state=tk.DISABLED)
         root.after(100, process_gui_queue)
@@ -663,8 +741,9 @@ def process_gui_queue():
         print(f"Error processing GUI queue: {e}")
         logging.error(f"Error processing GUI queue: {e}")
 
-# Start processing the GUI queue
-root.after(100, process_gui_queue)
-
-root.protocol("WM_DELETE_WINDOW", on_shutdown)
-root.mainloop()
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        logging.error(f"Unhandled exception: {e}\n{traceback.format_exc()}")
+        sys.exit(1)
