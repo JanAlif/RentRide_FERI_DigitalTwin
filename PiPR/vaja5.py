@@ -89,6 +89,10 @@ start_time = None
 # Initialize a queue for GUI updates
 gui_queue = queue.Queue()
 
+# Initialize global variables for timing
+mining_start_time = None
+mining_elapsed_time_recorded = False
+
 # Define the Block class and all functions as in your original script
 # ... [Your existing Block class and all other functions remain unchanged] ...
 
@@ -268,8 +272,12 @@ def handle_messages(message, color="black"):
 
 def mine_blocks():
     """Start the mining process in a separate thread."""
-    global blockchain
+    global mining_start_time, mining_elapsed_time_recorded  # Declare as global
     try:
+        # Start the timer
+        mining_start_time = time.time()
+        mining_elapsed_time_recorded = False  # Reset the flag
+
         mine_thread = threading.Thread(target=mine_blocks_thread, args=(node_name_entry.get(),), daemon=True)
         mine_thread.start()
 
@@ -423,7 +431,7 @@ def stop_node():
 
 def mine_blocks_thread(data):
     """The mining loop using C++ multithreaded mining."""
-    global blockchain
+    global blockchain, mining_start_time, mining_elapsed_time_recorded  # Declare as global
     try:
         block_generation_interval = 10 
         diff_adjust_interval = 2
@@ -505,6 +513,16 @@ def mine_blocks_thread(data):
                 update_blocks_view(chain=blockchain)
                 logging.info(f"Block {block_template.index} appended to the blockchain.")
                 handle_messages(f"Block {block_template.index} mined with hash: {block_hash} difficulty: {difficulty}", "green")
+
+                # Check if we have reached 10 blocks
+                if len(blockchain) == 10 and not mining_elapsed_time_recorded:
+                    mining_end_time = time.time()
+                    elapsed_time = mining_end_time - mining_start_time
+                    mining_elapsed_time_recorded = True  # Ensure this runs only once
+                    message = f"Time taken to mine 10 blocks: {elapsed_time:.2f} seconds"
+                    logging.info(message)
+                    gui_queue.put((message, "blue"))  # Display in GUI
+
 
             # Update operations count and speed
             # Extract speed from result_str

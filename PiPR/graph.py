@@ -40,10 +40,14 @@ plt.grid(True)
 plt.subplot(2, 2, 4)
 plt.plot(threads, speedup_operations, marker='o', linestyle='-')
 plt.xlabel("Number of Threads")
-plt.ylabel("Relative Scale (Operations)")
-plt.title("Relative Scale vs Threads (Operations)")
+plt.ylabel("Speed-Up (Operations)")
+plt.title("Speed-Up vs Threads (Operations)")
 plt.grid(True)
 
 # Adjust layout and display the plots
 plt.tight_layout()
 plt.show()
+
+# 1 node time = 60.22 | 94.39
+# 2 node time = 46.78 | 51.26
+# 3 node time = 30.51 | 44.75
