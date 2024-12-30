@@ -767,3 +767,6 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"Unhandled exception: {e}\n{traceback.format_exc()}")
         sys.exit(1)
+
+
+#mpiexec -n 2 python vaja5.py

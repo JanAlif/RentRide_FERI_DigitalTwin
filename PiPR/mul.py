@@ -13,9 +13,9 @@ lib.calculate_block_hash.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_uin
 lib.calculate_block_hash.restype = ctypes.c_char_p
 
 # Define block parameters
-prepacked_data = "Sample prepacked block data"
+prepacked_data = "Some Sample prepacked block data  "
 difficulty = 7  # Adjust difficulty as needed
-num_threads = 5  # Number of threads
+num_threads = 1  # Number of threads
 
 # Prepare prepacked data as bytes and its length
 prepacked_data_bytes = prepacked_data.encode('utf-8')
