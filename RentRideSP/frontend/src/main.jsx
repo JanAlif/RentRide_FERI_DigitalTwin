@@ -18,7 +18,7 @@ import {
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import HeroScreen from "./screens/HeroScreen";
 import { LoginScreen } from "./screens/LoginScreen.jsx";
-import { MapScreen } from "./screens/MapScreen.jsx";
+import { MapScreen } from "./screens/MapScreen 2.jsx";
 import { AdminScreen } from "./screens/AdminScreen.jsx";
 import { RegisterScreen } from "./screens/RegisterScreen.jsx";
 import { ProfileScreen } from "./screens/ProfileScreen.jsx";
