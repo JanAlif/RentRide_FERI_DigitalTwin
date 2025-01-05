@@ -41,6 +41,10 @@ const rideSchema = new mongoose.Schema(
       enum: ["pending", "started", "completed", "cancelled"],
       default: "pending",
     },
+    cost: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,

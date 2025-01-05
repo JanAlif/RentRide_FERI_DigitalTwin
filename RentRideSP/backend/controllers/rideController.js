@@ -7,15 +7,12 @@ import CarModel from "../models/carModel.js";
 // POST /api/rides
 const addRide = asyncHandler(async (req, res) => {
   console.log("Received request to add a ride");
-  const { driverId, carId, startLocation, endLocation, path, startTime, endTime, status } = req.body;
-  console.log("driverId:", driverId, "carId:", carId);
+  const { driverId, carId, startLocation, endLocation, path, startTime, endTime, status, distance } = req.body; // Distance in km from frontend
+  console.log("driverId:", driverId, "carId:", carId, "distance:", distance);
 
   try {
     const car = await CarModel.findById(carId);
-    console.log("Found car:", car);
-
     const user = await UserModel.findById(driverId);
-    console.log("Found user:", user);
 
     if (!car) {
       return res.status(404).json({ message: "Car not found" });
@@ -24,13 +21,15 @@ const addRide = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    console.log("Start Location JSON:", startLocation);
-    console.log("End Location JSON:", endLocation);
-
     const startLocationParsed = JSON.parse(startLocation).coordinates;
     const endLocationParsed = JSON.parse(endLocation).coordinates;
-    console.log("Parsed Start Coordinates:", startLocationParsed);
-    console.log("Parsed End Coordinates:", endLocationParsed);
+
+    // Calculate cost (credits are equal to distance rounded to an integer)
+    const rideCost = Math.ceil(distance);
+
+    if (user.credits < rideCost) {
+      return res.status(400).json({ message: "Insufficient credits for this ride." });
+    }
 
     const ride = await RideModel.create({
       driver: user._id,
@@ -41,11 +40,18 @@ const addRide = asyncHandler(async (req, res) => {
       startTime,
       endTime,
       status: status || "pending", // Use provided status or default to pending
+      cost: rideCost,
     });
 
     if (ride) {
+      // Deduct credits from user
+      user.credit -= rideCost;
+      await user.save();
+
+      // Update car's previous rides
       car.previousRides.push(ride._id);
       await car.save();
+
       return res.status(201).json(ride);
     } else {
       return res.status(400).json({ message: "Invalid ride data" });
