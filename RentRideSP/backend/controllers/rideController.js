@@ -7,8 +7,7 @@ import CarModel from "../models/carModel.js";
 // POST /api/rides
 const addRide = asyncHandler(async (req, res) => {
   console.log("Received request to add a ride");
-  const { driverId, carId, startLocation, endLocation, path, startTime, endTime, status, distance } = req.body; // Distance in km from frontend
-  console.log("driverId:", driverId, "carId:", carId, "distance:", distance);
+  const { driverId, carId, startLocation, endLocation, path, startTime, endTime, status, distance } = req.body;
 
   try {
     const car = await CarModel.findById(carId);
@@ -27,11 +26,24 @@ const addRide = asyncHandler(async (req, res) => {
     // Calculate cost (credits are equal to distance rounded to an integer)
     const rideCost = Math.ceil(distance);
 
-    if (user.credits < rideCost) {
+    if (user.credit < rideCost) {
       return res.status(400).json({ message: "Insufficient credits for this ride." });
     }
 
-    const ride = await RideModel.create({
+    // Validate the blockchain
+    const isBlockchainValid = await validateBlockchain();
+    if (!isBlockchainValid) {
+      return res.status(500).json({ message: "Blockchain validation failed. Ride cannot be added." });
+    }
+
+    // Blockchain logic: Get the last blockchain-eligible ride
+    let previousHash = null;
+    if (rideCost) {
+      const lastRide = await RideModel.findOne({ cost: { $exists: true } }).sort({ createdAt: -1 });
+      previousHash = lastRide ? lastRide.currentHash : null;
+    }
+
+    const ride = new RideModel({
       driver: user._id,
       car: car._id,
       startLocation: { type: "Point", coordinates: startLocationParsed },
@@ -39,26 +51,25 @@ const addRide = asyncHandler(async (req, res) => {
       path,
       startTime,
       endTime,
-      status: status || "pending", // Use provided status or default to pending
+      status: status || "pending",
       cost: rideCost,
+      previousHash, // Set the previous hash for blockchain-eligible rides
     });
 
-    if (ride) {
-      // Deduct credits from user
-      user.credit -= rideCost;
-      await user.save();
+    await ride.save();
 
-      // Update car's previous rides
-      car.previousRides.push(ride._id);
-      await car.save();
+    // Deduct credits from user
+    user.credit -= rideCost;
+    await user.save();
 
-      return res.status(201).json(ride);
-    } else {
-      return res.status(400).json({ message: "Invalid ride data" });
-    }
+    // Update car's previous rides
+    car.previousRides.push(ride._id);
+    await car.save();
+
+    res.status(201).json(ride);
   } catch (error) {
     console.error("Error adding ride:", error);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
@@ -122,6 +133,34 @@ const coordinatesWithPoint = (coordinates) => {
     type: "Point",
     coordinates,
   };
+};
+
+const validateBlockchain = async () => {
+  const rides = await RideModel.find({ cost: { $exists: true } }).sort({ createdAt: 1 });
+
+  for (let i = 1; i < rides.length; i++) {
+    const previousRide = rides[i - 1];
+    const currentRide = rides[i];
+
+    if (!currentRide.previousHash || !currentRide.currentHash) {
+      console.warn(`Skipping non-compliant ride ${currentRide._id}`);
+      continue;
+    }
+
+    // Check if the `previousHash` matches the `currentHash` of the previous block
+    if (currentRide.previousHash !== previousRide.currentHash) {
+      console.error(`Blockchain broken between rides ${previousRide._id} and ${currentRide._id}`);
+      return false;
+    }
+
+    // Check if the `currentHash` is valid
+    if (currentRide.currentHash !== currentRide.generateHash()) {
+      console.error(`Invalid hash for ride ${currentRide._id}`);
+      return false;
+    }
+  }
+
+  return true;
 };
 
 export { addRide, getRideById, getAllRides, updateRide, deleteRide };
