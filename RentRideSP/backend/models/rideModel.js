@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import pointSchema from "./pointSchema.js";
 import lineSchema from "./lineSchema.js";
+import crypto from "crypto"; // For hash generation
 
 const rideSchema = new mongoose.Schema(
   {
@@ -41,11 +42,39 @@ const rideSchema = new mongoose.Schema(
       enum: ["pending", "started", "completed", "cancelled"],
       default: "pending",
     },
+    cost: {
+      type: Number,
+      required: true,
+    },
+    previousHash: {
+      type: String,
+      default: null, // Null for the first blockchain-eligible ride
+    },
+    currentHash: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Helper to generate a hash
+rideSchema.methods.generateHash = function () {
+  const data = `${this.driver}${this.car}${JSON.stringify(
+    this.startLocation
+  )}${JSON.stringify(this.endLocation)}${this.startTime}${this.endTime}${this.status}${this.cost}${this.previousHash}`;
+  return crypto.createHash("sha256").update(data).digest("hex");
+};
+
+// Pre-save middleware to compute the current hash
+rideSchema.pre("save", function (next) {
+  if (this.cost) {
+    // Generate the hash only for rides with a cost
+    this.currentHash = this.generateHash();
+  }
+  next();
+});
 
 const RideModel = mongoose.model("Ride", rideSchema);
 

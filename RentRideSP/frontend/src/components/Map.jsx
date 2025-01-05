@@ -103,6 +103,7 @@ const Map = ({ directionsResponse, departureTime, arrivalTime, speedFactor = 1, 
         startTime: departureTime,
         endTime: arrivalTime,
         status: "completed", // Set status to completed
+        distance: Math.ceil(distance),
       };
 
       try {

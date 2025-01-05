@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { Card, Input, Button, Typography } from '@material-tailwind/react';
 import Map from '../components/Map';
 import { useGetCarQuery, useUpdateCarStatusMutation } from '../slices/carsApiSlice';
+import { useGetUserByIdQuery } from '../slices/usersApiSlice'; // Import user query
 import { useSelector } from 'react-redux'; // Assuming you have a user in Redux state
 
 export function MapScreen() {
@@ -11,8 +12,12 @@ export function MapScreen() {
   const carId = searchParams.get('carId');
   const { data: car, error: carError, isLoading: carLoading } = useGetCarQuery(carId);
   const [updateCarStatus] = useUpdateCarStatusMutation();
-  const user = useSelector((state) => state.auth.userInfo); // Assuming you have a user slice in Redux state
-  const driverId = user?._id;
+  const userInfo = useSelector((state) => state.auth.userInfo); // User info from Redux
+  const driverId = userInfo?._id;
+
+  const { data: user, isLoading: userLoading } = useGetUserByIdQuery(userInfo?._id, {
+    skip: !userInfo, // Skip query if userInfo is not available
+  });
 
   const [destination, setDestination] = useState('');
   const [departureTime, setDepartureTime] = useState('');
@@ -71,7 +76,7 @@ export function MapScreen() {
       const request = {
         origin: {
           lat: car.location.coordinates[1],
-          lng: car.location.coordinates[0]
+          lng: car.location.coordinates[0],
         },
         destination,
         travelMode: window.google.maps.TravelMode.DRIVING,
@@ -122,7 +127,9 @@ export function MapScreen() {
     }
   };
 
-  if (carLoading) return <div>Loading car details...</div>;
+  const requiredCredits = Math.ceil(distance); // Calculate required credits for the ride
+
+  if (carLoading || userLoading) return <div>Loading details...</div>;
   if (carError) return <div>Error loading car details</div>;
 
   return (
@@ -130,6 +137,11 @@ export function MapScreen() {
       <Typography variant="h4" color="blue-gray" className="text-center">
         Route for {car.brand} {car.model}
       </Typography>
+      {user?.credit !== undefined && (
+        <Typography color="gray" className="mt-4 text-center text-lg">
+          <strong>Your Current Credits:</strong> {user.credit}
+        </Typography>
+      )}
       <div className="flex flex-col gap-6 mt-6">
         <Input
           size="lg"
@@ -221,9 +233,14 @@ export function MapScreen() {
           </Typography>
         )}
         {distance && (
-          <Typography color="gray" className="mt-4 text-center">
-            <strong>Distance:</strong> {distance} km
-          </Typography>
+          <>
+            <Typography color="gray" className="mt-4 text-center">
+              <strong>Distance:</strong> {distance} km
+            </Typography>
+            <Typography color="gray" className="mt-4 text-center">
+              <strong>Ride Cost:</strong> {requiredCredits} credits
+            </Typography>
+          </>
         )}
         {error && <Typography color="red" className="mt-2">{error}</Typography>}
       </div>
@@ -256,9 +273,24 @@ export function MapScreen() {
             </label>
           </div>
           <div className="flex gap-4 justify-between">
-            <Button className="flex-1" onClick={handlePlay} disabled={isPlaying}>
-              Play
-            </Button>
+          <div
+  className="flex-1 relative group"
+>
+  {isPlaying || user?.credit < requiredCredits ? (
+    <div className="absolute -top-8 left-0 w-full bg-gray-800 text-white text-sm p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+      {isPlaying
+        ? "The play button is disabled because the ride is already in progress."
+        : `Insufficient credits. You need at least ${requiredCredits} credits to start this ride.`}
+    </div>
+  ) : null}
+  <Button
+    className="w-full"
+    onClick={handlePlay}
+    disabled={isPlaying || user?.credit < requiredCredits}
+  >
+    Play
+  </Button>
+</div>
             <Button className="flex-1" onClick={handlePause} disabled={!isPlaying}>
               Pause
             </Button>
