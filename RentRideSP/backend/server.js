@@ -11,6 +11,7 @@ import chargePointRoutes from "./routes/chargePointRoutes.js";
 import ridesRouter from "./routes/rideRoutes.js";
 import {Socket, Server} from 'socket.io'
 import http from 'http';
+import trafficAccidentRoutes from "./routes/trafficAccidentRoutes.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/cars", carsRoutes);
 app.use("/api/chargepoints", chargePointRoutes);
 app.use("/api/rides", ridesRouter);
+app.use("/api/accidents", trafficAccidentRoutes);
 
 //Error middleware
 app.use(notFound);
