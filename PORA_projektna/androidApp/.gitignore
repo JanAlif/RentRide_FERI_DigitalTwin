@@ -1,0 +1,23 @@
+# Gradle files
+.gradle/
+build/
+
+# Local configuration files
+local.properties
+.idea/
+.vscode/
+
+# User-specific files
+*.iml
+
+# Android Studio
+.android/
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Log files
+*.log
