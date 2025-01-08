@@ -1,0 +1,76 @@
+
+game-atlas.png
+size: 2048, 2048
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+arrow
+  rotate: false
+  xy: 1924, 1408
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+background
+  rotate: false
+  xy: 2, 392
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: -1
+finish
+  rotate: false
+  xy: 1990, 1448
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+no-u-turn
+  rotate: false
+  xy: 2, 68
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+parking
+  rotate: false
+  xy: 260, 326
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+roadwork
+  rotate: false
+  xy: 1924, 1342
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+start
+  rotate: false
+  xy: 260, 300
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+stop
+  rotate: false
+  xy: 2, 134
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+turn-right
+  rotate: false
+  xy: 2, 2
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+warning-sign
+  rotate: false
+  xy: 68, 68
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
