@@ -451,6 +451,7 @@ public class GameScreen extends ScreenAdapter {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
     }
 
+/*
 
     private void showDatabasePointsDialog() {
         // Create a table to hold the points
@@ -467,6 +468,7 @@ public class GameScreen extends ScreenAdapter {
             // Create a label for the point
             String label = "Point " + (i + 1) + ": " + point.getLocationName();
             Label pointLabel = new Label(label, skin);
+            pointLabel.setColor(Color.BLACK);
             table.add(pointLabel).padBottom(2).fillX().row(); // Reduced spacing
 
             // Check if dropdowns are needed by checking for details
@@ -535,6 +537,114 @@ public class GameScreen extends ScreenAdapter {
         // Show the dialog
         dialog.show(stage);
     }
+
+*/
+
+
+
+
+    private void showDatabasePointsDialog() {
+        // Create a table to hold the points
+        Table table = new Table();
+        table.top().left();
+        table.pad(5); // Reduced padding for compact layout
+
+        boolean hasDropdown = false; // Flag to check if dropdowns exist
+
+        // Add the points to the table
+        for (int i = 0; i < databasePoints.size(); i++) {
+            LocationInfo point = databasePoints.get(i);
+
+            // Create a label for the point
+            String label = "Point " + (i + 1) + ": " + point.getLocationName();
+            Label pointLabel = new Label(label, skin);
+            pointLabel.setColor(Color.BLACK); // Set the font color to black
+            table.add(pointLabel).padBottom(2).fillX().row(); // Reduced spacing
+
+            // Check if dropdowns are needed by checking for details
+            boolean hasDetails = point.getConnectors() > 0 || point.getConnectorsAvailable() > 0;
+            if (hasDetails) {
+                hasDropdown = true;
+
+                // Create a dropdown container for details
+                Table dropdownContent = new Table();
+                dropdownContent.setVisible(false); // Start with the dropdown hidden
+
+                Label locationNameLabel = new Label("Location Name: " + point.getLocationName(), skin);
+                locationNameLabel.setColor(Color.BLACK);
+                dropdownContent.add(locationNameLabel).padBottom(2).fillX().row();
+
+                Label latitudeLabel = new Label("Latitude: " + point.getLatitude(), skin);
+                latitudeLabel.setColor(Color.BLACK);
+                dropdownContent.add(latitudeLabel).padBottom(2).fillX().row();
+
+                Label longitudeLabel = new Label("Longitude: " + point.getLongitude(), skin);
+                longitudeLabel.setColor(Color.BLACK);
+                dropdownContent.add(longitudeLabel).padBottom(2).fillX().row();
+
+                Label connectorsLabel = new Label("Connectors: " + point.getConnectors(), skin);
+                connectorsLabel.setColor(Color.BLACK);
+                dropdownContent.add(connectorsLabel).padBottom(2).fillX().row();
+
+                Label connectorsAvailableLabel = new Label("Connectors Available: " + point.getConnectorsAvailable(), skin);
+                connectorsAvailableLabel.setColor(Color.BLACK);
+                dropdownContent.add(connectorsAvailableLabel).padBottom(2).fillX().row();
+
+                // Add click listener to toggle dropdown visibility
+                pointLabel.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        dropdownContent.setVisible(!dropdownContent.isVisible()); // Toggle visibility
+                        table.invalidate(); // Update the table layout
+                    }
+                });
+
+                // Add dropdown content to the table
+                table.add(dropdownContent).padLeft(15).padBottom(5).fillX().row();
+            }
+
+            // Add click listener to highlight the point
+            final int index = i; // Capture the index of the point
+            pointLabel.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // Highlight the selected point
+                    highlightSelectedPoint(index);
+
+                    // Reset the highlight after a delay
+                    scheduleHighlightReset();
+                }
+            });
+        }
+
+        // Dynamically determine the dialog size based on whether dropdowns are present
+        float dialogWidth = stage.getWidth() * (hasDropdown ? 0.6f : 0.4f); // Wider if dropdowns exist
+        float dialogHeight = stage.getHeight() * (hasDropdown ? 0.7f : 0.5f); // Taller if dropdowns exist
+
+        // Create the dialog
+        Dialog dialog = new Dialog("Database Points", skin);
+        dialog.setSize(dialogWidth, dialogHeight);
+        dialog.setPosition((stage.getWidth() - dialogWidth) / 2, (stage.getHeight() - dialogHeight) / 2); // Center the dialog
+
+        // Wrap the table in a scroll pane only if dropdowns exist
+        if (hasDropdown) {
+            ScrollPane scrollPane = new ScrollPane(table, skin);
+            scrollPane.setScrollingDisabled(true, false); // Allow only vertical scrolling
+            dialog.getContentTable().add(scrollPane).expand().fill().pad(10);
+        } else {
+            dialog.getContentTable().add(table).expand().fill().pad(10);
+        }
+
+        // Add a close button to the dialog
+        dialog.button("Close", true);
+
+        // Show the dialog
+        dialog.show(stage);
+    }
+
+
+
+
 
 
     private void initializeSelectablePoints() {
@@ -789,21 +899,35 @@ public class GameScreen extends ScreenAdapter {
         final double[] latitude = {point.geolocation.getLatitude()};
         final double[] longitude = {point.geolocation.getLongitude()};
 
-        editDialog.getContentTable().add("Name: ").left();
-        editDialog.getContentTable().add(nameField).width(200).row();
+        // Create a uniform layout without excessive padding
+        Table contentTable = editDialog.getContentTable();
 
-        editDialog.getContentTable().add("Address: ").left();
-        editDialog.getContentTable().add(addressField).width(200).row();
+// Adjust the alignment, padding, and width for consistent layout
+        Label nameLabel = new Label("Name: ", skin);
+        nameLabel.setColor(Color.BLACK);
+        contentTable.add(nameLabel).left().pad(5); // Add some consistent padding
+        contentTable.add(nameField).width(200).fillX().pad(5).row();
 
-        editDialog.getContentTable().add("Connectors: ").left();
-        editDialog.getContentTable().add(connectorsField).width(200).row();
+        Label addressLabel = new Label("Address: ", skin);
+        addressLabel.setColor(Color.BLACK);
+        contentTable.add(addressLabel).left().pad(5).padRight(10);
+        contentTable.add(addressField).width(200).fillX().pad(5).row();
 
-        editDialog.getContentTable().add("Connectors Available: ").left();
-        editDialog.getContentTable().add(connectorsAvailableField).width(200).row();
+        Label connectorsLabel = new Label("Connectors: ", skin);
+        connectorsLabel.setColor(Color.BLACK);
+        contentTable.add(connectorsLabel).left().pad(5).padRight(10);
+        contentTable.add(connectorsField).width(200).fillX().pad(5).row();
 
+        Label connectorsAvailableLabel = new Label("Connectors Available: ", skin);
+        connectorsAvailableLabel.setColor(Color.BLACK);
+        contentTable.add(connectorsAvailableLabel).left().pad(5).padRight(10);
+        contentTable.add(connectorsAvailableField).width(200).fillX().pad(5).row();
+
+// Add buttons to the dialog
         editDialog.button("Save", "SAVE");
         editDialog.button("Cancel", "CANCEL");
         editDialog.button("Reselect Location", "RESELECT_LOCATION");
+
 
         // Add a listener for the dialog result
         editDialog.addListener(new ChangeListener() {
