@@ -26,7 +26,7 @@
             android:value="@string/apiKey" />
 
         <activity
-            android:name=".MapActivity"
+            android:name=".LandingActivity"
             android:exported="true">
 
 
@@ -39,6 +39,9 @@
 
         <activity
             android:name=".CrashActivity"
+            android:exported="true" />
+
+        <activity android:name=".MapActivity"
             android:exported="true" />
 
     </application>

@@ -1,6 +1,7 @@
 [versions]
 agp = "8.6.1"
 android = "11.8.1"
+kmongo = "4.8.0"
 kotlin = "1.9.24"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -8,10 +9,14 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 kotlinxCoroutinesAndroid = "1.7.3"
+kotlinxCoroutinesCore = "1.6.4"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.2.0"
 jetbrainsKotlinJvm = "1.9.24"
+mongodbDriverKotlinCoroutine = "4.10.1"
+mongodbDriverSync = "4.11.0"
+mongoKotlinExtensions = "1.0.0"
 okhttp = "4.12.0"
 okhttpVersion = "4.9.0"
 playServicesMaps = "19.0.0"
@@ -25,10 +30,15 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kmongo = { module = "org.litote.kmongo:kmongo", version.ref = "kmongo" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+mongo-kotlin-extensions = { module = "org.mongodb.kotlin:mongo-kotlin-extensions", version.ref = "mongoKotlinExtensions" }
+mongodb-driver-kotlin-coroutine = { module = "org.mongodb:mongodb-driver-kotlin-coroutine", version.ref = "mongodbDriverKotlinCoroutine" }
+mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodbDriverSync" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-v490 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }

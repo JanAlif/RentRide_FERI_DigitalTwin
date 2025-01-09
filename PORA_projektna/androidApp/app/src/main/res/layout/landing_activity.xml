@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightGray">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.30" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.75" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.80" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.20" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.20" />
+
+    <ImageView
+        android:id="@+id/car"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/car_svgrepo_com"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guideline5" />
+
+    <!-- Letter R -->
+    <ImageView
+        android:id="@+id/letter_r"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_r_svgrepo_com"
+        app:layout_constraintBottom_toBottomOf="@id/guideline1"
+        app:layout_constraintEnd_toStartOf="@id/letter_e"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline1" />
+
+    <!-- Letter E -->
+    <ImageView
+        android:id="@+id/letter_e"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_e_svgrepo_com"
+        app:layout_constraintBottom_toBottomOf="@id/guideline1"
+        app:layout_constraintEnd_toStartOf="@id/letter_n"
+        app:layout_constraintStart_toEndOf="@id/letter_r"
+        app:layout_constraintTop_toTopOf="@id/guideline1" />
+
+    <!-- Letter N -->
+    <ImageView
+        android:id="@+id/letter_n"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_n_svgrepo_com"
+        app:layout_constraintBottom_toBottomOf="@id/guideline1"
+        app:layout_constraintEnd_toStartOf="@id/letter_t"
+        app:layout_constraintStart_toEndOf="@id/letter_e"
+        app:layout_constraintTop_toTopOf="@id/guideline1" />
+
+    <!-- Letter T -->
+    <ImageView
+        android:id="@+id/letter_t"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_t_svgrepo_com"
+        app:layout_constraintBottom_toBottomOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/letter_n"
+        app:layout_constraintTop_toTopOf="@id/guideline1" />
+
+    <!-- Letter A (The letter A image, potentially used as a background or part of a design) -->
+    <ImageView
+        android:id="@+id/line_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_a_svgrepo_com"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/letter_r" />
+
+    <!-- Spelling out "RIDE" -->
+    <!-- Letter R -->
+    <ImageView
+        android:id="@+id/letter_r_ride"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_r_svgrepo_com"
+        app:layout_constraintTop_toBottomOf="@id/line_separator"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Letter I -->
+    <ImageView
+        android:id="@+id/letter_i_ride"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_i_svgrepo_com"
+    app:layout_constraintTop_toTopOf="@id/letter_r_ride"
+    app:layout_constraintStart_toEndOf="@id/letter_r_ride"
+    android:layout_marginStart="4dp" />
+
+    <!-- Letter D -->
+    <ImageView
+        android:id="@+id/letter_d_ride"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_d_svgrepo_com"
+    app:layout_constraintTop_toTopOf="@id/letter_r_ride"
+    app:layout_constraintStart_toEndOf="@id/letter_i_ride"
+    android:layout_marginStart="4dp" />
+
+    <!-- Letter E -->
+    <ImageView
+        android:id="@+id/letter_e_ride"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/letter_e_svgrepo_com"
+        app:layout_constraintTop_toTopOf="@id/letter_r_ride"
+        app:layout_constraintStart_toEndOf="@id/letter_d_ride"
+        android:layout_marginStart="4dp"/>
+
+    <Button
+        android:textColor="@color/lightGray"
+        android:textColorHint="@color/lightGray"
+        android:id="@+id/accidentReport"
+        android:layout_width="0dp"
+        app:backgroundTint="@color/paleYellow"
+        android:layout_height="wrap_content"
+        android:text="Prijavi nesrečo"
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintEnd_toStartOf="@id/guideline3"
+        app:layout_constraintTop_toBottomOf="@id/guideline2"
+        />
+
+    <Button
+        android:textColor="@color/lightGray"
+        android:textColorHint="@color/lightGray"
+        android:id="@+id/mapButton"
+        android:layout_width="0dp"
+        app:backgroundTint="@color/paleYellow"
+        android:layout_height="wrap_content"
+        android:text="Zemljevid"
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintEnd_toStartOf="@id/guideline3"
+        app:layout_constraintTop_toBottomOf="@id/accidentReport"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
