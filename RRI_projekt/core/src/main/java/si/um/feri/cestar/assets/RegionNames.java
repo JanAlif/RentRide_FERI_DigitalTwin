@@ -6,4 +6,5 @@ public class RegionNames {
     public static final String FINISH = "finish";
     public static final String WINDOW = "stop";
     public static final String BACKGROUND = "background";
+    public static final String MARKER = "marker";
 }

@@ -87,6 +87,7 @@ public class GameScreen extends ScreenAdapter {
     // Assets
     private TextureRegion startIcon;
     private TextureRegion endIcon;
+    private TextureRegion markerIcon;
     private BitmapFont font;
     private Texture[] mapTiles;
     private ZoomXY beginTile;
@@ -151,6 +152,7 @@ public class GameScreen extends ScreenAdapter {
         TextureAtlas gameplayAtlas = assetManager.get(AssetsDescriptor.GAMEPLAY);
         startIcon = gameplayAtlas.findRegion(RegionNames.START);
         endIcon = gameplayAtlas.findRegion(RegionNames.FINISH);
+        markerIcon = gameplayAtlas.findRegion(RegionNames.MARKER);
 
 
         // Initialize stage for UI (buttons, labels, etc.)
@@ -794,10 +796,10 @@ public class GameScreen extends ScreenAdapter {
 
             // Use a different color or size if the point is highlighted
             if (selectablePoint.isHighlighted) {
-                spriteBatch.draw(startIcon, position.x - 12, position.y - 12, 24, 24);  // Larger icon for highlight
+                spriteBatch.draw(markerIcon, position.x - 12, position.y - 12, 24, 24);  // Larger icon for highlight
                 font.setColor(Color.YELLOW);
             } else {
-                spriteBatch.draw(startIcon, position.x - 8, position.y - 8, 16, 16);  // Normal size
+                spriteBatch.draw(markerIcon, position.x - 8, position.y - 8, 16, 16);  // Normal size
                 font.setColor(Color.BLUE);
             }
             font.draw(spriteBatch, point.getLocationName(), position.x + 10, position.y + 10);
