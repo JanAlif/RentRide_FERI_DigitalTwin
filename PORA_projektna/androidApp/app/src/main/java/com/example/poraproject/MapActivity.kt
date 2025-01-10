@@ -1,180 +1,18 @@
-/*
 package com.example.poraproject
 
-import CrashReport
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.example.poraproject.databinding.MapActivityBinding
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import org.w3c.dom.Document
-
-
-class MapActivity : AppCompatActivity(), OnMapReadyCallback {
-
-    companion object {
-        const val LOCATION_PERMISSION_REQUEST_CODE = 1001
-        const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1002
-        const val REQUEST_CODE_CRASH_ACTIVITY = 2001
-    }
-
-    private lateinit var binding: MapActivityBinding
-    private lateinit var mapView: MapView
-    private lateinit var googleMap: GoogleMap
-    private var isReturningFromCrashActivity = false // Flag to track if returning from CrashActivity
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = MapActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        mapView = binding.mapView
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST_CODE)
-            }
-        }
-    }
-
-    override fun onMapReady(map: GoogleMap) {
-        googleMap = map
-
-        val maribor = LatLng(46.5547, 15.6459)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(maribor, 10f))
-        googleMap.uiSettings.isZoomControlsEnabled = true
-
-        googleMap.setOnMapClickListener { latLng ->
-            // Add a marker at the clicked location
-            googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
-
-            // Open the new activity with the clicked location's details
-            val intent = Intent(this, CrashActivity::class.java)
-            intent.putExtra("latitude", latLng.latitude)
-            intent.putExtra("longitude", latLng.longitude)
-            startActivityForResult(intent, REQUEST_CODE_CRASH_ACTIVITY)
-        }
-
-        val crashReports = fetchCrashReports()
-        crashReports.forEach { crashReport ->
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(LatLng(crashReport.latitude, crashReport.longitude))
-                    .title(crashReport.title)
-                    .snippet("${crashReport.description} - Force: ${crashReport.force}")
-            )
-        }
-
-        val initialLocation = LatLng(46.5547, 15.6459) // Example location
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLocation, 10f))
-        googleMap.uiSettings.isZoomControlsEnabled = true
-
-
-
-    }
-
-    // Override onActivityResult to detect if the activity is canceled
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_CRASH_ACTIVITY) {
-            if (resultCode == RESULT_CANCELED) {
-                // Set flag to clear markers on resume
-                isReturningFromCrashActivity = true
-            }
-        }
-    }
-
-    // Clear markers when returning from CrashActivity
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-
-        if (isReturningFromCrashActivity) {
-            googleMap.clear() // Clear all markers
-            isReturningFromCrashActivity = false // Reset flag
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
-    suspend fun fetchCrashReports(): List<CrashReport> {
-        val collection = DBManagement.getCollection("your_collection_name") // Replace with your collection name
-
-        // Fetch all documents as a list and map them to CrashReport
-        val documents = collection.find().toList() // Ensure you convert to a list
-        return documents.map { document ->
-            val title = document.getString("title") ?: ""
-            val description = document.getString("description") ?: ""
-
-            // Extract latitude and longitude from the coordinates field
-            val coordinatesArray = document.get("coordinates", Document::class.java)
-                ?.getList("coordinates", Double::class.java)
-            val latitude = coordinatesArray?.getOrNull(1) ?: 0.0
-            val longitude = coordinatesArray?.getOrNull(0) ?: 0.0
-
-            // Extract resolved address (assumed as optional in your document structure)
-            val resolvedAddress = document.getString("user") ?: "Anonymous" // Replace with appropriate field if needed
-
-            // Extract time and format it
-            val timeOfReport = document.get("time", Document::class.java)
-                ?.getString("\$date") ?: ""
-
-            // Extract force
-            val force = document.getDouble("force") ?: 0.0
-
-            CrashReport(
-                title = title,
-                description = description,
-                latitude = latitude,
-                longitude = longitude,
-                resolvedAddress = resolvedAddress,
-                timeOfReport = timeOfReport,
-                force = force
-            )
-        }
-    }
-
-
-
-
-
-
-}
-*/
-package com.example.yourapp
-
-import CrashReport
+import CrashReport2
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.poraproject.CrashActivity
-import com.example.poraproject.DBManagement
+import com.example.poraproject.DBUtil.testMongoConnection
 import com.example.poraproject.databinding.MapActivityBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -182,6 +20,9 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -190,6 +31,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1001
         const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1002
         const val REQUEST_CODE_CRASH_ACTIVITY = 2001
+        const val COLLECTION_NAME = "trafficaccidents"
     }
 
     private lateinit var binding: MapActivityBinding
@@ -206,6 +48,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+
+        testMongoConnection()
+
         // Request notification permission if targeting Tiramisu or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -221,6 +66,89 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
+    private suspend fun fetchLocationsFromDatabase() {
+        withContext(Dispatchers.IO) {
+            try {
+                // Fetch all documents from the collection
+                val documents = DBUtil.getCollection("trafficaccidents").find().toList()
+
+                // Process and display the documents (UI updates must happen on the Main thread)
+                withContext(Dispatchers.Main) {
+                    println("Fetched ${documents.size} documents from trafficaccidents collection")
+                    documents.forEach { document ->
+                        val title = document.getString("title") ?: "No Title"
+                        val description = document.getString("description") ?: "No Description"
+
+                        // Print title and description
+                        println("Title: $title")
+                        println("Description: $description")
+                    }
+
+
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    e.printStackTrace()
+                    // Handle errors (e.g., display a Toast)
+                    Toast.makeText(this@MapActivity, "Error fetching data: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+
+
+    /*private fun fetchLocationsFromDatabase() {
+        // Fetch all documents from the specified collection
+        val documents = DBUtil.fetchAll(COLLECTION_NAME)
+
+        if (documents.isNullOrEmpty()) {
+            println("No documents found in the collection")
+        }
+
+
+        // Process the documents on the main thread
+        documents.forEach { document ->
+            // Extract data from the document
+            val title = document.getString("title") ?: "No Title"
+            val description = document.getString("description") ?: "No Description"
+            val coordinates = document.get("coordinates") as? Map<*, *>
+            val latLng = coordinates?.get("coordinates") as? List<*>
+            val latitude = latLng?.get(1) as? Double ?: 0.0
+            val longitude = latLng?.get(0) as? Double ?: 0.0
+            val timeOfReport = document.getString("time") ?: "Unknown Time"
+            val force = document.getDouble("force") ?: 0.0
+
+            // Create a CrashReport2 instance
+            val crashReport = CrashReport2(
+                title = title,
+                description = description,
+                latitude = latitude,
+                longitude = longitude,
+                resolvedAddress = "", // Placeholder for resolved address
+                timeOfReport = timeOfReport,
+                force = force
+            )
+
+            println("Title: $title")
+            println("Description: $description")
+            println("Coordinates: ($latitude, $longitude)")
+            println("Force: $force")
+            println("Time of Report: $timeOfReport")
+            println("------------------------------------------------")
+            // Add a marker to the map
+            googleMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(crashReport.latitude, crashReport.longitude))
+                    .title(crashReport.title)
+                    .snippet("Description: ${crashReport.description}\nForce: ${crashReport.force}\nTime: ${crashReport.timeOfReport}")
+            )
+        }
+
+
+    }*/
+
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map

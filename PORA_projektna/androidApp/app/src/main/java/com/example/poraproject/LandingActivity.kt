@@ -1,15 +1,9 @@
 package com.example.poraproject
 
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.example.poraproject.MapActivity.Companion.NOTIFICATION_PERMISSION_REQUEST_CODE
 import com.example.poraproject.databinding.LandingActivityBinding
-import com.example.poraproject.databinding.MapActivityBinding
 
 class LandingActivity: AppCompatActivity() {
 

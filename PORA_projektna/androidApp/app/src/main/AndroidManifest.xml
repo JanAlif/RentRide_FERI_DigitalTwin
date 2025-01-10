@@ -41,6 +41,8 @@
             android:name=".CrashActivity"
             android:exported="true" />
 
+        <activity android:name=".MainActivity"
+            android:exported="true" />
         <activity android:name=".MapActivity"
             android:exported="true" />
 

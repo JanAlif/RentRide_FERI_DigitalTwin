@@ -37,8 +37,13 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
     packaging {
+        resources {
+            excludes += "META-INF/native-image/**"
+        }
+    }
+
+    /*packaging {
         resources {
             excludes.addAll(
                 arrayOf(
@@ -46,7 +51,7 @@ android {
                 )
             )
         }
-    }
+    }*/
 }
 
 dependencies {
@@ -65,11 +70,9 @@ dependencies {
     implementation (libs.okhttp)
     implementation (libs.kotlinx.coroutines.android)
     implementation (libs.okhttp.v490) // Or the version you are using
-    // Kotlin coroutine dependency
-    implementation(libs.kotlinx.coroutines.core)
-
-    // MongoDB Kotlin driver dependency
-    implementation(libs.mongodb.driver.kotlin.coroutine)
-    implementation (libs.mongo.kotlin.extensions)
+    implementation("org.mongodb:mongodb-driver-kotlin-sync:5.2.0")
+    implementation("org.mongodb:bson-kotlin:5.2.0")
+    implementation ("org.mongodb:mongodb-driver-reactivestreams:5.2.1")
+    implementation ("dnsjava:dnsjava:3.6.2")
 
 }
