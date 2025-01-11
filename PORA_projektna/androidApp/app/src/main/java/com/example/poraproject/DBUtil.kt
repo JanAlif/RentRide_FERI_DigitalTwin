@@ -6,18 +6,13 @@ import com.mongodb.client.MongoClients
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bson.Document
-import org.xbill.DNS.Lookup
-import org.xbill.DNS.Record
-import org.xbill.DNS.Type
 
 object DBUtil {
 
-    private const val CONNECTION_STRING = ""
 
 
-
-    private val mongoClient = MongoClients.create(CONNECTION_STRING)
-    private val database: MongoDatabase = mongoClient.getDatabase("RentRideApp")
+   /* private val mongoClient = MongoClients.create()
+    val database = mongoClient.getDatabase("RentRideApp")
 
     fun getCollection(collectionName: String): MongoCollection<Document> {
         return database.getCollection(collectionName)
@@ -46,7 +41,7 @@ object DBUtil {
             e.printStackTrace()
             println("Connection failed: ${e.message}")
         }
-    }
+    }*/
 
 
 

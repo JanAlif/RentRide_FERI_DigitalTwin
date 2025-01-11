@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.poraproject.DBUtil.testMongoConnection
 import com.example.poraproject.databinding.MapActivityBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -49,8 +48,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         mapView.getMapAsync(this)
 
 
-        testMongoConnection()
-
         // Request notification permission if targeting Tiramisu or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -66,90 +63,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
-    private suspend fun fetchLocationsFromDatabase() {
-        withContext(Dispatchers.IO) {
-            try {
-                // Fetch all documents from the collection
-                val documents = DBUtil.getCollection("trafficaccidents").find().toList()
-
-                // Process and display the documents (UI updates must happen on the Main thread)
-                withContext(Dispatchers.Main) {
-                    println("Fetched ${documents.size} documents from trafficaccidents collection")
-                    documents.forEach { document ->
-                        val title = document.getString("title") ?: "No Title"
-                        val description = document.getString("description") ?: "No Description"
-
-                        // Print title and description
-                        println("Title: $title")
-                        println("Description: $description")
-                    }
-
-
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    e.printStackTrace()
-                    // Handle errors (e.g., display a Toast)
-                    Toast.makeText(this@MapActivity, "Error fetching data: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-
-
-    /*private fun fetchLocationsFromDatabase() {
-        // Fetch all documents from the specified collection
-        val documents = DBUtil.fetchAll(COLLECTION_NAME)
-
-        if (documents.isNullOrEmpty()) {
-            println("No documents found in the collection")
-        }
-
-
-        // Process the documents on the main thread
-        documents.forEach { document ->
-            // Extract data from the document
-            val title = document.getString("title") ?: "No Title"
-            val description = document.getString("description") ?: "No Description"
-            val coordinates = document.get("coordinates") as? Map<*, *>
-            val latLng = coordinates?.get("coordinates") as? List<*>
-            val latitude = latLng?.get(1) as? Double ?: 0.0
-            val longitude = latLng?.get(0) as? Double ?: 0.0
-            val timeOfReport = document.getString("time") ?: "Unknown Time"
-            val force = document.getDouble("force") ?: 0.0
-
-            // Create a CrashReport2 instance
-            val crashReport = CrashReport2(
-                title = title,
-                description = description,
-                latitude = latitude,
-                longitude = longitude,
-                resolvedAddress = "", // Placeholder for resolved address
-                timeOfReport = timeOfReport,
-                force = force
-            )
-
-            println("Title: $title")
-            println("Description: $description")
-            println("Coordinates: ($latitude, $longitude)")
-            println("Force: $force")
-            println("Time of Report: $timeOfReport")
-            println("------------------------------------------------")
-            // Add a marker to the map
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(LatLng(crashReport.latitude, crashReport.longitude))
-                    .title(crashReport.title)
-                    .snippet("Description: ${crashReport.description}\nForce: ${crashReport.force}\nTime: ${crashReport.timeOfReport}")
-            )
-        }
-
-
-    }*/
-
-
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
 
