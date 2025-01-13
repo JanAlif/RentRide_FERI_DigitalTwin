@@ -16,9 +16,15 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -273,13 +279,6 @@ public class DetailedRouteScreen extends ScreenAdapter {
             //game.setScreen(new LeaderboardScreen(game));
             showFinishPopup(currentScore,currentUser,semaforPoints.size());
 
-            // Optionally, transition after a delay
-            /*Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    game.setScreen(new SummaryScreen(game, currentUser, currentScore));
-                }
-            }, 2);// 2 seconds delay before transitioning*/
         }
 
         stage.act(delta);
@@ -290,30 +289,63 @@ public class DetailedRouteScreen extends ScreenAdapter {
 
     private void showFinishPopup(int score, String user, int totalQuestions) {
 
-        // Create a dialog
-        Dialog finishDialog = new Dialog("Congratulations " + user + " for completing the game!", skin) {
-            @Override
-            protected void result(Object object) {
-                if (object.equals("PLAY_AGAIN")) {
-                    resetGame();
-                    game.setScreen(new GameScreen(game));
-                } else if (object.equals("QUIT")) {
-                    Gdx.app.exit();
-                }
-            }
-        };
+        // Create a custom-styled dialog
+        Dialog finishDialog = new Dialog("", skin);
+
+        // Create a table to hold all the components
+        Table contentTable = new Table();
+        contentTable.setFillParent(true);
+        contentTable.pad(20); // Padding for spacing
+
+        // Add a title label at the top
+        Label titleLabel = new Label("Congratulations, " + user + "!", skin, "title");
+        titleLabel.setFontScale(2f); // Make the title bigger
+        titleLabel.setAlignment(Align.center);
+        contentTable.add(titleLabel).expandX().center().padBottom(15).row();
 
         // Add a congratulatory message
-        finishDialog.text("You have successfully completed the route!\nYour Score: " + score +
-            "\nTotal Questions Answered: " + totalQuestions);
-        finishDialog.setColor(Color.BLACK);
+        Label messageLabel = new Label(
+            "You have successfully completed the route!\nYour Score: " + score +
+                "\nTotal Questions Answered: " + totalQuestions, skin
+        );
+        messageLabel.setColor(Color.BLACK);
+        messageLabel.setAlignment(Align.center);
+        contentTable.add(messageLabel).expandX().center().padBottom(20).row();
 
-        // Add buttons
-        finishDialog.button("Play Again", "PLAY_AGAIN");
-        finishDialog.button("Quit", "QUIT");
+        // Add buttons for "Play Again" and "Quit" at the bottom
+        Table buttonTable = new Table();
+        TextButton playAgainButton = new TextButton("Play Again", skin);
+        TextButton quitButton = new TextButton("Quit", skin);
+
+        playAgainButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                resetGame();
+                game.setScreen(new GameScreen(game));
+            }
+        });
+
+        quitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
+
+        // Add buttons to the button table with spacing
+        buttonTable.add(playAgainButton).padRight(20);
+        buttonTable.add(quitButton);
+        contentTable.add(buttonTable).expandX().center().padTop(10);
+
+        // Add the content table to the dialog
+        finishDialog.getContentTable().add(contentTable).fill().expand();
 
         // Show the dialog
         finishDialog.show(stage);
+
+        // Add background styling to the dialog (optional)
+        finishDialog.setColor(Color.WHITE); // Set a clean white background
+        finishDialog.setMovable(false); // Disable dragging the dialog around
     }
 
 
