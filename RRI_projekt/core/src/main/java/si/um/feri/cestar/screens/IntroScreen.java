@@ -49,14 +49,14 @@ public class IntroScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        // Clear color to black
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
 
         viewport = new StretchViewport(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
         stage = new Stage(viewport, game.getBatch());
         shapeRenderer = new ShapeRenderer();
 
-        // Load assets
+
         assetManager.load(AssetsDescriptor.UI_SKIN);
         assetManager.load(AssetsDescriptor.GAMEPLAY);
         assetManager.finishLoading();
@@ -64,7 +64,7 @@ public class IntroScreen extends ScreenAdapter {
         gameplayAtlas = assetManager.get(AssetsDescriptor.GAMEPLAY);
         backgroundImage = gameplayAtlas.findRegion(RegionNames.BACKGROUND);
 
-        // Background image setup
+
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
@@ -73,7 +73,7 @@ public class IntroScreen extends ScreenAdapter {
         background.setPosition(0, 0);
         stage.addActor(background);
 
-        // Add animations to the background
+
         background.addAction(
             Actions.forever(
                 Actions.sequence(
@@ -83,7 +83,7 @@ public class IntroScreen extends ScreenAdapter {
             )
         );
 
-        // Create fade overlay
+
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.BLACK);
         pixmap.fill();
@@ -97,10 +97,10 @@ public class IntroScreen extends ScreenAdapter {
         stage.addActor(fadeOverlay);
         fadeOverlay.addAction(Actions.fadeOut(1f));
 
-        // Falling letters effect with phasing
+
         addPhasedFallingLetters("RENT RIDE");
 
-        // "Press Any Key to Continue" label
+
         Skin skin = assetManager.get(AssetsDescriptor.UI_SKIN);
         Label continueLabel = new Label("Press Any Key to Continue", skin);
         continueLabel.setFontScale(1f);
@@ -109,7 +109,7 @@ public class IntroScreen extends ScreenAdapter {
         continueLabel.setPosition(0, Constants.HUD_HEIGHT / 2f - 200);
         stage.addActor(continueLabel);
 
-        // Blinking fade in/out animation for the "continue" label
+
         continueLabel.setColor(1, 1, 1, 0);
         continueLabel.addAction(
             Actions.sequence(
@@ -131,35 +131,35 @@ public class IntroScreen extends ScreenAdapter {
         float centerX = Constants.HUD_WIDTH / 2f;
         float centerY = Constants.HUD_HEIGHT / 2f;
 
-        float letterSpacing = 60; // Space between letters
+        float letterSpacing = 60;
 
         for (int i = 0; i < text.length(); i++) {
             final char letter = text.charAt(i);
 
-            // Create a Label for the letter
+
             Label letterLabel = new Label(String.valueOf(letter), skin);
             letterLabel.setFontScale(2f);
             letterLabel.setAlignment(Align.center);
 
-            // Enable white outline effect
+
             letterLabel.getStyle().fontColor = Color.WHITE;
 
-            // Calculate the initial position above the screen
-            float startX = centerX + (i - text.length() / 2f) * letterSpacing;
-            float startY = Constants.HUD_HEIGHT + 100; // Start above the screen
 
-            // Set the position of the letter
+            float startX = centerX + (i - text.length() / 2f) * letterSpacing;
+            float startY = Constants.HUD_HEIGHT + 100;
+
+
             letterLabel.setPosition(startX, startY);
 
-            // Add falling and phasing animation
+
             letterLabel.addAction(
                 Actions.sequence(
-                    Actions.delay(i * 0.2f), // Staggered delay for each letter
-                    Actions.moveTo(startX, centerY, 1f, Interpolation.bounceOut), // Falling effect
-                    Actions.forever( // Phasing effect (fade in/out)
+                    Actions.delay(i * 0.2f),
+                    Actions.moveTo(startX, centerY, 1f, Interpolation.bounceOut),
+                    Actions.forever(
                         Actions.sequence(
-                            Actions.alpha(0.5f, 0.5f), // Fade out to 50% opacity
-                            Actions.alpha(1f, 0.5f) // Fade back to full opacity
+                            Actions.alpha(0.5f, 0.5f),
+                            Actions.alpha(1f, 0.5f)
                         )
                     )
                 )
@@ -197,7 +197,7 @@ public class IntroScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Switch to GameScreen if any key pressed or touch
+
         if (!isProceeding && (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched())) {
             switchScreen(new GameScreen(game));
             return;

@@ -13,13 +13,13 @@ public class QuestionUtils {
     private Map<QuestionScreen.Difficulty, List<Question>> questionMap;
 
     public QuestionUtils() {
-        initializeQuestions(); // Initialize questions in the constructor
+        initializeQuestions();
     }
 
     private void initializeQuestions() {
-        questionMap = new HashMap<>(); // Explicitly initialize the map
+        questionMap = new HashMap<>();
 
-        // Easy questions (50)
+
         List<Question> easyQuestions = new ArrayList<>();
         easyQuestions.add(new Question("Which class is used for 2D rendering in LibGDX?",
             Arrays.asList("SpriteBatch", "Stage", "ShapeRenderer"), 0));
@@ -68,7 +68,7 @@ public class QuestionUtils {
             Arrays.asList("PerspectiveCamera", "OrthographicCamera", "Camera3D"), 0));
 
 
-        // Medium questions (50)
+
         List<Question> mediumQuestions = new ArrayList<>();
         mediumQuestions.add(new Question("Which method is called to update game logic in LibGDX?",
             Arrays.asList("show()", "render()", "dispose()"), 1));
@@ -91,9 +91,9 @@ public class QuestionUtils {
         mediumQuestions.add(new Question("What does `Gdx.graphics.getWidth()` return?",
             Arrays.asList("Window width", "Screen resolution", "Window height"), 0));
 
-        // Add more medium questions as needed...
 
-        // Hard questions (50)
+
+
         List<Question> hardQuestions = new ArrayList<>();
         hardQuestions.add(new Question("Which ShapeRenderer mode is used to draw filled shapes?",
             Arrays.asList("ShapeType.Line", "ShapeType.Filled", "ShapeType.Point"), 1));
@@ -116,7 +116,7 @@ public class QuestionUtils {
         hardQuestions.add(new Question("What class is used for 3D camera manipulation in LibGDX?",
             Arrays.asList("PerspectiveCamera", "OrthographicCamera", "Camera3D"), 0));
 
-        // Add more hard questions as needed...
+
 
         questionMap.put(QuestionScreen.Difficulty.EASY, easyQuestions);
         questionMap.put(QuestionScreen.Difficulty.MEDIUM, mediumQuestions);

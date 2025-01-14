@@ -5,8 +5,8 @@ import java.util.List;
 public class Question {
 
     private String questionText;
-    private List<String> answers; // List of possible answers
-    private int correctAnswerIndex; // Index of the correct answer in the list
+    private List<String> answers;
+    private int correctAnswerIndex;
 
     public Question(String questionText, List<String> answers, int correctAnswerIndex) {
         this.questionText = questionText;

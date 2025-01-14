@@ -37,7 +37,7 @@ public class SettingsScreen extends ScreenAdapter {
 
         skin = assetManager.get(AssetsDescriptor.UI_SKIN);
 
-        // Create the settings layout
+
         createSettingsLayout();
     }
 
@@ -45,12 +45,12 @@ public class SettingsScreen extends ScreenAdapter {
         Table table = new Table();
         table.setFillParent(true);
 
-        // Title Label
+
         Label titleLabel = new Label("Settings", skin);
         titleLabel.setFontScale(2f);
         table.add(titleLabel).colspan(2).padBottom(30).row();
 
-        // Music Toggle
+
         Label musicLabel = new Label("Music: ", skin);
         TextButton musicToggle = new TextButton(soundManager.isMusicEnabled() ? "ON" : "OFF", skin);
         musicToggle.addListener(new ClickListener() {
@@ -65,7 +65,7 @@ public class SettingsScreen extends ScreenAdapter {
         table.add(musicLabel).pad(10);
         table.add(musicToggle).pad(10).row();
 
-        // Sound Effects Toggle
+
         Label soundLabel = new Label("Sound Effects: ", skin);
         TextButton soundToggle = new TextButton(soundManager.isSoundEnabled() ? "ON" : "OFF", skin);
         soundToggle.addListener(new ClickListener() {
@@ -80,18 +80,18 @@ public class SettingsScreen extends ScreenAdapter {
         table.add(soundLabel).pad(10);
         table.add(soundToggle).pad(10).row();
 
-        // Back Button
+
         TextButton backButton = new TextButton("Back", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-                game.setScreen(new GameScreen(game)); // Navigate back to the menu
+                game.setScreen(new GameScreen(game));
             }
         });
 
         table.add(backButton).colspan(2).padTop(30).center().row();
 
-        // Add the table to the stage
+
         stage.addActor(table);
     }
 

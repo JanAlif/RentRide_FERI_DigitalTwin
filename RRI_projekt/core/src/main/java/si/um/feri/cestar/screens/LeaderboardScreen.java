@@ -68,72 +68,72 @@ public class LeaderboardScreen extends ScreenAdapter {
     }
 
     private void displayLeaderboard() {
-        // Create a table to display the leaderboard
+
         Table table = new Table();
         table.setFillParent(true);
 
-        // Add a title row (centered at the top)
+
         Label title = new Label("Leaderboard", skin);
         title.setFontScale(2);
-        table.add(title).colspan(3).padBottom(20).center().row(); // Center the title row
+        table.add(title).colspan(3).padBottom(20).center().row();
 
-        // Add column headers (Rank, Username, Score)
+
         table.add(new Label("Rank", skin)).pad(10).center();
         table.add(new Label("Username", skin)).pad(10).center();
         table.add(new Label("Score", skin)).pad(10).center();
         table.row();
 
-        // Fetch leaderboard data from the database
+
         List<Document> leaderboard = mongoDB.fetchLeaderboard();
 
-        // Populate the table with leaderboard data
+
         for (int i = 0; i < leaderboard.size(); i++) {
             Document entry = leaderboard.get(i);
             String username = entry.getString("username");
             int score = entry.getInteger("score");
 
-            table.add(new Label(String.valueOf(i + 1), skin)).pad(10).center(); // Center rank
-            table.add(new Label(username, skin)).pad(10).center(); // Center username
-            table.add(new Label(String.valueOf(score), skin)).pad(10).center(); // Center score
+            table.add(new Label(String.valueOf(i + 1), skin)).pad(10).center();
+            table.add(new Label(username, skin)).pad(10).center();
+            table.add(new Label(String.valueOf(score), skin)).pad(10).center();
             table.row();
         }
 
-        // Wrap the leaderboard table in a ScrollPane
+
         ScrollPane scrollPane = new ScrollPane(table, skin);
-        scrollPane.setScrollingDisabled(true, false); // Enable vertical scrolling only
+        scrollPane.setScrollingDisabled(true, false);
 
-        // Create an outer container to center the ScrollPane
+
         Table container = new Table();
-        container.setFillParent(true); // Container fills the entire screen
+        container.setFillParent(true);
 
-        // Dynamically adjust ScrollPane size based on screen dimensions
-        float containerWidth = Gdx.graphics.getWidth() * 0.8f; // 80% of screen width
-        float containerHeight = Gdx.graphics.getHeight() * 0.6f; // 60% of screen height
-        container.add(scrollPane).width(containerWidth).height(containerHeight).center(); // Center the ScrollPane
 
-        // Add the container to the stage
+        float containerWidth = Gdx.graphics.getWidth() * 0.8f;
+        float containerHeight = Gdx.graphics.getHeight() * 0.6f;
+        container.add(scrollPane).width(containerWidth).height(containerHeight).center();
+
+
         stage.addActor(container);
     }
 
     private void addBackButton() {
-        // Create a back button
+
         TextButton backButton = new TextButton("Back", skin);
 
-        // Add a listener to navigate back to the main menu or previous screen
+
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameScreen(game)); // Replace with your MenuScreen or Main Screen
+                game.setScreen(new GameScreen(game));
             }
         });
 
-        // Position the back button at the bottom of the screen
+
         Table backButtonTable = new Table();
         backButtonTable.setFillParent(true);
-        backButtonTable.bottom().padBottom(20); // Add padding at the bottom
+        backButtonTable.bottom().padBottom(20);
         backButtonTable.add(backButton).width(150).height(50).center();
 
-        // Add the back button table to the stage
+
         stage.addActor(backButtonTable);
     }
 
