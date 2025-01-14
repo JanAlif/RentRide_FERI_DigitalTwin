@@ -15,10 +15,10 @@ public class GameManager {
 
     private GameManager() {
         this.score = 0;
-        this.questionUtils = new QuestionUtils(); // Initialize question utility
+        this.questionUtils = new QuestionUtils();
     }
 
-    // Singleton pattern to ensure a single instance
+
     public static GameManager getInstance() {
         if (instance == null) {
             instance = new GameManager();
@@ -26,17 +26,17 @@ public class GameManager {
         return instance;
     }
 
-    // Get a random question based on difficulty
+
     public Question getRandomQuestion(QuestionScreen.Difficulty difficulty) {
         List<Question> questions = questionUtils.getQuestionMap().get(difficulty);
         if (questions != null && !questions.isEmpty()) {
             currentQuestion = questions.get(MathUtils.random(questions.size() - 1));
             return currentQuestion;
         }
-        return null; // No question available
+        return null;
     }
 
-    // Check if the answer is correct
+
     public boolean isAnswerCorrect(int selectedAnswerIndex) {
         if (currentQuestion != null) {
             return selectedAnswerIndex == currentQuestion.getCorrectAnswerIndex();
@@ -44,7 +44,7 @@ public class GameManager {
         return false;
     }
 
-    // Update the score based on difficulty
+
     public void updateScore(QuestionScreen.Difficulty difficulty) {
         switch (difficulty) {
             case EASY:
@@ -75,7 +75,7 @@ public class GameManager {
         this.score = score;
     }
 
-    // Reset score to 0
+
     public void resetScore() {
         this.score = 0;
     }
