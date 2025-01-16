@@ -9,9 +9,11 @@ import userRoutes from "./routes/userRoutes.js";
 import carsRoutes from "./routes/carRoutes.js";
 import chargePointRoutes from "./routes/chargePointRoutes.js";
 import ridesRouter from "./routes/rideRoutes.js";
-import {Socket, Server} from 'socket.io'
-import http from 'http';
 import trafficAccidentRoutes from "./routes/trafficAccidentRoutes.js";
+import { Socket, Server } from 'socket.io';
+import { addAccident} from './controllers/trafficAccidentController.js';
+import http from 'http';
+import mqtt from 'mqtt';
 
 const app = express();
 
@@ -61,9 +63,9 @@ io.on('connection', (socket) => {
             const { room, message } = data;
             io.to(room).emit('message', message);
         });
+
         socket.on('disconnect', () => {
-            io.to(room).emit('error', "You have been disconnected from the server.");
-            console.log('Car disconnected');
+            console.log('Admin disconnected');
         });
     } else if (socket.user.role === 'user') {
         socket.on('joinRoom', (room) => {
@@ -81,6 +83,40 @@ io.on('connection', (socket) => {
         socket.on('disconnect', () => {
             console.log('User disconnected');
         });
+    }
+});
+
+// MQTT Setup
+const mqttClient = mqtt.connect("mqtt://localhost:1883"); // Replace with your MQTT broker URL
+
+mqttClient.on("connect", () => {
+    console.log("Connected to MQTT broker");
+
+    // Subscribe to relevant topics
+    mqttClient.subscribe("car/put", (err) => {
+        if (!err) {
+            console.log("Subscribed to topic: car/update");
+        }
+    });
+});
+
+mqttClient.on("message", (topic, message) => {
+    console.log(`Received message on topic ${topic}: ${message.toString()}`);
+
+    if (topic === "car/put") {
+        try {
+            const data = JSON.parse(message.toString());
+            console.log("Processing car update:", data);
+
+            addAccident(null, null, accidentData);
+
+            // Example: Emit an event to clients via Socket.IO
+            io.emit("carUpdated", data);
+
+            // Optionally, perform additional logic such as updating a database
+        } catch (error) {
+            console.error("Failed to process MQTT message:", error.message);
+        }
     }
 });
 

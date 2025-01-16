@@ -3,40 +3,42 @@ import TrafficAccidentModel from "../models/trafficAccidentModel.js";
 
 // Add a new traffic accident
 // POST /api/accidents
-const addAccident = asyncHandler(async (req, res) => {
-  const { title, description, coordinates, user, time, force } = req.body;
+const addAccident = asyncHandler(async (req, res, data = null) => {
+  const body = data || req.body; // Use `data` for internal calls, or `req.body` for API calls
+  const { title, description, coordinates, user, time, force } = body;
 
   try {
-    // Validate the blockchain
-    const isBlockchainValid = await validateBlockchain();
-    if (!isBlockchainValid) {
-      return res.status(500).json({ message: "Blockchain validation failed. Accident cannot be added." });
-    }
+      // Validate the blockchain
+      const isBlockchainValid = await validateBlockchain();
+      if (!isBlockchainValid) {
+          if (res) return res.status(500).json({ message: "Blockchain validation failed. Accident cannot be added." });
+          console.error("Blockchain validation failed. Accident cannot be added.");
+          return;
+      }
 
-    // Blockchain logic: Get the last blockchain-eligible accident
-    let previousHash = null;
-    const lastAccident = await TrafficAccidentModel.findOne().sort({ createdAt: -1 });
-    previousHash = lastAccident ? lastAccident.currentHash : null;
+      // Blockchain logic: Get the last blockchain-eligible accident
+      const lastAccident = await TrafficAccidentModel.findOne().sort({ createdAt: -1 });
+      const previousHash = lastAccident ? lastAccident.currentHash : null;
 
-    const accident = new TrafficAccidentModel({
-      title,
-      description,
-      coordinates: { type: "Point", coordinates },
-      user,
-      time,
-      force,
-      previousHash,
-    });
+      const accident = new TrafficAccidentModel({
+          title,
+          description,
+          coordinates: { type: "Point", coordinates },
+          user,
+          time,
+          force,
+          previousHash,
+      });
 
-    await accident.save();
+      await accident.save();
 
-    res.status(201).json(accident);
+      if (res) res.status(201).json(accident);
+      else console.log("Accident saved:", accident); // Log the result for internal calls
   } catch (error) {
-    console.error("Error adding accident:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+      console.error("Error adding accident:", error);
+      if (res) res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-
 // Get all traffic accidents
 // GET /api/accidents
 const getAllAccidents = asyncHandler(async (req, res) => {
