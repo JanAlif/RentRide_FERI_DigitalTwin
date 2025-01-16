@@ -49,63 +49,11 @@
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="300dp"
         app:layout_constraintTop_toBottomOf="@id/crashDescription"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
-
-    <!-- Date Selector -->
-    <TextView
-        android:id="@+id/datePicker"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:padding="10dp"
-        android:background="@drawable/rounded_input"
-        android:textColor="@color/white"
-        android:hint="Izberi datum"
-        android:textAlignment="center"
-        android:textColorHint="@color/white"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/mapView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Time Selector -->
-    <TextView
-        android:id="@+id/timePicker"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:padding="10dp"
-        android:background="@drawable/rounded_input"
-        android:textColor="@color/white"
-        android:hint="Izberi čas"
-        android:textColorHint="@color/white"
-        android:textAlignment="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/datePicker"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <EditText
-        android:id="@+id/forceText"
-        android:layout_width="0dp"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:background="@drawable/rounded_input"
-        app:layout_constraintTop_toBottomOf="@id/timePicker"
-        android:layout_height="40sp"
-        android:paddingStart="16dp"
-        android:hint="IDK?????????????????????????????????"
-
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="RtlSymmetry" />
-
 
     <!-- Submit Button -->
     <Button

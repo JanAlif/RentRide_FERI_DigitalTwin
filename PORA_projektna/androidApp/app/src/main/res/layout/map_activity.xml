@@ -36,6 +36,20 @@
         app:layout_constraintBottom_toTopOf="@id/guideline1"
         app:layout_constraintTop_toBottomOf="@id/guideline2"/>
 
+    <Button
+        android:id="@+id/addAccidentReport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prijavi nesrečo"
+        android:textColor="@color/lightGray"
+        android:textColorHint="@color/lightGray"
+        app:backgroundTint="@color/paleYellow"
+        app:layout_constraintTop_toBottomOf="@+id/mapView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
 
 
 

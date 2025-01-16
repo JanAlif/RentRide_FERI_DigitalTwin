@@ -40,12 +40,14 @@
         </activity>
 
         <activity
-            android:name=".CrashActivity"
+            android:name=".SimulatedCrashActivity"
             android:exported="true" />
 
         <activity android:name=".MainActivity"
             android:exported="true" />
         <activity android:name=".MapActivity"
+            android:exported="true" />
+        <activity android:name=".CrashActivity"
             android:exported="true" />
 
     </application>

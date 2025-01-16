@@ -21,7 +21,7 @@ class LandingActivity: AppCompatActivity() {
         }
 
         binding.accidentReport.setOnClickListener{
-            val intent = Intent(this, CrashActivity::class.java)
+            val intent = Intent(this, SimulatedCrashActivity::class.java)
             startActivity(intent)
         }
 

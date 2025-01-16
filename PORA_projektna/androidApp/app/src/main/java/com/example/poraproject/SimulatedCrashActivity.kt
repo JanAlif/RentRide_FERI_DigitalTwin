@@ -1,12 +1,15 @@
 package com.example.poraproject
 
+
 import CrashReport2
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.poraproject.databinding.CrashgActivityBinding
+import com.example.poraproject.databinding.SimulatecrashActivityBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -20,33 +23,130 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
-class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
+class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
 
-
-    private lateinit var binding: CrashgActivityBinding
+    private lateinit var binding: SimulatecrashActivityBinding
     private lateinit var mapView: MapView
     private lateinit var googleMap: GoogleMap
     private var isMapReady = false
     private var selectedLocation: LatLng? = null
     private var crashReport: CrashReport2? = null
+    private var selectedDate: String = getCurrentDate()
+    private var selectedTime: String = getCurrentTime()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = CrashgActivityBinding.inflate(layoutInflater)
+        binding = SimulatecrashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        crashReport = CrashReport2(
+            title = intent.getStringExtra("title") ?: "",
+            description = intent.getStringExtra("description") ?: "",
+            latitude = intent.getDoubleExtra("latitude", 0.0),
+            longitude = intent.getDoubleExtra("longitude", 0.0),
+            resolvedAddress = intent.getStringExtra("resolvedAddress") ?: "",
+            timeOfReport = intent.getStringExtra("timeOfReport") ?: "$selectedDate $selectedTime",
+            force = intent.getDoubleExtra("force", 0.0)
+        )
+
+        binding.crashTitle.setText(crashReport?.title ?: "")
+        binding.crashDescription.setText(crashReport?.description ?: "")
+        binding.forceText.setText(crashReport?.force?.toString() ?: "")
+
 
         mapView = findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+        // Date Picker
+        binding.datePicker.setOnClickListener {
+            showDatePicker()
+        }
 
-        binding.cancelButton.setOnClickListener {
-            finish()
+        // Time Picker
+        binding.timePicker.setOnClickListener {
+            showTimePicker()
+        }
+
+        // Submit button functionality
+        binding.submitButton.setOnClickListener {
+            val updatedTitle = binding.crashTitle.text.toString()
+            val updatedDescription = binding.crashDescription.text.toString()
+            val forceInput = binding.forceText.text.toString().toDoubleOrNull() ?: 0.0
+            val location = selectedLocation ?: LatLng(crashReport?.latitude ?: 0.0, crashReport?.longitude ?: 0.0)
+
+            // Get resolved address (use the suspend function to get address asynchronously)
+            resolveAddressUsingGoogleMaps(location.latitude, location.longitude) { resolvedAddress ->
+                val updatedCrashReport = CrashReport2(
+                    title = updatedTitle,
+                    description = updatedDescription,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    resolvedAddress = resolvedAddress,
+                    timeOfReport = "$selectedDate $selectedTime",
+                    force = forceInput
+                )
+
+                // Display the updated CrashReport data
+                val message = """
+            Title: ${updatedCrashReport.title}
+            Description: ${updatedCrashReport.description}
+            Latitude: ${updatedCrashReport.latitude}
+            Longitude: ${updatedCrashReport.longitude}
+            Address: ${updatedCrashReport.resolvedAddress}
+            Time: ${updatedCrashReport.timeOfReport}
+            Force: ${updatedCrashReport.force}
+        """.trimIndent()
+
+                println(message)
+
+                Toast.makeText(this, "Crash Report Submitted:\n$message", Toast.LENGTH_LONG).show()
+            }
         }
 
 
+        // Cancel button functionality
+        binding.cancelButton.setOnClickListener {
+            finish() // Close the activity
+        }
+    }
 
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+            selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+            binding.datePicker.text = selectedDate
+        }, year, month, day).show()
+    }
+
+    private fun showTimePicker() {
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+            selectedTime = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute)
+            binding.timePicker.text = selectedTime
+        }, hour, minute, true).show()
+    }
+
+    private fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+
+    private fun getCurrentTime(): String {
+        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        return timeFormat.format(Date())
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -140,6 +240,4 @@ class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
         super.onDestroy()
         mapView.onDestroy()
     }
-
-
 }

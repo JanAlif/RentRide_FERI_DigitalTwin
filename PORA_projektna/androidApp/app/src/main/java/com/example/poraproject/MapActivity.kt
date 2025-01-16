@@ -1,17 +1,13 @@
 package com.example.poraproject
 
-import CrashReport2
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.example.poraproject.databinding.MapActivityBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -19,9 +15,6 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -46,6 +39,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         mapView = binding.mapView
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+
+        binding.addAccidentReport.setOnClickListener{
+            val intent = Intent(this, SimulatedCrashActivity::class.java)
+            startActivity(intent)
+        }
 
 
         // Request notification permission if targeting Tiramisu or higher
@@ -74,7 +72,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         // On map click -> open CrashActivity
         googleMap.setOnMapClickListener { latLng ->
             googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
-            val intent = Intent(this, CrashActivity::class.java).apply {
+            val intent = Intent(this, SimulatedCrashActivity::class.java).apply {
                 putExtra("latitude", latLng.latitude)
                 putExtra("longitude", latLng.longitude)
             }
