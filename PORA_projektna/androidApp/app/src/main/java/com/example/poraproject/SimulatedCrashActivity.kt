@@ -1,6 +1,5 @@
 package com.example.poraproject
 
-
 import CrashReport2
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -22,6 +21,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.eclipse.paho.client.mqttv3.MqttClient
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -39,11 +42,28 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
     private var selectedDate: String = getCurrentDate()
     private var selectedTime: String = getCurrentTime()
 
+    // MQTT Configuration
+    private val MQTT_BROKER_URL = "tcp://10.0.2.2:1883" // Replace with your broker's IP
+    private val MQTT_TOPIC = "car/put"
+    private val MQTT_CLIENT_ID = "CrashActivityClient"
+    private lateinit var mqttClient: MqttClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = SimulatecrashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize MQTT Client
+        try {
+            mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
+            mqttClient.connect()
+            Toast.makeText(this, "Connected to MQTT Broker", Toast.LENGTH_SHORT).show()
+        } catch (e: MqttException) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to connect to MQTT Broker", Toast.LENGTH_LONG).show()
+        }
+
+        // Initialize CrashReport data
         crashReport = CrashReport2(
             title = intent.getStringExtra("title") ?: "",
             description = intent.getStringExtra("description") ?: "",
@@ -57,7 +77,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.crashTitle.setText(crashReport?.title ?: "")
         binding.crashDescription.setText(crashReport?.description ?: "")
         binding.forceText.setText(crashReport?.force?.toString() ?: "")
-
 
         mapView = findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
@@ -80,7 +99,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
             val forceInput = binding.forceText.text.toString().toDoubleOrNull() ?: 0.0
             val location = selectedLocation ?: LatLng(crashReport?.latitude ?: 0.0, crashReport?.longitude ?: 0.0)
 
-            // Get resolved address (use the suspend function to get address asynchronously)
             resolveAddressUsingGoogleMaps(location.latitude, location.longitude) { resolvedAddress ->
                 val updatedCrashReport = CrashReport2(
                     title = updatedTitle,
@@ -92,23 +110,27 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
                     force = forceInput
                 )
 
-                // Display the updated CrashReport data
-                val message = """
-            Title: ${updatedCrashReport.title}
-            Description: ${updatedCrashReport.description}
-            Latitude: ${updatedCrashReport.latitude}
-            Longitude: ${updatedCrashReport.longitude}
-            Address: ${updatedCrashReport.resolvedAddress}
-            Time: ${updatedCrashReport.timeOfReport}
-            Force: ${updatedCrashReport.force}
-        """.trimIndent()
+                val payload = JSONObject().apply {
+                    put("title", updatedCrashReport.title)
+                    put("description", updatedCrashReport.description)
+                    put("latitude", updatedCrashReport.latitude)
+                    put("longitude", updatedCrashReport.longitude)
+                    put("resolvedAddress", updatedCrashReport.resolvedAddress)
+                    put("timeOfReport", updatedCrashReport.timeOfReport)
+                    put("force", updatedCrashReport.force)
+                }.toString()
 
-                println(message)
-
-                Toast.makeText(this, "Crash Report Submitted:\n$message", Toast.LENGTH_LONG).show()
+                try {
+                    val mqttMessage = MqttMessage(payload.toByteArray())
+                    mqttMessage.qos = 1
+                    mqttClient.publish(MQTT_TOPIC, mqttMessage)
+                    Toast.makeText(this, "Crash report sent to MQTT broker.", Toast.LENGTH_LONG).show()
+                } catch (e: MqttException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Failed to send data to MQTT broker.", Toast.LENGTH_LONG).show()
+                }
             }
         }
-
 
         // Cancel button functionality
         binding.cancelButton.setOnClickListener {
@@ -156,7 +178,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
         val latitude = crashReport?.latitude ?: 0.0
         val longitude = crashReport?.longitude ?: 0.0
 
-        // Enable zoom controls
         googleMap.uiSettings.isZoomControlsEnabled = true
 
         if (latitude != 0.0 && longitude != 0.0) {
@@ -167,7 +188,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
         }
 
-        // Handle map clicks to select a new location
         googleMap.setOnMapClickListener { location ->
             googleMap.clear()
             googleMap.addMarker(
@@ -180,7 +200,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val okHttpClient = OkHttpClient()
 
-    // Suspend function to resolve address and update UI asynchronously
     private fun resolveAddressUsingGoogleMaps(latitude: Double, longitude: Double, onResolved: (String) -> Unit) {
         val apiKey = getApiKey() ?: return onResolved("API key not found")
         val url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey"
@@ -203,7 +222,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
                     "Error retrieving address"
                 }
 
-                // Use withContext to switch back to the main thread and pass the resolved address
                 withContext(Dispatchers.Main) {
                     onResolved(resolvedAddress)
                 }
@@ -239,5 +257,10 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
+
+        // Disconnect MQTT client
+        if (mqttClient.isConnected) {
+            mqttClient.disconnect()
+        }
     }
 }

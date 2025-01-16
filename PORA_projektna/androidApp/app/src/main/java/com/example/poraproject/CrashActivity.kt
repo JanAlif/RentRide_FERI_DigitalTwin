@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.poraproject.databinding.CrashgActivityBinding
+import com.example.poraproject.databinding.CrashActivityBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -24,7 +24,7 @@ import org.json.JSONObject
 class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
 
 
-    private lateinit var binding: CrashgActivityBinding
+    private lateinit var binding: CrashActivityBinding
     private lateinit var mapView: MapView
     private lateinit var googleMap: GoogleMap
     private var isMapReady = false
@@ -33,7 +33,7 @@ class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = CrashgActivityBinding.inflate(layoutInflater)
+        binding = CrashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         mapView = findViewById(R.id.mapView)
