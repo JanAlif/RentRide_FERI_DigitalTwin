@@ -4,72 +4,107 @@ size: 2048, 2048
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+ahead-only
+  rotate: false
+  xy: 1924, 1538
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 arrow
   rotate: false
-  xy: 1924, 1408
+  xy: 260, 456
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 background
   rotate: false
-  xy: 2, 392
+  xy: 2, 522
   size: 1920, 1080
   orig: 1920, 1080
   offset: 0, 0
   index: -1
 finish
   rotate: false
-  xy: 1990, 1448
+  xy: 1990, 1578
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
-no-u-turn
+marker
+  rotate: false
+  xy: 2, 134
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+no-entry
   rotate: false
   xy: 2, 68
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
+no-u-turn
+  rotate: false
+  xy: 132, 198
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 parking
   rotate: false
-  xy: 260, 326
+  xy: 1924, 1472
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 roadwork
   rotate: false
-  xy: 1924, 1342
+  xy: 260, 390
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 start
   rotate: false
-  xy: 260, 300
+  xy: 68, 108
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 stop
   rotate: false
-  xy: 2, 134
+  xy: 2, 264
   size: 256, 256
   orig: 256, 256
   offset: 0, 0
   index: -1
-turn-right
+stopSign
+  rotate: false
+  xy: 326, 456
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+turn-left
   rotate: false
   xy: 2, 2
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
+turn-right
+  rotate: false
+  xy: 1924, 1406
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 warning-sign
   rotate: false
-  xy: 68, 68
+  xy: 260, 324
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
