@@ -14,20 +14,30 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import si.um.feri.cestar.IgreProjekt;
 import si.um.feri.cestar.Utils.Car;
+import si.um.feri.cestar.Utils.Confetti;
 import si.um.feri.cestar.Utils.Constants;
 import si.um.feri.cestar.Utils.GameManager;
 import si.um.feri.cestar.Utils.Geolocation;
@@ -49,17 +59,17 @@ public class DetailedRouteScreen extends ScreenAdapter {
     private ModelBatch modelBatch;
     private Skin skin;
 
-    // Map tiles and tile-related attributes
+
     private Texture[] mapTiles;
     private ZoomXY beginTile;
 
-    // Bounding box coordinates
+
     private double minLat, maxLat;
     private double minLng, maxLng;
     private Car car;
     private Stage stage;
 
-    private boolean isCameraFollowingCar = true;// Timer for the traffic light pause
+    private boolean isCameraFollowingCar = true;
     private boolean isPausedAtTrafficLight = false;
 
     private Vector3 savedCarPosition = null;
@@ -68,6 +78,9 @@ public class DetailedRouteScreen extends ScreenAdapter {
     MongoDB mongoDBExample;
     private boolean hasFinished = false;
     private final AssetManager assetManager;
+    private List<Confetti> confettiList;
+    private boolean showConfetti = false;
+
 
 
 
@@ -88,14 +101,14 @@ public class DetailedRouteScreen extends ScreenAdapter {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Initialize perspective camera
+
         camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 1f;
         camera.far = 2000f;
         skin = assetManager.get(AssetsDescriptor.UI_SKIN);
 
 
-        // Compute the bounding box for the route
+
         computeBoundingBox();
 
         if (savedCarPosition != null && savedCarIndex >= 0) {
@@ -103,7 +116,7 @@ public class DetailedRouteScreen extends ScreenAdapter {
             car.setCurrentPointIndex(savedCarIndex);
         }
 
-        // Initialize renderers
+
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
         modelBatch = new ModelBatch();
@@ -111,7 +124,7 @@ public class DetailedRouteScreen extends ScreenAdapter {
 
 
 
-        // Load map tiles and set beginTile
+
         try {
             ZoomXY centerTile = MapRasterTiles.getTileNumber(
                 routeCoordinates[0][0].lat, routeCoordinates[0][0].lng, Constants.ZOOM
@@ -139,7 +152,7 @@ public class DetailedRouteScreen extends ScreenAdapter {
                 car.setCurrentPointIndex(0);
             }
 
-            // Only set camera if car is newly created or first time showing the screen
+
             Vector2 carStartPos = MapRasterTiles.getPixelPosition(
                 startPoint.lat, startPoint.lng, beginTile.x, beginTile.y
             );
@@ -149,7 +162,7 @@ public class DetailedRouteScreen extends ScreenAdapter {
         }
 
 
-        // Center and zoom the camera for the full route
+
         centerAndZoomCamera();
     }
 
@@ -168,18 +181,18 @@ public class DetailedRouteScreen extends ScreenAdapter {
         handleInput();
 
         if (isPausedAtTrafficLight) {
-            // We simulate a 3-second wait before resuming the journey
+
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
-                    // After the delay, resume the journey
+
                     isPausedAtTrafficLight = false;
-                    // Optionally, restore the car's position or update other necessary state
+
                     car.setPosition(savedCarPosition);
                     car.setCurrentPointIndex(savedCarIndex);
-                    // Resume movement or other related actions
+
                 }
-            }, 3); // 3-second delay before resuming
+            }, 3);
         }
         else {
             if (isCameraFollowingCar && car != null) {
@@ -196,43 +209,43 @@ public class DetailedRouteScreen extends ScreenAdapter {
                 camera.up.set(0, 0, 1);
                 camera.update();
 
-                // Handle reaching traffic lights
+
                 Geolocation trafficLightGeo = hasCarReachedTrafficLight(carPosition);
                 if (trafficLightGeo != null && !processedTrafficLights.contains(trafficLightGeo)) {
-                    // Save the car's position and index before pausing at the traffic light
+
                     savedCarPosition = car.getPosition().cpy();
                     savedCarIndex = car.getCurrentPointIndex();
 
-                    // Pause the journey and show the QuestionScreen
+
                     isPausedAtTrafficLight = true;
 
-                    // Create and configure the QuestionScreen
+
                     QuestionScreen questionScreen = new QuestionScreen(game, routeCoordinates, semaforPoints);
 
-                    // Set the callback for when the correct answer is given
-                    questionScreen.setOnCorrectAnswer(() -> {
-                        // This is the code that will be executed when the user gives the correct answer
-                        isPausedAtTrafficLight = true; // Pause the game to simulate the 3 second wait
 
-                        // Use a timer or wait for 3 seconds before resuming
+                    questionScreen.setOnCorrectAnswer(() -> {
+
+                        isPausedAtTrafficLight = true;
+
+
                         Timer.schedule(new Timer.Task() {
                             @Override
                             public void run() {
-                                isPausedAtTrafficLight = false; // Resume the journey
-                                processedTrafficLights.add(trafficLightGeo); // Mark this traffic light as processed
-                                game.setScreen(DetailedRouteScreen.this); // Switch back to the DetailedRouteScreen
+                                isPausedAtTrafficLight = false;
+                                processedTrafficLights.add(trafficLightGeo);
+                                game.setScreen(DetailedRouteScreen.this);
                             }
-                        }, 3); // 3 seconds delay
+                        }, 3);
                     });
                     questionScreen.setOnIncorrectAnswer(() -> {
-                        // Delay the screen switch to allow time for feedback to display
+
                         Timer.schedule(new Timer.Task() {
                             @Override
                             public void run() {
                                 processedTrafficLights.add(trafficLightGeo);
-                                game.setScreen(DetailedRouteScreen.this);  // Switch back to the DetailedRouteScreen
+                                game.setScreen(DetailedRouteScreen.this);
                             }
-                        }, 0.2f);  // 0.2 seconds delay for a smoother transition
+                        }, 0.2f);
                     });
 
 
@@ -255,6 +268,9 @@ public class DetailedRouteScreen extends ScreenAdapter {
             }
         }
 
+        if (showConfetti) {
+            drawConfetti(delta);
+        }
         if (car != null && hasCarReachedFinish(car.getPosition()) && !hasFinished) {
             String currentUser = GameManager.getInstance().getCurrentUser();
             int currentScore = GameManager.getInstance().getScore();
@@ -268,18 +284,11 @@ public class DetailedRouteScreen extends ScreenAdapter {
                 Gdx.app.log("DetailedRouteScreen", "Cannot save score. No user set.");
             }
 
-            // Set the flag to true to prevent repeated saving
+
             hasFinished = true;
-            //game.setScreen(new LeaderboardScreen(game));
+
             showFinishPopup(currentScore,currentUser,semaforPoints.size());
 
-            // Optionally, transition after a delay
-            /*Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    game.setScreen(new SummaryScreen(game, currentUser, currentScore));
-                }
-            }, 2);// 2 seconds delay before transitioning*/
         }
 
         stage.act(delta);
@@ -288,50 +297,108 @@ public class DetailedRouteScreen extends ScreenAdapter {
 
     }
 
+    private void drawConfetti(float delta) {
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (Confetti confetti : confettiList) {
+            confetti.update(delta);
+            shapeRenderer.setColor(confetti.color);
+            shapeRenderer.circle(confetti.x, confetti.y, 5);
+        }
+        shapeRenderer.end();
+    }
+
     private void showFinishPopup(int score, String user, int totalQuestions) {
 
-        // Create a dialog
-        Dialog finishDialog = new Dialog("Congratulations " + user + " for completing the game!", skin) {
+
+        Dialog finishDialog = new Dialog("", skin);
+
+
+        Table contentTable = new Table();
+        contentTable.setFillParent(true);
+        contentTable.pad(20);
+
+
+        Label titleLabel = new Label("Congratulations, " + user + "!", skin, "title");
+        titleLabel.setFontScale(2f);
+        titleLabel.setAlignment(Align.center);
+        contentTable.add(titleLabel).expandX().center().padBottom(15).row();
+
+
+        Label messageLabel = new Label(
+            "You have successfully completed the route!\nYour Score: " + score +
+                "\nTotal Questions Answered: " + totalQuestions, skin
+        );
+        messageLabel.setColor(Color.BLACK);
+        messageLabel.setAlignment(Align.center);
+        contentTable.add(messageLabel).expandX().center().padBottom(20).row();
+
+        initializeConfetti();
+        showConfetti = true;
+
+        Table buttonTable = new Table();
+        TextButton playAgainButton = new TextButton("Play Again", skin);
+        TextButton quitButton = new TextButton("Quit", skin);
+
+        playAgainButton.addListener(new ClickListener() {
             @Override
-            protected void result(Object object) {
-                if (object.equals("PLAY_AGAIN")) {
-                    resetGame();
-                    game.setScreen(new GameScreen(game));
-                } else if (object.equals("QUIT")) {
-                    Gdx.app.exit();
-                }
+            public void clicked(InputEvent event, float x, float y) {
+                resetGame();
+                game.setScreen(new GameScreen(game));
             }
-        };
+        });
 
-        // Add a congratulatory message
-        finishDialog.text("You have successfully completed the route!\nYour Score: " + score +
-            "\nTotal Questions Answered: " + totalQuestions);
-        finishDialog.setColor(Color.BLACK);
+        quitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
 
-        // Add buttons
-        finishDialog.button("Play Again", "PLAY_AGAIN");
-        finishDialog.button("Quit", "QUIT");
 
-        // Show the dialog
+        buttonTable.add(playAgainButton).padRight(20);
+        buttonTable.add(quitButton);
+        contentTable.add(buttonTable).expandX().center().padTop(10);
+
+
+        finishDialog.getContentTable().add(contentTable).fill().expand();
+
+
         finishDialog.show(stage);
+
+
+        finishDialog.setColor(Color.WHITE);
+        finishDialog.setMovable(false);
+    }
+
+    private void initializeConfetti() {
+        confettiList = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            float x = MathUtils.random(0, Gdx.graphics.getWidth());
+            float y = MathUtils.random(Gdx.graphics.getHeight() / 2f, Gdx.graphics.getHeight());
+            float dx = MathUtils.random(-50, 50);
+            float dy = MathUtils.random(-150, 150);
+            Color color = new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1f);
+            confettiList.add(new Confetti(x, y, dx, dy, color));
+        }
     }
 
 
     private void resetGame() {
-        // Reset game state
+
         hasFinished = false;
 
-        // Reset car to its initial position and state
-        car = new Car(routeCoordinates, beginTile, 10f); // Recreate the car object
 
-        // Reset processed traffic lights and other game-related flags
+        car = new Car(routeCoordinates, beginTile, 10f);
+
+
         processedTrafficLights.clear();
         savedCarPosition = null;
         savedCarIndex = -1;
         isPausedAtTrafficLight = false;
 
-        // Reset the score (if applicable)
-        GameManager.getInstance().resetScore(); // Or use a custom method if setScore is available
+
+        GameManager.getInstance().resetScore();
 
         Gdx.app.log("DetailedRouteScreen", "Game reset.");
     }
@@ -343,11 +410,11 @@ public class DetailedRouteScreen extends ScreenAdapter {
     private boolean hasCarReachedFinish(Vector3 carPosition) {
         Geolocation finish = routeCoordinates[routeCoordinates.length - 1]
             [routeCoordinates[routeCoordinates.length - 1].length - 1];
-        Vector3 finishPos = getTrafficLightPosition(finish); // Reuse the position logic
-        float threshold = 5.0f; // Adjust threshold to a reasonable value (e.g., 1.0f)
+        Vector3 finishPos = getTrafficLightPosition(finish);
+        float threshold = 5.0f;
 
         float distance = carPosition.dst(finishPos);
-        //Gdx.app.log("DetailedRouteScreen", "Car position: " + carPosition + " Finish position: " + finishPos + " Distance: " + distance);
+
 
         return distance < threshold;
     }
@@ -355,30 +422,30 @@ public class DetailedRouteScreen extends ScreenAdapter {
 
 
     private Geolocation hasCarReachedTrafficLight(Vector3 carPosition) {
-        // Define a threshold distance to determine if the car is at a traffic light
-        float threshold = 2.5f; // Distance in units
 
-        // Iterate over all traffic lights
+        float threshold = 2.5f;
+
+
         for (Geolocation trafficLightGeo : semaforPoints) {
             Vector3 trafficLightPosition = getTrafficLightPosition(trafficLightGeo);
 
-            // Check if the car is within the threshold distance from the traffic light
+
             if (carPosition.dst(trafficLightPosition) < threshold) {
-                return trafficLightGeo; // Return the traffic light that was reached
+                return trafficLightGeo;
             }
         }
 
-        return null; // No traffic light reached
+        return null;
     }
 
     private Vector3 getTrafficLightPosition(Geolocation trafficLightGeo) {
-        // Convert the geolocation of the traffic light to 2D screen coordinates
+
         Vector2 position2D = MapRasterTiles.getPixelPosition(
             trafficLightGeo.lat, trafficLightGeo.lng, beginTile.x, beginTile.y
         );
 
-        // Convert the 2D position to 3D (with a fixed Z-axis value for height)
-        return new Vector3(position2D.x, position2D.y, 0); // Adjust the Z value if needed
+
+        return new Vector3(position2D.x, position2D.y, 0);
     }
 
     private void computeBoundingBox() {
@@ -420,22 +487,22 @@ public class DetailedRouteScreen extends ScreenAdapter {
 
         float desiredZoom = Math.min(zoomX, zoomY) * 0.8f;
 
-        camera.position.set(center.x, center.y - 100, desiredZoom * 500); // Offset for height
+        camera.position.set(center.x, center.y - 100, desiredZoom * 500);
         camera.lookAt(center.x, center.y, 0);
         camera.update();
     }
 
     private void handleInput() {
-        // Toggle following car with F key
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             isCameraFollowingCar = !isCameraFollowingCar;
             System.out.println("Camera mode: " + (isCameraFollowingCar ? "Following Car" : "Manual Control"));
         }
 
-        // Manual control if NOT following the car
+
         if (!isCameraFollowingCar) {
-            if (Gdx.input.isKeyPressed(Input.Keys.A)) camera.position.z += 1f;    // Zoom out
-            if (Gdx.input.isKeyPressed(Input.Keys.Q)) camera.position.z -= 1f;    // Zoom in
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) camera.position.z += 1f;
+            if (Gdx.input.isKeyPressed(Input.Keys.Q)) camera.position.z -= 1f;
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) camera.translate(-1, 0, 0);
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) camera.translate(1, 0, 0);
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) camera.translate(0, 1, 0);
@@ -494,11 +561,11 @@ public class DetailedRouteScreen extends ScreenAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Mark the center with a small circle
+
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.circle(position.x, position.y, 5);
 
-        // Create a tiny triangle for the arrow head
+
         Vector3 arrowHead = position.cpy().add(direction.nor().scl(10));
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.triangle(
@@ -516,39 +583,39 @@ public class DetailedRouteScreen extends ScreenAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Realistic dimensions for the pole and traffic light housing
-        float poleWidth = 1.5f;    // Narrow pole width
-        float poleHeight = 20f;    // Height of the pole
-        float lightBoxWidth = 5f;  // Width of the light housing
-        float lightBoxHeight = 2f; // Height for a single light
-        float lightSpacing = 0.5f; // Small spacing between lights
-        float poleOffsetX = 10f;   // Offset for pole position
 
-        // Total height of the traffic light housing (3 lights + spacings)
+        float poleWidth = 1.5f;
+        float poleHeight = 20f;
+        float lightBoxWidth = 5f;
+        float lightBoxHeight = 2f;
+        float lightSpacing = 0.5f;
+        float poleOffsetX = 10f;
+
+
         float housingHeight = (lightBoxHeight * 3) + (lightSpacing * 2);
 
-        // Timed color cycle: 6 seconds total, 2s each color
+
         float stateDuration = 2.0f;
         float stateTime = (System.currentTimeMillis() % (int) (stateDuration * 3000)) / 1000f;
-        int currentState = (int) (stateTime / stateDuration) % 3; // 0=Red, 1=Yellow, 2=Green
+        int currentState = (int) (stateTime / stateDuration) % 3;
 
         for (Geolocation semafor : semaforPoints) {
             Vector2 position2D = MapRasterTiles.getPixelPosition(
                 semafor.lat, semafor.lng, beginTile.x, beginTile.y
             );
 
-            // Position for the base of the pole
-            float baseYPosition = position2D.y + 5f; // Slightly above the map surface
-            float baseZ = 20f; // Position in front of the camera
 
-            // Pole position
+            float baseYPosition = position2D.y + 5f;
+            float baseZ = 20f;
+
+
             Vector3 polePosition = new Vector3(
                 position2D.x + poleOffsetX,
                 baseYPosition,
                 baseZ
             );
 
-            // Draw the pole
+
             shapeRenderer.setColor(Color.DARK_GRAY);
             shapeRenderer.box(
                 polePosition.x - poleWidth / 2,
@@ -559,16 +626,16 @@ public class DetailedRouteScreen extends ScreenAdapter {
                 poleHeight
             );
 
-            // Adjust housingPosition to sit directly on top of the pole
+
             Vector3 housingPosition = new Vector3(
                 polePosition.x,
                 polePosition.y,
-                polePosition.z // The housing's base directly above the pole's top
+                polePosition.z
             );
 
-// Draw the traffic light housing (light gray box)
-            // Draw the traffic light housing (light gray box)
-            shapeRenderer.setColor(new Color(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 1f)); // Fully opaque
+
+
+            shapeRenderer.setColor(new Color(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 1f));
             shapeRenderer.box(
                 housingPosition.x - lightBoxWidth / 2,
                 housingPosition.y - lightBoxWidth / 2,
@@ -579,12 +646,12 @@ public class DetailedRouteScreen extends ScreenAdapter {
             );
 
 
-            // Calculate positions for the lights within the housing
-            float greenLightZ = polePosition.z-5f; // Green light at the base of the housing
-            float yellowLightZ = greenLightZ + lightBoxHeight + lightSpacing; // Yellow light above green
+
+            float greenLightZ = polePosition.z-5f;
+            float yellowLightZ = greenLightZ + lightBoxHeight + lightSpacing;
             float redLightZ = yellowLightZ + lightBoxHeight + lightSpacing;
 
-            // -- Green Light Box --
+
             shapeRenderer.setColor(currentState == 2 ? Color.GREEN : Color.DARK_GRAY);
             shapeRenderer.box(
                 housingPosition.x - (lightBoxWidth / 3),
@@ -593,7 +660,7 @@ public class DetailedRouteScreen extends ScreenAdapter {
                 lightBoxWidth / 1.5f, lightBoxWidth / 1.5f, lightBoxHeight
             );
 
-            // -- Yellow Light Box --
+
             shapeRenderer.setColor(currentState == 1 ? Color.YELLOW : Color.DARK_GRAY);
             shapeRenderer.box(
                 housingPosition.x - (lightBoxWidth / 3),
@@ -602,7 +669,7 @@ public class DetailedRouteScreen extends ScreenAdapter {
                 lightBoxWidth / 1.5f, lightBoxWidth / 1.5f, lightBoxHeight
             );
 
-            // -- Red Light Box --
+
             shapeRenderer.setColor(currentState == 0 ? Color.RED : Color.DARK_GRAY);
             shapeRenderer.box(
                 housingPosition.x - (lightBoxWidth / 3),
@@ -614,46 +681,112 @@ public class DetailedRouteScreen extends ScreenAdapter {
         shapeRenderer.end();
     }
 
+/*
+
     private void drawStartAndFinishMarkers() {
-        // Retrieve the start and finish coordinates
+
         Geolocation start = routeCoordinates[0][0];
         Geolocation finish = routeCoordinates[routeCoordinates.length - 1]
             [routeCoordinates[routeCoordinates.length - 1].length - 1];
 
-        // Convert geolocations to pixel positions
+
         Vector2 startPos = MapRasterTiles.getPixelPosition(start.lat, start.lng, beginTile.x, beginTile.y);
         Vector2 finishPos = MapRasterTiles.getPixelPosition(finish.lat, finish.lng, beginTile.x, beginTile.y);
 
-        // Draw circles (optional, to mark positions visually)
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        Vector2 routeDirection = finishPos.cpy().sub(startPos).nor();
+
+
+        Vector2 perpendicularStart = new Vector2(-routeDirection.y, routeDirection.x);
+        Vector2 perpendicularFinish = new Vector2(routeDirection.y, -routeDirection.x);
+
+
+        float lineLength = 20f;
+
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.circle(startPos.x, startPos.y, 15);
+
+
+        shapeRenderer.line(
+            startPos.x + perpendicularStart.x * lineLength,
+            startPos.y + perpendicularStart.y * lineLength,
+            startPos.x - perpendicularStart.x * lineLength,
+            startPos.y - perpendicularStart.y * lineLength
+        );
+
 
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.circle(finishPos.x, finishPos.y, 15);
+
+
+        shapeRenderer.line(
+            finishPos.x + perpendicularFinish.x * lineLength,
+            finishPos.y + perpendicularFinish.y * lineLength,
+            finishPos.x - perpendicularFinish.x * lineLength,
+            finishPos.y - perpendicularFinish.y * lineLength
+        );
 
         shapeRenderer.end();
 
-        // Draw "START" and "FINISH" text on the ground
+
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        BitmapFont font = new BitmapFont(); // You can use a custom font if available
-        font.getData().setScale(2f); // Scale the font for better visibility
-        font.setColor(Color.WHITE); // Set text color
-
-        // Draw "START" at the start position
-        font.draw(spriteBatch, "START", startPos.x - 30, startPos.y - 30);
-
-        // Draw "FINISH" at the finish position
-        font.draw(spriteBatch, "FINISH", finishPos.x - 40, finishPos.y - 30);
-
         spriteBatch.end();
-
-        font.dispose(); // Dispose of the font after use to avoid memory leaks
     }
+
+*/
+
+
+    private void drawStartAndFinishMarkers() {
+
+        Geolocation start = routeCoordinates[0][0];
+        Geolocation finish = routeCoordinates[routeCoordinates.length - 1]
+            [routeCoordinates[routeCoordinates.length - 1].length - 1];
+
+
+        Vector2 startPos = MapRasterTiles.getPixelPosition(start.lat, start.lng, beginTile.x, beginTile.y);
+        Vector2 finishPos = MapRasterTiles.getPixelPosition(finish.lat, finish.lng, beginTile.x, beginTile.y);
+
+
+        float lineLength = 20f;
+
+
+        Vector2 routeDirection = finishPos.cpy().sub(startPos).nor();
+
+
+        Vector2 perpendicularStart = new Vector2(-routeDirection.y, routeDirection.x);
+        Vector2 perpendicularFinish = new Vector2(routeDirection.y, -routeDirection.x);
+
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.rectLine(
+            startPos.x + perpendicularStart.x * lineLength,
+            startPos.y + perpendicularStart.y * lineLength,
+            startPos.x - perpendicularStart.x * lineLength,
+            startPos.y - perpendicularStart.y * lineLength,
+            8f
+        );
+
+
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rectLine(
+            finishPos.x + perpendicularFinish.x * lineLength,
+            finishPos.y + perpendicularFinish.y * lineLength,
+            finishPos.x - perpendicularFinish.x * lineLength,
+            finishPos.y - perpendicularFinish.y * lineLength,
+            5f
+        );
+
+        shapeRenderer.end();
+
+    }
+
 
 
     @Override

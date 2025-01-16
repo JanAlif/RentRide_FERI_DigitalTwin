@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Car {
-    private Vector3 position; // Current position of the car in world coordinates
-    private List<Vector3> routePoints; // List of all points along the route
-    private int currentPointIndex; // Index of the current point the car is moving towards
-    private float speed; // Speed of the car in units per second
-    private float tolerance = 5f; // Tolerance to consider the point reached
-    private ZoomXY beginTile; // Tile zone for map projection
+    private Vector3 position;
+    private List<Vector3> routePoints;
+    private int currentPointIndex;
+    private float speed;
+    private float tolerance = 5f;
+    private ZoomXY beginTile;
 
     public Car(Geolocation[][] routeCoordinates, ZoomXY beginTile, float speed) {
         this.routePoints = new ArrayList<>();
@@ -24,15 +24,15 @@ public class Car {
         this.speed = speed;
         this.currentPointIndex = 0;
 
-        // Convert all route coordinates to a list of Vector3 positions
+
         for (Geolocation[] segment : routeCoordinates) {
             for (Geolocation geo : segment) {
                 Vector2 point2D = MapRasterTiles.getPixelPosition(geo.lat, geo.lng, beginTile.x, beginTile.y);
-                routePoints.add(new Vector3(point2D.x, point2D.y, 0)); // Add the point as a 3D vector
+                routePoints.add(new Vector3(point2D.x, point2D.y, 0));
             }
         }
 
-        // Set the starting position at the first route point
+
         if (!routePoints.isEmpty()) {
             this.position = routePoints.get(0).cpy();
         } else {
@@ -42,19 +42,19 @@ public class Car {
 
     public void update(float delta) {
         if (currentPointIndex >= routePoints.size() - 1) {
-            return; // No more points to follow
+            return;
         }
 
-        // Get the next route point
+
         Vector3 nextPoint = routePoints.get(currentPointIndex + 1);
 
-        // Calculate direction to the next point
+
         Vector3 direction = nextPoint.cpy().sub(position).nor();
 
-        // Move towards the next point
+
         position.add(direction.scl(speed * delta));
 
-        // Check if the car has reached the next point
+
         if (position.dst(nextPoint) <= tolerance) {
             currentPointIndex++;
         }
@@ -64,9 +64,9 @@ public class Car {
         shapeRenderer.setProjectionMatrix(projectionMatrix);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Draw the car as a simple circle
+
         shapeRenderer.setColor(Color.ORANGE);
-        shapeRenderer.circle(position.x, position.y, 10); // Represent the car as a circle
+        shapeRenderer.circle(position.x, position.y, 10);
 
         shapeRenderer.end();
     }
@@ -77,10 +77,10 @@ public class Car {
 
     public Vector3 getDirection() {
         if (currentPointIndex >= routePoints.size() - 1) {
-            return new Vector3(0, 1, 0); // Default direction if no points are left
+            return new Vector3(0, 1, 0);
         }
 
-        // Calculate direction to the next point
+
         return routePoints.get(currentPointIndex + 1).cpy().sub(position).nor();
     }
 
