@@ -115,7 +115,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
                     put("description", updatedCrashReport.description)
                     put("latitude", updatedCrashReport.latitude)
                     put("longitude", updatedCrashReport.longitude)
-                    put("resolvedAddress", updatedCrashReport.resolvedAddress)
                     put("timeOfReport", updatedCrashReport.timeOfReport)
                     put("force", updatedCrashReport.force)
                 }.toString()
