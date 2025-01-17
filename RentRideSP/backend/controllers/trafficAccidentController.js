@@ -132,7 +132,7 @@ const validateBlockchain = async () => {
     const currentAccident = accidents[i];
 
     if (!currentAccident.previousHash || !currentAccident.currentHash) {
-      console.warn(`Skipping non-compliant accident ${currentAccident._id}`);
+      console.warn(`Skipping non-compliant accident IG ${currentAccident._id}`);
       continue;
     }
 
