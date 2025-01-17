@@ -45,7 +45,7 @@ class LocationService : Service() {
             e.printStackTrace()
             Toast.makeText(this, "Failed to connect to MQTT Broker", Toast.LENGTH_LONG).show()
         }
-
+        Notifications.createNotificationChannel(this)
         // Initialize location updates
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -77,6 +77,13 @@ class LocationService : Service() {
                             val mqttMessage = MqttMessage(payload.toByteArray())
                             mqttMessage.qos = 1
                             mqttClient.publish(MQTT_TOPIC, mqttMessage)
+                            Notifications.sendNotification(
+                                context = this@LocationService,
+                                imageId = android.R.drawable.ic_dialog_info,
+                                title = "Crash Detected",
+                                content = "A simulated crash condition was detected. Detecte force was $force N",
+                                itemId = "simulated_crash"
+                            )
                             Log.d("LocationService", "Crash was reported with force: ${force} km/h")
                         } catch (e: MqttException) {
                             e.printStackTrace()
