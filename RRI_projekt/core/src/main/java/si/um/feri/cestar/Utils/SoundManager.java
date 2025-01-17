@@ -42,12 +42,12 @@ public class SoundManager {
         preferences.flush();
     }
 
-    // Load and Play Music
+
     public void playMenuMusic() {
         if (!isMusicEnabled()) return;
 
         if (menuMusic == null) {
-            //menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/menuMusic.mp3"));
+
             menuMusic.setLooping(true);
             menuMusic.setVolume(getMusicVolume());
         }
@@ -81,7 +81,7 @@ public class SoundManager {
         }
     }
 
-    // Load and Play Sound Effects
+
     public void loadSoundEffects() {
         if (!isSoundEnabled()) return;
 
@@ -115,7 +115,7 @@ public class SoundManager {
         }
     }
 
-    // Manage Preferences
+
     public boolean isMusicEnabled() {
         return preferences.getBoolean(MUSIC_ENABLED_KEY, true);
     }
@@ -145,16 +145,16 @@ public class SoundManager {
         }
     }
 
-    // Utility Methods
+
     private float getMusicVolume() {
-        return 0.8f; // Set default music volume (can be configurable)
+        return 0.8f;
     }
 
     private float getSoundVolume() {
-        return 1.0f; // Set default sound volume (can be configurable)
+        return 1.0f;
     }
 
-    // Dispose Resources
+
     public void disposeSoundEffects() {
         if (clickSound != null) {
             clickSound.dispose();
