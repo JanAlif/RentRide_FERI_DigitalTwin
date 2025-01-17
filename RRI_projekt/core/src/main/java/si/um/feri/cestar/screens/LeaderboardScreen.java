@@ -3,7 +3,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -18,6 +22,8 @@ import java.util.List;
 import si.um.feri.cestar.IgreProjekt;
 import si.um.feri.cestar.Utils.MongoDB;
 import si.um.feri.cestar.assets.AssetsDescriptor;
+import si.um.feri.cestar.assets.RegionNames;
+
 
 public class LeaderboardScreen extends ScreenAdapter {
 
@@ -27,6 +33,19 @@ public class LeaderboardScreen extends ScreenAdapter {
     private Skin skin;
     private final AssetManager assetManager;
     private ShapeRenderer shapeRenderer;
+    TextureAtlas gameplayAtlas;
+    TextureRegion stopIcon;
+    SpriteBatch spriteBatch;
+    TextureRegion arrowIcon;
+    TextureRegion noUTurn;
+    TextureRegion parkingIcon;
+    TextureRegion roadWorkIcon;
+    TextureRegion leftTurnIcon;
+    TextureRegion rightTurnIcon;
+    TextureRegion noEntryIcon;
+    private float[][] iconPositions;
+    private float[][] iconVelocities;
+
 
 
 
@@ -42,8 +61,31 @@ public class LeaderboardScreen extends ScreenAdapter {
     public void show() {
         Gdx.input.setInputProcessor(stage);
         skin = assetManager.get(AssetsDescriptor.UI_SKIN);
+        gameplayAtlas = assetManager.get(AssetsDescriptor.GAMEPLAY);
+
+        stopIcon = gameplayAtlas.findRegion(RegionNames.STOPSIGN);
+        noUTurn  = gameplayAtlas.findRegion(RegionNames.NOTURN);
+        parkingIcon  = gameplayAtlas.findRegion(RegionNames.PARKING);
+        roadWorkIcon  = gameplayAtlas.findRegion(RegionNames.ROADWORK);
+        leftTurnIcon = gameplayAtlas.findRegion(RegionNames.TURNLEFT);
+        rightTurnIcon = gameplayAtlas.findRegion(RegionNames.TURNRIGHT);
+        noEntryIcon = gameplayAtlas.findRegion(RegionNames.NOENTRY);
 
         shapeRenderer = new ShapeRenderer();
+        spriteBatch = new SpriteBatch();
+
+        int numIcons = 6;
+        iconPositions = new float[numIcons][2];
+        iconVelocities = new float[numIcons][2];
+        for (int i = 0; i < numIcons; i++) {
+
+            iconPositions[i][0] = MathUtils.random(0, Gdx.graphics.getWidth());
+            iconPositions[i][1] = MathUtils.random(0, Gdx.graphics.getHeight());
+
+
+            iconVelocities[i][0] = MathUtils.random(-300, 300) * Gdx.graphics.getDeltaTime();
+            iconVelocities[i][1] = MathUtils.random(-300, 300) * Gdx.graphics.getDeltaTime();
+        }
 
         displayLeaderboard();
         addBackButton();
@@ -52,6 +94,32 @@ public class LeaderboardScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+
+        for (int i = 0; i < iconPositions.length; i++) {
+            iconPositions[i][0] += iconVelocities[i][0];
+            iconPositions[i][1] += iconVelocities[i][1];
+
+
+            if (iconPositions[i][0] <= 0 || iconPositions[i][0] >= Gdx.graphics.getWidth() - 50) {
+                iconVelocities[i][0] = -iconVelocities[i][0];
+            }
+            if (iconPositions[i][1] <= 0 || iconPositions[i][1] >= Gdx.graphics.getHeight() - 50) {
+                iconVelocities[i][1] = -iconVelocities[i][1];
+            }
+        }
+
+
+        spriteBatch.begin();
+        TextureRegion[] icons = {stopIcon, noUTurn, parkingIcon, roadWorkIcon, leftTurnIcon, rightTurnIcon, noEntryIcon};
+        for (int i = 0; i < iconPositions.length; i++) {
+            TextureRegion icon = icons[i % icons.length];
+            spriteBatch.draw(icon, iconPositions[i][0], iconPositions[i][1], 50, 50);
+        }
+
+        spriteBatch.end();
+
+
         stage.act(delta);
         stage.draw();
     }
@@ -68,72 +136,72 @@ public class LeaderboardScreen extends ScreenAdapter {
     }
 
     private void displayLeaderboard() {
-        // Create a table to display the leaderboard
+
         Table table = new Table();
         table.setFillParent(true);
 
-        // Add a title row (centered at the top)
+
         Label title = new Label("Leaderboard", skin);
         title.setFontScale(2);
-        table.add(title).colspan(3).padBottom(20).center().row(); // Center the title row
+        table.add(title).colspan(3).padBottom(20).center().row();
 
-        // Add column headers (Rank, Username, Score)
+
         table.add(new Label("Rank", skin)).pad(10).center();
         table.add(new Label("Username", skin)).pad(10).center();
         table.add(new Label("Score", skin)).pad(10).center();
         table.row();
 
-        // Fetch leaderboard data from the database
+
         List<Document> leaderboard = mongoDB.fetchLeaderboard();
 
-        // Populate the table with leaderboard data
+
         for (int i = 0; i < leaderboard.size(); i++) {
             Document entry = leaderboard.get(i);
             String username = entry.getString("username");
             int score = entry.getInteger("score");
 
-            table.add(new Label(String.valueOf(i + 1), skin)).pad(10).center(); // Center rank
-            table.add(new Label(username, skin)).pad(10).center(); // Center username
-            table.add(new Label(String.valueOf(score), skin)).pad(10).center(); // Center score
+            table.add(new Label(String.valueOf(i + 1), skin)).pad(10).center();
+            table.add(new Label(username, skin)).pad(10).center();
+            table.add(new Label(String.valueOf(score), skin)).pad(10).center();
             table.row();
         }
 
-        // Wrap the leaderboard table in a ScrollPane
+
         ScrollPane scrollPane = new ScrollPane(table, skin);
-        scrollPane.setScrollingDisabled(true, false); // Enable vertical scrolling only
+        scrollPane.setScrollingDisabled(true, false);
 
-        // Create an outer container to center the ScrollPane
+
         Table container = new Table();
-        container.setFillParent(true); // Container fills the entire screen
+        container.setFillParent(true);
 
-        // Dynamically adjust ScrollPane size based on screen dimensions
-        float containerWidth = Gdx.graphics.getWidth() * 0.8f; // 80% of screen width
-        float containerHeight = Gdx.graphics.getHeight() * 0.6f; // 60% of screen height
-        container.add(scrollPane).width(containerWidth).height(containerHeight).center(); // Center the ScrollPane
 
-        // Add the container to the stage
+        float containerWidth = Gdx.graphics.getWidth() * 0.8f;
+        float containerHeight = Gdx.graphics.getHeight() * 0.6f;
+        container.add(scrollPane).width(containerWidth).height(containerHeight).center();
+
+
         stage.addActor(container);
     }
 
     private void addBackButton() {
-        // Create a back button
+
         TextButton backButton = new TextButton("Back", skin);
 
-        // Add a listener to navigate back to the main menu or previous screen
+
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameScreen(game)); // Replace with your MenuScreen or Main Screen
+                game.setScreen(new GameScreen(game));
             }
         });
 
-        // Position the back button at the bottom of the screen
+
         Table backButtonTable = new Table();
         backButtonTable.setFillParent(true);
-        backButtonTable.bottom().padBottom(20); // Add padding at the bottom
+        backButtonTable.bottom().padBottom(20);
         backButtonTable.add(backButton).width(150).height(50).center();
 
-        // Add the back button table to the stage
+
         stage.addActor(backButtonTable);
     }
 
