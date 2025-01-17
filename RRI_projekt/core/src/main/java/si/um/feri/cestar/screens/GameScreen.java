@@ -110,7 +110,7 @@ public class GameScreen extends ScreenAdapter {
     private List<SelectablePoint> selectablePoints = new ArrayList<>();
     private boolean isEditingMode;
     public static final double CLICK_THRESHOLD_DISTANCE = 50.0;
-
+    InputMultiplexer inputMultiplexer;
 
 
 
@@ -434,7 +434,7 @@ public class GameScreen extends ScreenAdapter {
         });
 
 
-        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
         inputMultiplexer.addProcessor(gestureDetector);
         inputMultiplexer.addProcessor(createInputProcessor());
@@ -825,7 +825,7 @@ public class GameScreen extends ScreenAdapter {
 
     private void showEditPointDialog(SelectablePoint point, boolean isNewPoint) {
         Dialog editDialog = new Dialog(isNewPoint ? "Add New Point" : "Edit Point", skin);
-
+        editDialog.getTitleLabel().setAlignment(Align.center);
 
         TextField nameField = new TextField(isNewPoint ? "New Point" : point.geolocation.getLocationName(), skin);
         TextField addressField = new TextField(isNewPoint ? "New Address" : point.geolocation.getAddress(), skin);
@@ -957,7 +957,8 @@ public class GameScreen extends ScreenAdapter {
                                 }
 
 
-                                Gdx.input.setInputProcessor(stage);
+                                /*Gdx.input.setInputProcessor(stage);*/
+                                Gdx.input.setInputProcessor(inputMultiplexer);
                                 return true;
                             }
                         };
