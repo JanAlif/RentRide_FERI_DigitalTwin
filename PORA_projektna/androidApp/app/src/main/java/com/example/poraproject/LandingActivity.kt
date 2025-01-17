@@ -39,10 +39,10 @@ class LandingActivity : AppCompatActivity() {
         }
 
         // Accident report button click listener
-        binding.accidentReport.setOnClickListener {
+        /*binding.accidentReport.setOnClickListener {
             val intent = Intent(this, SimulatedCrashActivity::class.java)
             startActivity(intent)
-        }
+        }*/
     }
 
     // Function to check if all required permissions are granted

@@ -5,6 +5,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -39,6 +44,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         mapView = binding.mapView
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+
+        showNameInputDialog()
 
         binding.addAccidentReport.setOnClickListener{
             val intent = Intent(this, SimulatedCrashActivity::class.java)
@@ -80,6 +87,37 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
     }
+
+    private fun showNameInputDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.nameinput, null)
+        val inputField = dialogView.findViewById<EditText>(R.id.name_input)
+        val okButton = dialogView.findViewById<Button>(R.id.ok_button)
+        val cancelButton = dialogView.findViewById<Button>(R.id.cancel_button)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        okButton.setOnClickListener {
+            val userName = inputField.text.toString().trim()
+            if (userName.isNotEmpty()) {
+                Toast.makeText(this, "Welcome, $userName!", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "Name cannot be empty.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        cancelButton.setOnClickListener {
+            Toast.makeText(this, "You must enter a name to continue.", Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
+
+
 
     // Detect if the CrashActivity was cancelled
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="64dp"
+    android:viewportHeight="64"
+    android:viewportWidth="64"
+    android:width="64dp">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="@color/lightGray"
+        android:pathData="M32,32m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" />
+
+    <!-- Letter H -->
+    <path
+        android:fillColor="@color/paleYellow"
+        android:pathData="M20.3,46.5v-29h6v11.1h11.3V17.5h6v29h-6v-13H26.4v13h-6.1z" />
+</vector>
