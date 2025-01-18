@@ -38,12 +38,6 @@ class LocationService : Service() {
         // Start the foreground service
         val notification = createNotification("Tracking location...")
         startForeground(1, notification)
-        try {
-            mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
-            mqttClient.connect()
-        } catch (e: MqttException) {
-            e.printStackTrace()
-        }
         Notifications.createNotificationChannel(this)
         // Initialize location updates
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -73,6 +67,13 @@ class LocationService : Service() {
                         }.toString()
 
                         try {
+                            try {
+                                mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
+                                mqttClient.connect()
+                                Log.d("LocationService", "Connected to MQTT broker")
+                            } catch (e: MqttException) {
+                                e.printStackTrace()
+                            }
                             val mqttMessage = MqttMessage(payload.toByteArray())
                             mqttMessage.qos = 1
                             mqttClient.publish(MQTT_TOPIC, mqttMessage)

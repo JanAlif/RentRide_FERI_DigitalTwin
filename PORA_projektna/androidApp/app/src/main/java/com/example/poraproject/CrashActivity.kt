@@ -148,15 +148,6 @@ class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
         }
 
-        // Handle map clicks to select a new location
-        googleMap.setOnMapClickListener { location ->
-            googleMap.clear()
-            googleMap.addMarker(
-                MarkerOptions().position(location).title("Selected Location")
-            )
-            selectedLocation = location
-            Toast.makeText(this, "Location updated. Tap 'Submit' to save changes.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private val okHttpClient = OkHttpClient()

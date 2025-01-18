@@ -121,6 +121,7 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
                     val mqttMessage = MqttMessage(payload.toByteArray())
                     mqttMessage.qos = 1
                     mqttClient.publish(MQTT_TOPIC, mqttMessage)
+                    finish()
                     Toast.makeText(this, "Crash report sent to MQTT broker.", Toast.LENGTH_LONG).show()
                 } catch (e: MqttException) {
                     e.printStackTrace()
@@ -191,7 +192,6 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
                 MarkerOptions().position(location).title("Selected Location")
             )
             selectedLocation = location
-            Toast.makeText(this, "Location updated. Tap 'Submit' to save changes.", Toast.LENGTH_SHORT).show()
         }
     }
 

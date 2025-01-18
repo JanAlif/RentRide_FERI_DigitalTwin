@@ -34,7 +34,7 @@ object Notifications {
     @SuppressLint("MissingPermission")
     fun sendNotification(context: Context, title: String, content: String, imageId: Int, itemId:String) {
 
-        val intent = Intent(context, MapActivity::class.java).apply {
+        val intent = Intent(context, CrashMapActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("highlightedItemId", itemId)
         }
