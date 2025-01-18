@@ -192,9 +192,11 @@ public class GameScreen extends ScreenAdapter {
                 if (selectedPoints.size() == 2) {
 
                     Dialog nameInputDialog = new Dialog("Enter Your Name", skin);
+                    nameInputDialog.getTitleLabel().setAlignment(Align.center);
 
 
                     TextField nameField = new TextField("", skin);
+                    nameInputDialog.getContentTable().center();
                     nameInputDialog.getContentTable().add("Name: ").left();
                     nameInputDialog.getContentTable().add(nameField).width(200).row();
 
@@ -289,7 +291,7 @@ public class GameScreen extends ScreenAdapter {
         });
 
 
-        TextButton showDBPointsButton = new TextButton("Show DB Points", skin);
+        //TextButton showDBPointsButton = new TextButton("Show DB Points", skin);
 
 
         float dbButtonWidth = Gdx.graphics.getWidth() * 0.2f;
@@ -298,17 +300,17 @@ public class GameScreen extends ScreenAdapter {
         dbButtonHeight = MathUtils.clamp(dbButtonHeight, 40f, 60f);
 
 
-        showDBPointsButton.setSize(dbButtonWidth, dbButtonHeight);
-        showDBPointsButton.setPosition(margin, margin + startButton.getHeight() + 10);
+        //showDBPointsButton.setSize(dbButtonWidth, dbButtonHeight);
+        //showDBPointsButton.setPosition(margin, margin + startButton.getHeight() + 10);
 
 
-        showDBPointsButton.addListener(new ClickListener() {
+        /*showDBPointsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("GameScreen", "Show DB Points button clicked.");
                 showDatabasePointsDialog();
             }
-        });
+        });*/
 
         TextButton toggleEditModeButton = new TextButton("Edit Mode: OFF", skin);
 
@@ -318,7 +320,8 @@ public class GameScreen extends ScreenAdapter {
         toggleWidth = MathUtils.clamp(toggleWidth, 100f, 200f);
         toggleHeight = MathUtils.clamp(toggleHeight, 40f, 60f);
         toggleEditModeButton.setSize(toggleWidth, toggleHeight);
-        toggleEditModeButton.setPosition(margin, margin + startButton.getHeight() + showDBPointsButton.getHeight() + 20);
+        //toggleEditModeButton.setPosition(margin, margin + startButton.getHeight() + showDBPointsButton.getHeight() + 20);
+        toggleEditModeButton.setPosition(margin, margin + startButton.getHeight() + 20);
 
 
         toggleEditModeButton.addListener(new ClickListener() {
@@ -359,7 +362,7 @@ public class GameScreen extends ScreenAdapter {
         stage.addActor(menuButton);
 
         stage.addActor(startButton);
-        stage.addActor(showDBPointsButton);
+        //stage.addActor(showDBPointsButton);
 
         GestureDetector gestureDetector = new GestureDetector(new GestureDetector.GestureAdapter() {
             @Override
@@ -478,112 +481,6 @@ public class GameScreen extends ScreenAdapter {
     }
 
 
-
-    private void showDatabasePointsDialog() {
-
-        Table table = new Table();
-        table.top().left();
-        table.pad(5);
-
-        boolean hasDropdown = false;
-
-
-        for (int i = 0; i < databasePoints.size(); i++) {
-            LocationInfo point = databasePoints.get(i);
-
-
-            String label = "Point " + (i + 1) + ": " + point.getLocationName();
-            Label pointLabel = new Label(label, skin);
-            pointLabel.setColor(Color.BLACK);
-            table.add(pointLabel).padBottom(2).fillX().row();
-
-
-            boolean hasDetails = point.getConnectors() > 0 || point.getConnectorsAvailable() > 0;
-            if (hasDetails) {
-                hasDropdown = true;
-
-
-                Table dropdownContent = new Table();
-                dropdownContent.setVisible(false);
-
-                Label locationNameLabel = new Label("Location Name: " + point.getLocationName(), skin);
-                locationNameLabel.setColor(Color.BLACK);
-                dropdownContent.add(locationNameLabel).padBottom(2).fillX().row();
-
-                Label latitudeLabel = new Label("Latitude: " + point.getLatitude(), skin);
-                latitudeLabel.setColor(Color.BLACK);
-                dropdownContent.add(latitudeLabel).padBottom(2).fillX().row();
-
-                Label longitudeLabel = new Label("Longitude: " + point.getLongitude(), skin);
-                longitudeLabel.setColor(Color.BLACK);
-                dropdownContent.add(longitudeLabel).padBottom(2).fillX().row();
-
-                Label connectorsLabel = new Label("Connectors: " + point.getConnectors(), skin);
-                connectorsLabel.setColor(Color.BLACK);
-                dropdownContent.add(connectorsLabel).padBottom(2).fillX().row();
-
-                Label connectorsAvailableLabel = new Label("Connectors Available: " + point.getConnectorsAvailable(), skin);
-                connectorsAvailableLabel.setColor(Color.BLACK);
-                dropdownContent.add(connectorsAvailableLabel).padBottom(2).fillX().row();
-
-
-                pointLabel.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        dropdownContent.setVisible(!dropdownContent.isVisible());
-                        table.invalidate();
-                    }
-                });
-
-
-                table.add(dropdownContent).padLeft(15).padBottom(5).fillX().row();
-            }
-
-
-            final int index = i;
-            pointLabel.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-
-                    highlightSelectedPoint(index);
-
-
-                    scheduleHighlightReset();
-                }
-            });
-        }
-
-
-        float dialogWidth = stage.getWidth() * (hasDropdown ? 0.6f : 0.4f);
-        float dialogHeight = stage.getHeight() * (hasDropdown ? 0.7f : 0.5f);
-
-
-        Dialog dialog = new Dialog("Database Points", skin);
-        dialog.getTitleLabel().setAlignment(Align.center);
-        dialog.setSize(dialogWidth, dialogHeight);
-        dialog.setPosition((stage.getWidth() - dialogWidth) / 2, (stage.getHeight() - dialogHeight) / 2);
-
-
-        if (hasDropdown) {
-            ScrollPane scrollPane = new ScrollPane(table, skin);
-            scrollPane.setScrollingDisabled(true, false);
-            dialog.getContentTable().add(scrollPane).expand().fill().pad(10);
-        } else {
-            dialog.getContentTable().add(table).expand().fill().pad(10);
-        }
-
-
-        dialog.button("Close", true);
-
-
-        dialog.show(stage);
-    }
-
-
-
-
-
-
     private void initializeSelectablePoints() {
         selectablePoints.clear();
         for (LocationInfo point : databasePoints) {
@@ -591,36 +488,6 @@ public class GameScreen extends ScreenAdapter {
         }
         Gdx.app.log("SelectablePoints", "Total points: " + selectablePoints.size());
     }
-
-
-    private void highlightSelectedPoint(int index) {
-
-        for (SelectablePoint selectablePoint : selectablePoints) {
-            selectablePoint.isHighlighted = false;
-        }
-
-
-        if (index >= 0 && index < selectablePoints.size()) {
-            selectablePoints.get(index).isHighlighted = true;
-        }
-
-
-        scheduleHighlightReset();
-    }
-
-
-    private void scheduleHighlightReset() {
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-
-                for (SelectablePoint selectablePoint : selectablePoints) {
-                    selectablePoint.isHighlighted = false;
-                }
-            }
-        }, 2);
-    }
-
 
     private InputProcessor createInputProcessor() {
         return new InputAdapter() {
@@ -723,24 +590,6 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-
-        for (int i = 0; i < selectablePoints.size(); i++) {
-            SelectablePoint selectablePoint = selectablePoints.get(i);
-            LocationInfo point = selectablePoint.geolocation;
-            Vector2 position = MapRasterTiles.getPixelPosition(point.getLatitude(), point.getLongitude(), beginTile.x, beginTile.y);
-
-
-            if (selectablePoint.isHighlighted) {
-                spriteBatch.draw(markerIcon, position.x - 12, position.y - 12, 24, 24);
-                font.setColor(Color.YELLOW);
-            } else {
-                spriteBatch.draw(markerIcon, position.x - 8, position.y - 8, 16, 16);
-                font.setColor(Color.BLUE);
-            }
-            font.draw(spriteBatch, point.getLocationName(), position.x + 10, position.y + 10);
-        }
-
-
         if (selectedPoints.size() >= 1) {
             Geolocation start = selectedPoints.get(0);
             Vector2 startPos = MapRasterTiles.getPixelPosition(start.lat, start.lng, beginTile.x, beginTile.y);
@@ -777,9 +626,62 @@ public class GameScreen extends ScreenAdapter {
             drawRoute();
         }
 
+        drawChargePoints();
+
         stage.act(delta);
         stage.draw();
     }
+
+    private void drawChargePoints() {
+        if (databasePoints.isEmpty()) return;
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        for (LocationInfo point : databasePoints) {
+
+            Vector2 position = MapRasterTiles.getPixelPosition(
+                point.getLatitude(),
+                point.getLongitude(),
+                beginTile.x,
+                beginTile.y
+            );
+
+
+            float radius = 20;
+            shapeRenderer.setColor(Color.DARK_GRAY);
+            shapeRenderer.circle(position.x, position.y, radius);
+
+
+            float availableRatio = (float) point.getConnectorsAvailable() / point.getConnectors();
+            shapeRenderer.setColor(Color.GREEN);
+            shapeRenderer.arc(position.x, position.y, radius, 90, availableRatio * 360);
+        }
+
+        shapeRenderer.end();
+
+
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+        for (LocationInfo point : databasePoints) {
+            Vector2 position = MapRasterTiles.getPixelPosition(
+                point.getLatitude(),
+                point.getLongitude(),
+                beginTile.x,
+                beginTile.y
+            );
+
+            font.setColor(Color.BLACK);
+            font.draw(spriteBatch, point.getLocationName(), position.x - 24 + 1, position.y + 30 - 1);
+
+
+            font.setColor(Color.LIGHT_GRAY);
+            font.getData().setScale(1.3f);
+            font.draw(spriteBatch, point.getLocationName(), position.x - 24, position.y + 30);
+        }
+        spriteBatch.end();
+    }
+
 
     private Geolocation screenToGeo(float x, float y) {
 
@@ -827,8 +729,8 @@ public class GameScreen extends ScreenAdapter {
         Dialog editDialog = new Dialog(isNewPoint ? "Add New Point" : "Edit Point", skin);
         editDialog.getTitleLabel().setAlignment(Align.center);
 
-        TextField nameField = new TextField(isNewPoint ? "New Point" : point.geolocation.getLocationName(), skin);
-        TextField addressField = new TextField(isNewPoint ? "New Address" : point.geolocation.getAddress(), skin);
+        TextField nameField = new TextField(isNewPoint ? "" : point.geolocation.getLocationName(), skin);
+        TextField addressField = new TextField(isNewPoint ? "" : point.geolocation.getAddress(), skin);
         TextField connectorsField = new TextField(String.valueOf(isNewPoint ? "" : point.geolocation.getConnectors()),skin);
         TextField connectorsAvailableField = new TextField(String.valueOf(isNewPoint ? "" : point.geolocation.getConnectorsAvailable()),skin);
 
