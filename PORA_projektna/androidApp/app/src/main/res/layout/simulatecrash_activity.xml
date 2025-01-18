@@ -91,24 +91,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+
     <EditText
         android:id="@+id/forceText"
         android:layout_width="0dp"
+        android:layout_height="40sp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_input"
+        android:gravity="center"
+        android:hint="0.0"
+        android:inputType="numberDecimal"
+        android:paddingStart="16dp"
         android:textColor="@color/white"
         android:textColorHint="@color/white"
-        android:background="@drawable/rounded_input"
-        app:layout_constraintTop_toBottomOf="@id/timePicker"
-        android:layout_height="40sp"
-        android:paddingStart="16dp"
-        android:gravity="center"
-        android:hint="IDK?????????????????????????????????"
-
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timePicker"
         tools:ignore="RtlSymmetry" />
 
-
-    <!-- Submit Button -->
     <Button
         android:id="@+id/submitButton"
         android:textColor="@color/lightGray"

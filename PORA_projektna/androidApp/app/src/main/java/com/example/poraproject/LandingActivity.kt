@@ -1,9 +1,14 @@
 package com.example.poraproject
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,11 +36,31 @@ class LandingActivity : AppCompatActivity() {
         } else {
             requestPermissions()
         }
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        var username = sharedPreferences.getString("username", null)
+        if (username.isNullOrBlank()) {
+            showNameInputDialog()
+        }
 
         // Map button click listener
-        binding.mapButton.setOnClickListener {
+        binding.addCrashButton.setOnClickListener {
             val intent = Intent(this, MapActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.viewCrashButton.setOnClickListener {
+            val intent = Intent(this, CrashMapActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.simulateCrashButton.setOnClickListener {
+            val intent = Intent(this, SimulatedCrashActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.usernameButton.setOnClickListener {
+            username = sharedPreferences.getString("username", null)
+            showNameInputDialog(username)
         }
 
         // Accident report button click listener
@@ -89,5 +114,41 @@ class LandingActivity : AppCompatActivity() {
         // Optionally stop the service if it is no longer needed
         val serviceIntent = Intent(this, LocationService::class.java)
         stopService(serviceIntent)
+    }
+
+    private fun showNameInputDialog(username: String? = "") {
+        val dialogView = layoutInflater.inflate(R.layout.nameinput, null)
+        val inputField = dialogView.findViewById<EditText>(R.id.name_input)
+        val okButton = dialogView.findViewById<Button>(R.id.ok_button)
+        val cancelButton = dialogView.findViewById<Button>(R.id.cancel_button)
+
+        inputField.setText(username)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        okButton.setOnClickListener {
+            val newUserame = inputField.text.toString().trim()
+            if (newUserame.isNotEmpty()) {
+                val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+
+                editor.putString("username", newUserame)
+                editor.apply()
+
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "Name cannot be empty.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
     }
 }

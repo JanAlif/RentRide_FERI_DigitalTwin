@@ -14,7 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.poraproject.databinding.MapActivityBinding
+import com.example.poraproject.databinding.ActivityCrashMapBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -41,7 +41,7 @@ import java.util.Date
 import java.util.Locale
 
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback {
+class CrashMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -50,7 +50,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         const val COLLECTION_NAME = "trafficaccidents"
     }
 
-    private lateinit var binding: MapActivityBinding
+    private lateinit var binding: ActivityCrashMapBinding
     private lateinit var mapView: MapView
     private lateinit var googleMap: GoogleMap
     private var isReturningFromCrashActivity = false
@@ -63,7 +63,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = MapActivityBinding.inflate(layoutInflater)
+        binding = ActivityCrashMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
@@ -74,25 +74,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-
         binding.addAccidentReport.setOnClickListener{
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    // Create an Intent and pass the latitude and longitude as extras
-                    val intent = Intent(this, CrashActivity::class.java).apply {
-                        putExtra("latitude", location.latitude)
-                        putExtra("longitude", location.longitude)
-                    }
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Unable to retrieve current location.", Toast.LENGTH_SHORT).show()
-                }
-            }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
+            finish()
         }
-
 
         // Request notification permission if targeting Tiramisu or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -118,16 +102,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(maribor, 10f))
         googleMap.uiSettings.isZoomControlsEnabled = true
 
-        // On map click -> open CrashActivity
-        googleMap.setOnMapClickListener { latLng ->
-            googleMap.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
-            val intent = Intent(this, CrashActivity::class.java).apply {
-                putExtra("latitude", latLng.latitude)
-                putExtra("longitude", latLng.longitude)
-            }
-            startActivityForResult(intent, REQUEST_CODE_CRASH_ACTIVITY)
-            finish()
-        }
 
     }
 
@@ -152,7 +126,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             override fun connectionLost(cause: Throwable?) {
-                Toast.makeText(this@MapActivity, "MQTT Connection Lost", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CrashMapActivity, "MQTT Connection Lost", Toast.LENGTH_SHORT).show()
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {

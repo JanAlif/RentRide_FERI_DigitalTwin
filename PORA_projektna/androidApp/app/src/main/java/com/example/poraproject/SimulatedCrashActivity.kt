@@ -44,7 +44,7 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // MQTT Configuration
     private val MQTT_BROKER_URL = "tcp://10.0.2.2:1883" // Replace with your broker's IP
-    private val MQTT_TOPIC = "car/put"
+    private val MQTT_TOPIC = "crash/put"
     private val MQTT_CLIENT_ID = "CrashActivityClient"
     private lateinit var mqttClient: MqttClient
 
@@ -57,10 +57,8 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
         try {
             mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
             mqttClient.connect()
-            Toast.makeText(this, "Connected to MQTT Broker", Toast.LENGTH_SHORT).show()
         } catch (e: MqttException) {
             e.printStackTrace()
-            Toast.makeText(this, "Failed to connect to MQTT Broker", Toast.LENGTH_LONG).show()
         }
 
         // Initialize CrashReport data
@@ -76,7 +74,7 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.crashTitle.setText(crashReport?.title ?: "")
         binding.crashDescription.setText(crashReport?.description ?: "")
-        binding.forceText.setText(crashReport?.force?.toString() ?: "")
+        //binding.forceText.setText(crashReport?.force?.toString() ?: "")
 
         mapView = findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
@@ -160,12 +158,12 @@ class SimulatedCrashActivity : AppCompatActivity(), OnMapReadyCallback {
         }, hour, minute, true).show()
     }
 
-    private fun getCurrentDate(): String {
+    fun getCurrentDate(): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return dateFormat.format(Date())
     }
 
-    private fun getCurrentTime(): String {
+    fun getCurrentTime(): String {
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         return timeFormat.format(Date())
     }

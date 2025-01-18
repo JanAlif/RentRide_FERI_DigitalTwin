@@ -3,6 +3,7 @@ package com.example.poraproject
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Build
@@ -27,7 +28,7 @@ class LocationService : Service() {
     private var lastSpeed: Float = 0f
 
     private val MQTT_BROKER_URL = "tcp://10.0.2.2:1883" // Replace with your broker's IP
-    private val MQTT_TOPIC = "car/put"
+    private val MQTT_TOPIC = "crash/put"
     private val MQTT_CLIENT_ID = "CrashActivityClient"
     private lateinit var mqttClient: MqttClient
 
@@ -40,10 +41,8 @@ class LocationService : Service() {
         try {
             mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
             mqttClient.connect()
-            Toast.makeText(this, "Connected to MQTT Broker", Toast.LENGTH_SHORT).show()
         } catch (e: MqttException) {
             e.printStackTrace()
-            Toast.makeText(this, "Failed to connect to MQTT Broker", Toast.LENGTH_LONG).show()
         }
         Notifications.createNotificationChannel(this)
         // Initialize location updates
@@ -116,6 +115,18 @@ class LocationService : Service() {
     private fun createNotification(contentText: String): Notification {
         val channelId = "location_service_channel"
 
+        // Create a PendingIntent that launches MainActivity when the notification is tapped.
+        val notificationIntent = Intent(this, CrashMapActivity::class.java).apply {
+            // These flags ensure a proper Activity launch behavior
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE  // FLAG_IMMUTABLE is recommended for API 31+
+        )
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -131,6 +142,8 @@ class LocationService : Service() {
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_stat_name) // Replace with your app's icon
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setContentIntent(pendingIntent)   // This is where you determine what happens on tap
+            .setAutoCancel(true)               // Optionally auto-cancel the notification upon tap.
             .build()
     }
 }

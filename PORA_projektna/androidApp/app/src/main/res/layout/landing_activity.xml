@@ -185,17 +185,52 @@
         />-->
 
     <Button
+        android:id="@+id/addCrashButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Dodaj nesrečo"
         android:textColor="@color/lightGray"
         android:textColorHint="@color/lightGray"
-        android:id="@+id/mapButton"
-        android:layout_width="0dp"
         app:backgroundTint="@color/paleYellow"
-        android:layout_height="wrap_content"
-        android:text="Zemljevid"
-        app:layout_constraintStart_toStartOf="@id/guideline4"
         app:layout_constraintEnd_toStartOf="@id/guideline3"
-        app:layout_constraintTop_toBottomOf="@id/guideline2"
-        />
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintTop_toBottomOf="@id/guideline2" />
+
+    <Button
+        android:id="@+id/viewCrashButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Poglej nesreče"
+        android:textColor="@color/lightGray"
+        android:textColorHint="@color/lightGray"
+        app:backgroundTint="@color/paleYellow"
+        app:layout_constraintEnd_toStartOf="@id/guideline3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/addCrashButton" />
+
+    <Button
+        android:id="@+id/simulateCrashButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Simuliraj nesrečo"
+        android:textColor="@color/lightGray"
+        android:textColorHint="@color/lightGray"
+        app:backgroundTint="@color/paleYellow"
+        app:layout_constraintEnd_toStartOf="@id/guideline3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/viewCrashButton" />
+
+    <ImageView
+        android:id="@+id/usernameButton"
+        android:layout_width="59dp"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/user_icon" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

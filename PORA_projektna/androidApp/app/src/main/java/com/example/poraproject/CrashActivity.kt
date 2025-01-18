@@ -1,6 +1,7 @@
 package com.example.poraproject
 
 import CrashReport2
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +20,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.eclipse.paho.client.mqttv3.MqttClient
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.json.JSONObject
 
 class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
@@ -31,10 +36,44 @@ class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
     private var selectedLocation: LatLng? = null
     private var crashReport: CrashReport2? = null
 
+    private var selectedDate: String = SimulatedCrashActivity().getCurrentDate()
+    private var selectedTime: String = SimulatedCrashActivity().getCurrentTime()
+
+
+    private val MQTT_BROKER_URL = "tcp://10.0.2.2:1883" // Replace with your broker's IP
+    private val MQTT_TOPIC = "crash/put"
+    private val MQTT_CLIENT_ID = "CrashActivityClient"
+    private lateinit var mqttClient: MqttClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CrashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        var username = sharedPreferences.getString("username", null)
+
+        try {
+            mqttClient = MqttClient(MQTT_BROKER_URL, MQTT_CLIENT_ID, MemoryPersistence())
+            mqttClient.connect()
+        } catch (e: MqttException) {
+            e.printStackTrace()
+        }
+
+        // Initialize CrashReport data
+        crashReport = CrashReport2(
+            title = intent.getStringExtra("title") ?: "",
+            description = intent.getStringExtra("description") ?: "",
+            latitude = intent.getDoubleExtra("latitude", 0.0),
+            longitude = intent.getDoubleExtra("longitude", 0.0),
+            resolvedAddress = intent.getStringExtra("resolvedAddress") ?: "",
+            user = username ?: "",
+            timeOfReport = intent.getStringExtra("timeOfReport") ?: "$selectedDate $selectedTime",
+            force = intent.getDoubleExtra("force", 0.0)
+        )
+
+        binding.crashTitle.setText(crashReport?.title ?: "")
+        binding.crashDescription.setText(crashReport?.description ?: "")
 
         mapView = findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
@@ -43,6 +82,44 @@ class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
 
         binding.cancelButton.setOnClickListener {
             finish()
+        }
+
+        binding.submitButton.setOnClickListener {
+            val updatedTitle = binding.crashTitle.text.toString()
+            val updatedDescription = binding.crashDescription.text.toString()
+            val location = selectedLocation ?: LatLng(crashReport?.latitude ?: 0.0, crashReport?.longitude ?: 0.0)
+
+            resolveAddressUsingGoogleMaps(location.latitude, location.longitude) { resolvedAddress ->
+                val updatedCrashReport = CrashReport2(
+                    title = updatedTitle,
+                    description = updatedDescription,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    resolvedAddress = resolvedAddress,
+                    user = username ?: "",
+                    timeOfReport = "$selectedDate $selectedTime"
+                )
+
+                val payload = JSONObject().apply {
+                    put("title", updatedCrashReport.title)
+                    put("description", updatedCrashReport.description)
+                    put("latitude", updatedCrashReport.latitude)
+                    put("longitude", updatedCrashReport.longitude)
+                    put("user", updatedCrashReport.user)
+                    put("timeOfReport", updatedCrashReport.timeOfReport)
+                }.toString()
+
+                try {
+                    val mqttMessage = MqttMessage(payload.toByteArray())
+                    mqttMessage.qos = 1
+                    mqttClient.publish(MQTT_TOPIC, mqttMessage)
+                    Toast.makeText(this, "Crash report sent to MQTT broker.", Toast.LENGTH_LONG).show()
+                    finish()
+                } catch (e: MqttException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Failed to send data to MQTT broker.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
 
@@ -57,6 +134,10 @@ class CrashActivity: AppCompatActivity(), OnMapReadyCallback {
         val longitude = crashReport?.longitude ?: 0.0
 
         // Enable zoom controls
+        // Disable all gestures...
+        googleMap.uiSettings.setAllGesturesEnabled(false)
+        // ... then enable only zoom gestures and controls.
+        googleMap.uiSettings.isZoomGesturesEnabled = true
         googleMap.uiSettings.isZoomControlsEnabled = true
 
         if (latitude != 0.0 && longitude != 0.0) {
