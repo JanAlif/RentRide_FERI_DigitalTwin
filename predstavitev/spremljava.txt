@@ -1,0 +1,13 @@
+spremni text
+
+Uporabnik lahko izbere avto ki je na voljo v njegovi bližini, ga rezrvira.
+Izbere lokacijo pri čemer mu google places API pomaga, izbere lahko tudi dodatne omejitve recimo da ne želi po avtocesti ali da se izogne cestninam. 
+Nato izbere čas kdja bi vožnjo želel opraviti ter izbere ali želi optimistični ali pesimistični čas prihoda na destinacijo, eden pove najhitrejši čas drugi pa kasnejšega.
+nato izriše pot
+Zaradi finančnih omejitev smo samo simulirali samo vožnjo, speedup pomeni kolikokrat hitrejša naj bo animacija vožnje, 1 pomeni realnočasovno
+
+apk:
+	Z uporabo gumba zgoraj desno lahko spremenimo ime uporabnika. Za dodajanje nesreče kliknemo na zemljevid na lokaciji, kjer se je nesreča zgodila, 
+    kar nas preusmeri na stran za vnos dodatnih podatkov. Nesrečo shranimo s klikom na gumb ‘Potrdi’. Na zemljevidu so prikazane nesreče, ki so se zgodile 
+    pred največ enim dnem. Ob kliku na posamezno nesrečo si lahko ogledamo več podrobnosti. Aplikacija v ozadju konstantno spremlja hitrost premikanja 
+    telefona, in če zazna nenadno spremembo hitrosti – z visoke na nizko hitrost – avtomatsko zazna nesrečo ter jo shrani v bazo podatkov.
